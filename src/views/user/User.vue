@@ -5,22 +5,27 @@
     </div>
     <div class="list">
       <el-table :data="users" style="width: 100%;background:#fff0" size="mini">
-        <el-table-column label="姓名" prop="name"></el-table-column>
-        <el-table-column label="角色" prop="role"></el-table-column>
-        <el-table-column label="头像" prop="avatar">
+        <el-table-column label="姓名" prop="username"></el-table-column>
+        <el-table-column label="角色">
           <template slot-scope="scope">
-            <img style="width: 30px" :src="scope.row.avatar" alt="">
+            {{formatRole(scope.row.roles)}}
+          </template>
+        </el-table-column>
+        <el-table-column label="头像">
+          <template>
+            <!-- <img style="width: 30px" :src="scope.row.imageUrl" alt=""> -->
+            <img style="width: 30px" :src="avatar" alt="">
           </template>
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="danger" size="small" @click="editUser(scope.row)">编辑</el-button>
-            <el-button  size="small" @click="deleteUser(scope.row.name)">删除</el-button>
+            <el-button  size="small" @click="deleteUserById(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <AddUser ref="addUserDialog" />
+    <AddUser @addedUser="refreshQuery" ref="addUserDialog" />
     <EditUser ref="editUserDialog" />
   </div>
 </template>
@@ -45,32 +50,19 @@ export default {
       showAddUser: false,
       showEditUser: false,
       activeName: 'first',
-      users: [
-        {
-          name: 'lee',
-          role: 'PC',
-          avatar
-        },
-        {
-          name: 'wang',
-          role: '分线管理员',
-          avatar
-        },
-        {
-          name: 'aLi',
-          role: 'VQ操作员',
-          avatar
-        },
-        {
-          name: 'doudou',
-          role: 'PA操作员',
-          avatar
-        },
-      ]
+      users: [],
+      avatar
     }
   },
   methods: {
     ...mapActions(['requestRoles']),
+    formatRole (roles) {
+      let roleText = ''
+      roles.forEach((role) => {
+        roleText += role.description
+      })
+      return roleText
+    },
     addUser () {
       console.log('add')
       // this.showAddUser = true
@@ -81,6 +73,9 @@ export default {
       // this.showEditUser = true
       this.$refs['editUserDialog'].visible = true
     },
+    refreshQuery () {
+      this.queryAllUser()
+    },
     queryAllUser () {
       queryUsers().then((res) => {
         let { code, result } = res
@@ -90,11 +85,20 @@ export default {
         }
       })
     },
-    deleteUserById (name) {
-      let index = this.users.findIndex((user) => user.name === name)
-      this.users.splice(index, 1)
-      deleteUser(name).then((res) => {
+    deleteUserById (id) {
+      deleteUser(id).then((res) => {
         console.log(res)
+        let { code, desc } = res
+        if (code === 0) {
+          this.queryAllUser()
+          this.$notify.success({
+            message: desc
+          })
+        } else {
+          this.$notify.error({
+            message: desc
+          })
+        }
       })
     }
   },

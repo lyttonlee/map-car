@@ -170,6 +170,7 @@ export default {
             let { code, result, desc } = res
             console.log(result)
             if (code === 0) {
+              this.$emit('addedUser')
               this.$notify.success({
                 message: desc
               })
