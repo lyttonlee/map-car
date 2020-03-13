@@ -1,0 +1,5 @@
+export const DO = 'DO'
+export const LOGOUT = 'LOGOUT'
+export const LOGIN = 'LOGIN'
+export const ADDROUTES = 'ADDROUTES'
+export const ROLES = 'ROLES'
