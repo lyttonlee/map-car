@@ -21,8 +21,13 @@
 
 <script>
 /* eslint-disable no-undef */
-import imgMap from '../assets/img/map.png'
-import car from '../assets/img/car.png'
+import imgMap from '../assets/img/office-map.png'
+import successCar from '../assets/img/car-blue.png'
+import errorCar from '../assets/img/car-red.png'
+import warnCar from '../assets/img/car-yellow.png'
+import {
+  getBindList
+} from '../api/vq'
 // import RepairTrack from '../components/RepairTrack'
 export default {
   name: 'home',
@@ -39,6 +44,9 @@ export default {
       showTrack: false,
       // 是否正在显示车辆详情
       isShowing: false,
+      // 绑定
+      bindCars: [],
+      markers: [],
       showingCar: {},
       cars: [
         { oui: 'dasdas1', bindTime: 1584435419000, isAlarm: true, isDelay: false },
@@ -46,6 +54,58 @@ export default {
         { oui: 'dasdas3', bindTime: 1584435419000, isAlarm: true, isDelay: false },
         { oui: 'dasdas4', bindTime: 1584435419000, isAlarm: false, isDelay: false },
       ]
+    }
+  },
+  sockets: {
+    connect (data) {
+      console.log(data)
+      console.log('已成功连接到socket服务器')
+      // console.log(this.token)
+      // this.$socket.emit('init', this.token)
+    },
+    reconnect () {
+      console.log('socket 重连')
+    },
+    disconnect () {
+      console.log('socket 断开连接')
+    },
+    alarm (data) {
+      // console.log('接收到alarm事件推送')
+      // console.log(data)
+      let newAlarm = JSON.parse(data)
+      console.log(newAlarm)
+      // 将告警加入到告警列表
+      this.alarms.push(newAlarm.content)
+      for (let index = 0; index < 5; index++) {
+        this.alarms.push(newAlarm.content)
+      }
+      // 改变对应marker的状态
+    },
+    position (data) {
+      console.log('接收到position事件推送')
+      console.log(data)
+      const newPos = JSON.parse(data)
+      // console.log(newPos)
+      // 找到对应的marker
+      let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.locatorId)
+      // 移动位置
+      if (markerIndex !== -1) {
+        let currentMarker = this.markers[markerIndex].marker
+        console.log('move')
+        currentMarker.setLatLng([newPos.content.y, newPos.content.x])
+      }
+    },
+    bind (data) {
+      console.log(data)
+      const newCar = JSON.parse(data)
+      console.log(newCar)
+      // 验证这辆车是否已存在与列表中，若存在则无视，若不存在则在车辆列表中添加这辆车并创建一个新的marker
+      const carId = newCar.vehicle.id
+      let hasThisCar = this.bindCars.find((car) => car.vehicle.id === carId)
+      if (!hasThisCar) {
+        this.bindCars.push(newCar)
+        this.renderMarker(newCar)
+      }
     }
   },
   methods: {
@@ -59,46 +119,78 @@ export default {
     },
     closeInfo () {
       this.isShowing = false
-    }
+      this.showingCar = {}
+    },
+    // 创建点marker
+    createPointMarker (statu) {
+      let carImg
+      switch (statu) {
+        case 'alarm':
+          carImg = errorCar
+          break
+        case 'overtime':
+          carImg = warnCar
+          break
+        case 'normal':
+          carImg = successCar
+          break
+        default:
+          carImg = successCar
+          break
+      }
+      // eslint-disable-next-line no-undef
+      // console.log(carImg)
+      const icon = L.icon({
+        iconUrl: carImg
+      })
+      return icon
+    },
+    // 渲染车辆点到地图上
+    renderMarker (car) {
+      let carPos = [car.locator.y, car.locator.x]
+      let icon = this.createPointMarker('normal')
+      const marker = L.marker(carPos, {
+        icon,
+        title: car.vehicle.name + ' ' + car.locator.y + ' ' + car.locator.x
+      })
+      this.markers.push({
+        marker,
+        id: car.vehicle.id,
+        locatorId: car.locator.id
+      })
+      this.map && marker.addTo(this.map)
+    },
+    // 获取绑定的车辆信息
+    getBindCars () {
+      getBindList().then((res) => {
+        console.log(res)
+        if (res.code === 0) {
+          this.bindCars = res.result
+          if (this.bindCars.length > 0) {
+            this.bindCars.forEach((car) => {
+              this.renderMarker(car)
+            })
+          }
+        }
+      })
+    },
   },
   mounted () {
     // eslint-disable-next-line no-undef
     const map = L.map('map', {
-      center: [2, 2],
-      zoom: 3,
+      center: [4, -10],
+      zoom: 6,
       zoomControl: false, // 默认不显示缩放按钮
       attributionControl: false // 不显示leaflet 图标logo
 
     })
     // console.log(map)
     const imgUrl = imgMap
-    const imgBounds = [[-60, -100], [60, 100]]
+    const imgBounds = [[-0.8, -22.4], [8.0, 1.2]]
     // eslint-disable-next-line no-undef
     L.imageOverlay(imgUrl, imgBounds).addTo(map)
-    // map.removeControl()
-    // 添加车
-    // eslint-disable-next-line no-undef
-    const carIcon = L.icon({
-      iconUrl: car,
-      iconSize: [20, 20],
-      iconAnchor: [1, 1],
-    })
-    // eslint-disable-next-line no-undef
-    const carMarker = L.marker([15, 25], { icon: carIcon, autoPan: true, draggable: true })
-    carMarker.bindPopup(`<h3>我就是一辆车</h3>`).openPopup()
-    carMarker.addTo(map)
-    console.log(map)
-    let [x, y] = [20, 30]
-    // requestAnimationFrame(() => {
-    //   carMarker.setLatLng([x + 1, y + 1])
-    // })
-    this.cartime = setInterval(() => {
-      // console.log(i)
-      // console.log(x)
-      carMarker.setLatLng([x++, y++])
-    }, 500)
-    console.log(L.latLng([25, 40]).toBounds(2))
-    console.log(window.WebSocket)
+    this.map = map
+    this.getBindCars()
   },
   beforeDestroy () {
     this.cartime && clearInterval(this.cartime)
