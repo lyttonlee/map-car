@@ -19,3 +19,7 @@ export const getAllRoles = () => {
 export const getUserStatus = () => {
   return request.get('/common/v1.0/userStatus')
 }
+
+export const editUser = (user) => {
+  return request.post('/api/users/v1.0/update', user)
+}

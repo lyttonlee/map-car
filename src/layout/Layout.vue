@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <TestVoice />
+    <!-- <TestVoice /> -->
     <!-- <div class="select" @click="showSelect">
       选择产线(仅为PC时显示)
     </div> -->
@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import TestVoice from '@/components/TestVoice'
+// import TestVoice from '@/components/TestVoice'
 import Side from '@/components/Side'
 import ToggleMenu from '@/components/ToggleMenu'
 // import SelectLine from './components/SelectLine'
@@ -42,7 +42,7 @@ export default {
     }
   },
   components: {
-    TestVoice,
+    // TestVoice,
     Side,
     ToggleMenu,
     // SelectLine

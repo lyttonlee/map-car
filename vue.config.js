@@ -1,4 +1,5 @@
 module.exports = {
+  assetsDir: 'static',
   lintOnSave: true,
   devServer: {
     overlay: {
@@ -11,7 +12,7 @@ module.exports = {
         target: 'http://192.168.1.205:8089',
         changeOrigin: true
       },
-      'common': {
+      '/common': {
         // target: 'http://cdzyyc.xicp.io:7578',
         target: 'http://192.168.1.205:8089',
         changeOrigin: true

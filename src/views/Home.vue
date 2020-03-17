@@ -5,16 +5,17 @@
       <el-input size="small" placeholder="请输入要查询的车辆"></el-input>
     </div> -->
     <div class="switch" @click="toggleShowSide">
-      close
+      <zx-icon :type="showSide ? 'zx-guanbi1' : 'zx-Group-'" />
     </div>
     <div class="list" v-if="showSide">
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
       <el-input size="small" placeholder="请输入要查询的车辆"></el-input>
-      <CarList :cars="cars" />
+      <CarList @showCarInfo="showCarInfo" :cars="cars" />
     </div>
-    <RepairTrack ref="repairTrack" />
+    <CarInfo :car="showingCar" @close="closeInfo" v-show="isShowing" />
+    <!-- <RepairTrack ref="repairTrack" /> -->
   </div>
 </template>
 
@@ -22,22 +23,26 @@
 /* eslint-disable no-undef */
 import imgMap from '../assets/img/map.png'
 import car from '../assets/img/car.png'
-import RepairTrack from '../components/RepairTrack'
+// import RepairTrack from '../components/RepairTrack'
 export default {
   name: 'home',
   components: {
     // HelloWorld
     // RepairTrack: () => import('../components/RepairTrack')
-    RepairTrack,
-    CarList: () => import('@/components/CarList')
+    // RepairTrack,
+    CarList: () => import('@/components/CarList'),
+    CarInfo: () => import('@/components/CarInfo')
   },
   data () {
     return {
       showSide: true,
       showTrack: false,
+      // 是否正在显示车辆详情
+      isShowing: false,
+      showingCar: {},
       cars: [
         { oui: 'dasdas1', bindTime: 121323123, isAlarm: true, isDelay: false },
-        { oui: 'dasdas2', bindTime: 121323123, isAlarm: true, isDelay: true },
+        { oui: 'dasdas2', bindTime: 121323123, isAlarm: false, isDelay: true },
         { oui: 'dasdas3', bindTime: 121323123, isAlarm: true, isDelay: false },
         { oui: 'dasdas4', bindTime: 121323123, isAlarm: false, isDelay: false },
       ]
@@ -47,11 +52,14 @@ export default {
     toggleShowSide () {
       this.showSide = !this.showSide
     },
-    showCar () {
-      console.log('show car')
-      // this.showTrack = true
-      this.$refs['repairTrack'].visible = true
+    showCarInfo (car) {
+      console.log(car)
+      this.isShowing = true
+      this.showingCar = car
     },
+    closeInfo () {
+      this.isShowing = false
+    }
   },
   mounted () {
     // eslint-disable-next-line no-undef
@@ -126,10 +134,11 @@ export default {
     }
   }
   .switch {
+    font-size: 0.8rem;
     padding: 15px;
     position: fixed;
     top: 20px;
-    right: 25px;
+    right: 20px;
     z-index: 1002;
     cursor: pointer;
   }

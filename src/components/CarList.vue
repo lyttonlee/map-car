@@ -7,8 +7,8 @@
     </div>
     <div class="list">
       <template v-for="(car, index) in renderedCars">
-        <div class="list-item" :key="index">
-          <div class="car-icon">
+        <div class="list-item" @click="showCarInfo(car)" :key="index">
+          <div :class="computeCarClassColorByStatu(car.isAlarm, car.isDelay)">
             <zx-icon type="zx-car2"></zx-icon>
           </div>
           <div class="car-oui">{{car.oui}}</div>
@@ -42,7 +42,8 @@ export default {
       this.renderedCars = this.cars
     },
     formatTime (s) {
-      return moment.duration(s, 's').asHours().toFixed(2)
+      let repairTime = moment().valueOf() - s
+      return moment.duration(repairTime, 's').asHours().toFixed(2)
     },
     changeMenu (index) {
       if (this.activeIndex !== index) {
@@ -62,6 +63,20 @@ export default {
             break
         }
       }
+    },
+    // 计算车辆应该显示的颜色
+    computeCarClassColorByStatu (alarm, delay) {
+      if (alarm) {
+        return 'error'
+      } else if (delay) {
+        return 'warn'
+      } else {
+        return 'normal'
+      }
+    },
+    // 点击车辆显示详情
+    showCarInfo (car) {
+      this.$emit('showCarInfo', car)
     }
   }
 }

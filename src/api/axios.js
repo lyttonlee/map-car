@@ -10,14 +10,19 @@ const request = axios.create({
 
 const err = (error) => {
   console.log(error)
+  // console.log(error.response)
   if (error.response && error.response.status === 401) {
     const isLoginPage = () => router.history.current.path === '/login'
-    if (!isLoginPage) {
+    // console.log(401)
+    if (!isLoginPage()) {
       Notification.error({
         message: '鉴权失败,请重新登录!'
       })
       router.push('/login')
     }
+  }
+  if (error.response && error.response.status === 400) {
+    console.log('bad')
   }
   return Promise.reject(error)
 }

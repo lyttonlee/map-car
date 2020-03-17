@@ -13,7 +13,7 @@ export const getBindList = () => {
 }
 
 export const getAlarmList = () => {
-  return request.get('/api/alarm/v1.0/alarms')
+  return request.post('/api/alarm/v1.0/alarms', {})
 }
 
 export const getAlalrmTypes = () => {

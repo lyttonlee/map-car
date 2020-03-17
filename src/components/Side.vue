@@ -4,6 +4,7 @@
       <img src="../assets/logo.png" class="avatar" alt="avatar">
       <div>Mack Sire</div>
       <div>VQ manger</div>
+      <el-button class="logout" size="small" type="danger" @click="logout">退出登录</el-button>
     </div>
     <div class="menu">
       <template v-for="(menu, index) in renderRoutes">
@@ -31,6 +32,9 @@ export default {
   },
   methods: {
     ...mapActions(['addExtraRoute']),
+    logout () {
+      this.$router.push('/login')
+    },
     selectMenu (index, path) {
       console.log(index)
       console.log(path)
@@ -73,6 +77,9 @@ export default {
       width: 80px;
       border-radius: 50%;
       border: 1px solid @page-color;
+    }
+    .logout {
+      margin-top: 10px;
     }
   }
   .menu {

@@ -162,8 +162,8 @@ export default {
       // 改变对应marker的状态
     },
     position (data) {
-      // console.log('接收到position事件推送')
-      // console.log(data)
+      console.log('接收到position事件推送')
+      console.log(data)
       const newPos = JSON.parse(data)
       // console.log(newPos)
       // 找到对应的marker
@@ -176,9 +176,9 @@ export default {
       }
     },
     bind (data) {
-      // console.log(data)
+      console.log(data)
       const newCar = JSON.parse(data)
-      // console.log(newCar)
+      console.log(newCar)
       // 验证这辆车是否已存在与列表中，若存在则无视，若不存在则在车辆列表中添加这辆车并创建一个新的marker
       const carId = newCar.vehicle.id
       let hasThisCar = this.bindCars.find((car) => car.vehicle.id === carId)
@@ -228,7 +228,7 @@ export default {
       getAlarmList().then((res) => {
         console.log(res)
         if (res.code === 0) {
-          this.alarms = res.result
+          this.alarms = res.result.resultList
         }
       })
     },
@@ -528,7 +528,7 @@ export default {
     // 地图加载
     // eslint-disable-next-line no-undef
     const map = L.map('map-small', {
-      center: [5, 3],
+      center: [4, -10],
       zoom: 6,
       zoomControl: false, // 默认不显示缩放按钮
       attributionControl: false // 不显示leaflet 图标logo
@@ -536,7 +536,8 @@ export default {
     })
     // console.log(map)
     const imgUrl = imgMap
-    const imgBounds = [[0, 0], [6.78, 11]]
+    // 相对应来说点位(左下 右上) [[y,x],[y,x]]
+    const imgBounds = [[-0.8, -22.4], [8.0, 1.2]]
     // eslint-disable-next-line no-undef
     L.imageOverlay(imgUrl, imgBounds).addTo(map)
     this.map = map

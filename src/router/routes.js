@@ -96,6 +96,16 @@ export const routes = [
         }
       },
       {
+        path: '/cars',
+        name: '车辆管理',
+        component: () => import(/* webpackChunkName: "cars" */ '../views/cars/Cars.vue'),
+        meta: {
+          auth: true,
+          icon: 'zx-tongji1',
+          role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
+        }
+      },
+      {
         path: '/alarm',
         name: '告警管理',
         component: () => import(/* webpackChunkName: "about" */ '../views/alarm/Alarm.vue'),
@@ -118,11 +128,21 @@ export const routes = [
       {
         path: '/system',
         name: '系统管理',
-        component: () => import(/* webpackChunkName: "about" */ '../views/system/System.vue'),
+        component: () => import(/* webpackChunkName: "system" */ '../views/system/System.vue'),
         meta: {
           auth: true,
           icon: 'zx-tongji1',
           role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
+        }
+      },
+      {
+        path: '/fence',
+        name: '围栏管理',
+        component: () => import(/* webpackChunkName: "fence" */ '../views/fence/Fence.vue'),
+        meta: {
+          auth: true,
+          icon: 'zx-tongji1',
+          role: ['SuperAdmin']
         }
       },
       // {
@@ -136,6 +156,14 @@ export const routes = [
       //   }
       // }
     ]
+  },
+  {
+    path: '/unauth',
+    name: '访问权限',
+    component: () => import(/* webpackChunkName: "about" */ '../views/UnAuth.vue'),
+    meta: {
+      auth: false
+    }
   }
 ]
 

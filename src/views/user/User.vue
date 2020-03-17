@@ -68,10 +68,11 @@ export default {
       // this.showAddUser = true
       this.$refs['addUserDialog'].visible = true
     },
-    editUser () {
-      console.log('edit')
+    editUser (user) {
+      console.log(user)
       // this.showEditUser = true
       this.$refs['editUserDialog'].visible = true
+      this.$refs['editUserDialog'].setFormField(user)
     },
     refreshQuery () {
       this.queryAllUser()

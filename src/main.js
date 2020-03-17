@@ -21,6 +21,7 @@ Vue.use(new VueSocketIo({
 
 router.beforeEach((to, from, next) => {
   const token = store.state.token || localStorage.getItem('token')
+  const roles = store.state.roles || localStorage.getItem('roles')
   // const hasAddRoute = store.state.hasAdded
   // if (!hasAddRoute && token) {
   //   // 添加路由
@@ -30,10 +31,21 @@ router.beforeEach((to, from, next) => {
   //   store.dispatch('addExtraRoute', localStorage.getItem('roles'))
   // }
   // 要去的页面需要登录权限
+  let canVisit = (roles) => {
+    console.log(to)
+    return to.meta.role.includes(roles)
+  }
   if (to.meta.auth) {
     // 再判断是否是登录状态
     if (token) {
-      next()
+      console.log(canVisit(roles))
+      if (!canVisit(roles)) { // 去的是没有访问权限的页面
+        next({
+          path: '/unauth'
+        })
+      } else {
+        next()
+      }
     } else {
       next({
         path: '/login'

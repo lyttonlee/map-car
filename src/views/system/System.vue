@@ -1,25 +1,23 @@
 <template>
   <div class="page">
-    <h3>系统管理按登录人员不同，呈现内同不同</h3>
-    <h4>vq操作员 只显示自己的操作记录, PC，管理员会显示所有人员操作日志记录， 科室人员应该无此页面</h4>
     <div class="search">
-      <el-input placeholder="搜索筛选框"></el-input>
+      <el-input placeholder="请输入要查询的日志"></el-input>
     </div>
     <el-table :data="logs" style="width: 100%;background:#fff0" size="mini">
       <el-table-column label="人员" prop="name"></el-table-column>
       <el-table-column label="事件内容" prop="event"></el-table-column>
       <el-table-column label="时间" prop="time"></el-table-column>
     </el-table>
-    <div class="test">
+    <!-- <div class="test">
       <Roll />
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
-import Roll from '../../components/roll/RollList'
+// import Roll from '../../components/roll/RollList'
 export default {
   components: {
-    Roll
+    // Roll
   },
   data () {
     return {
