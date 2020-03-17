@@ -6,6 +6,13 @@
       </template>
     </div>
     <div class="list">
+      <div class="list-item">
+        <div>
+          车辆状态
+        </div>
+        <div class="car-oui">车架号</div>
+        <div class="car-time">维修时长</div>
+      </div>
       <template v-for="(car, index) in renderedCars">
         <div class="list-item" @click="showCarInfo(car)" :key="index">
           <div :class="computeCarClassColorByStatu(car.isAlarm, car.isDelay)">

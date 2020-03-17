@@ -14,6 +14,10 @@ import Icon from '@/components/Icon'
 // socket.io
 import VueSocketIo from 'vue-socket.io'
 
+// moment
+import moment from 'moment'
+
+Vue.prototype.$moment = moment
 Vue.use(new VueSocketIo({
   debug: false,
   connection: 'http://192.168.1.205:9099'

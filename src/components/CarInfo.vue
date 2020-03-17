@@ -6,7 +6,8 @@
     <div class="car-info">
       <div class="item">车辆型号: 本田飞度</div>
       <div class="item">车架号码: 3213下23123</div>
-      <div class="item">维修时间: 2020-3-17 12：41</div>
+      <div class="item">车辆问题: xxxxx</div>
+      <div class="item">入荷时间: 2020-3-17 12：41</div>
       <div class="item">维修时长: 3.5小时</div>
       <div class="item">当前状态: 正常</div>
       <div class="item">当前位置: XXXxxxx处</div>

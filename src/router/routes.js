@@ -27,7 +27,7 @@ export const routes = [
       },
       {
         path: '/vq',
-        name: 'VQ整车品质科',
+        name: '系统看板',
         component: () => import(/* webpackChunkName: "about" */ '../views/VQ.vue'),
         meta: {
           auth: true,

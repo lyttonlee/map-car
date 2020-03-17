@@ -41,10 +41,10 @@ export default {
       isShowing: false,
       showingCar: {},
       cars: [
-        { oui: 'dasdas1', bindTime: 121323123, isAlarm: true, isDelay: false },
-        { oui: 'dasdas2', bindTime: 121323123, isAlarm: false, isDelay: true },
-        { oui: 'dasdas3', bindTime: 121323123, isAlarm: true, isDelay: false },
-        { oui: 'dasdas4', bindTime: 121323123, isAlarm: false, isDelay: false },
+        { oui: 'dasdas1', bindTime: 1584435419000, isAlarm: true, isDelay: false },
+        { oui: 'dasdas2', bindTime: 1584435419000, isAlarm: false, isDelay: true },
+        { oui: 'dasdas3', bindTime: 1584435419000, isAlarm: true, isDelay: false },
+        { oui: 'dasdas4', bindTime: 1584435419000, isAlarm: false, isDelay: false },
       ]
     }
   },

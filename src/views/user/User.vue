@@ -6,6 +6,7 @@
     <div class="list">
       <el-table :data="users" style="width: 100%;background:#fff0" size="mini">
         <el-table-column label="姓名" prop="username"></el-table-column>
+        <el-table-column label="昵称" prop="nickname"></el-table-column>
         <el-table-column label="角色">
           <template slot-scope="scope">
             {{formatRole(scope.row.roles)}}
@@ -15,6 +16,11 @@
           <template>
             <!-- <img style="width: 30px" :src="scope.row.imageUrl" alt=""> -->
             <img style="width: 30px" :src="avatar" alt="">
+          </template>
+        </el-table-column>
+        <el-table-column label="创建时间">
+          <template slot-scope="scope">
+            <div>{{$moment(scope.row.createTime).format('YYYY-MM-DD HH:mm:ss')}}</div>
           </template>
         </el-table-column>
         <el-table-column label="操作">
