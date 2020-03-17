@@ -167,7 +167,7 @@ export default {
       const newPos = JSON.parse(data)
       // console.log(newPos)
       // 找到对应的marker
-      let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.locatorId)
+      let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
       // 移动位置
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker

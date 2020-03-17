@@ -7,6 +7,11 @@
       <el-table-column label="类型" prop="name"></el-table-column>
       <el-table-column label="状态" prop="statu"></el-table-column>
       <el-table-column label="时间" prop="time"></el-table-column>
+      <el-table-column label="位置">
+        <template>
+          <div>xxxxx</div>
+        </template>
+      </el-table-column>
       <el-table-column label="操作">
         <template>
           <el-button size="small" type="danger">处理告警</el-button>
