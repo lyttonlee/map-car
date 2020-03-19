@@ -92,7 +92,11 @@ export default {
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker
         console.log('move')
-        currentMarker.setLatLng([newPos.content.y, newPos.content.x])
+        // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
+        currentMarker.moveTo([newPos.content.y, newPos.content.x], 500)
+        setTimeout(() => {
+          currentMarker.setRotation(newPos.content.deg || 0)
+        }, 600)
       }
     },
     bind (data) {
@@ -149,10 +153,20 @@ export default {
     renderMarker (car) {
       let carPos = [car.locator.y, car.locator.x]
       let icon = this.createPointMarker('normal')
-      const marker = L.marker(carPos, {
+      // const marker = L.marker(carPos, {
+      //   icon,
+      //   title: car.vehicle.name + ' ' + car.locator.y + ' ' + car.locator.x
+      // })
+      const marker = L.Marker.movingMarker([carPos], [], {
+        rotate: true,
         icon,
+        initialRotationAngle: 90,
         title: car.vehicle.name + ' ' + car.locator.y + ' ' + car.locator.x
       })
+      marker.moveTo([2, -8], 500)
+      setTimeout(() => {
+        marker.setRotation(125)
+      }, 600)
       this.markers.push({
         marker,
         id: car.vehicle.id,
@@ -180,6 +194,8 @@ export default {
     const map = L.map('map', {
       center: [4, -10],
       zoom: 6,
+      minZoom: 6,
+      maxZoom: 6,
       zoomControl: false, // 默认不显示缩放按钮
       attributionControl: false // 不显示leaflet 图标logo
 
