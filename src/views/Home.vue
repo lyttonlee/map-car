@@ -167,12 +167,21 @@ export default {
       setTimeout(() => {
         marker.setRotation(125)
       }, 600)
+      // 为marker绑上车和定位器的ID
+      marker.carId = car.vehicle.id
+      marker.locatorId = car.locator.id
+      marker.on('click', this.clickMarker)
       this.markers.push({
         marker,
         id: car.vehicle.id,
         locatorId: car.locator.id
       })
       this.map && marker.addTo(this.map)
+    },
+    // 点击marker
+    clickMarker (ev) {
+      console.log(ev)
+      this.isShowing = true
     },
     // 获取绑定的车辆信息
     getBindCars () {

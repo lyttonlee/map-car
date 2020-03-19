@@ -1,46 +1,41 @@
 <template>
   <div class="page">
-    <div class="search">
-      <el-input placeholder="搜索筛选框"></el-input>
-    </div>
-    <el-table :data="alarms" style="width: 100%;background:#fff0" size="mini">
-      <el-table-column label="类型" prop="name"></el-table-column>
-      <el-table-column label="状态" prop="statu"></el-table-column>
-      <el-table-column label="时间" prop="time"></el-table-column>
-      <el-table-column label="位置">
-        <template>
-          <div>xxxxx</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作">
-        <template>
-          <el-button size="small" type="danger">处理告警</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <Menu :menus="renderRoutes" />
+    <!-- <router-view /> -->
+    <MenuView />
   </div>
 </template>
 <script>
+import {
+  mapState
+} from 'vuex'
 export default {
+  components: {
+    Menu: () => import('@/components/menu/Menu'),
+    MenuView: () => import('@/components/menu/View')
+  },
   data () {
     return {
-      alarms: [
-        { name: '滞留告警', statu: '未处理', time: '2020-2-5 12：90', },
-        { name: '超出界限告警', statu: '未处理', time: '2020-2-7 12：90', },
-        { name: '滞留告警', statu: '已处理', time: '2020-2-5 11：90', },
-        { name: '滞留告警', statu: '未处理', time: '2020-2-5 2：00', },
-        { name: '超时告警', statu: '未处理', time: '2020-2-8 12：90', },
-        { name: '滞留告警', statu: '未处理', time: '2020-2-12 12：90', },
-        { name: '滞留告警', statu: '未处理', time: '2020-2-17 12：90', }
-      ]
+      renderRoutes: []
     }
+  },
+  computed: {
+    ...mapState(['roles'])
+  },
+  methods: {
+    getRenderRoutes () {
+      console.log(this.$router)
+      let routes = this.$router.options.routes.find((route) => route.path === '/').children
+      let alarmRoutes = routes.find((route) => route.path === '/alarm')
+      this.renderRoutes = alarmRoutes.children.filter((route) => route.meta.role.includes(this.roles))
+      console.log(this.renderRoutes)
+    }
+  },
+  created () {
+    this.getRenderRoutes()
   }
 }
 </script>
 <style lang="less" scoped>
-.page {
-  .search {
-    margin: 15px 0;
-  }
-}
+
 </style>

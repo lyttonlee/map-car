@@ -8,7 +8,7 @@
     </div>
     <div class="menu">
       <template v-for="(menu, index) in renderRoutes">
-        <router-link v-show="menu.meta && menu.meta.auth" class="menu-item" :to="menu.path" :key="index" exact>
+        <router-link v-show="menu.meta && menu.meta.auth" class="menu-item" :to="menu.path" :key="index" >
           <zx-icon :type="menu.meta.icon" />
           {{menu.name}}
         </router-link>
@@ -61,6 +61,7 @@ export default {
 @import '../assets/less/main.less';
 .router-link-active {
   color: @primary-color !important;
+  background: rgba(78, 78, 78, 0.925);
 }
 .nav {
   height: 100vh;

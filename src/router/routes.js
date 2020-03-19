@@ -108,12 +108,35 @@ export const routes = [
       {
         path: '/alarm',
         name: '告警管理',
-        component: () => import(/* webpackChunkName: "about" */ '../views/alarm/Alarm.vue'),
+        component: () => import(/* webpackChunkName: "alarm" */ '../views/alarm/Alarm.vue'),
+        redirect: '/alarm/list',
         meta: {
           auth: true,
           icon: 'zx-tongji1',
           role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
-        }
+        },
+        children: [
+          {
+            path: '/alarm/list',
+            name: '告警列表',
+            component: () => import(/* webpackChunkName: "alarm" */ '../views/alarm/AlarmList.vue'),
+            meta: {
+              auth: true,
+              icon: 'zx-tongji1',
+              role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
+            },
+          },
+          {
+            path: '/alarm/config',
+            name: '告警配置',
+            component: () => import(/* webpackChunkName: "alarm" */ '../views/alarm/AlarmConfig.vue'),
+            meta: {
+              auth: true,
+              icon: 'zx-tongji1',
+              role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
+            },
+          },
+        ],
       },
       {
         path: '/user',
