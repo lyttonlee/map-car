@@ -86,26 +86,6 @@ export const routes = [
       //   }
       // },
       {
-        path: '/device',
-        name: '标签管理',
-        component: () => import(/* webpackChunkName: "about" */ '../views/device/Device.vue'),
-        meta: {
-          auth: true,
-          icon: 'zx-tongji1',
-          role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
-        }
-      },
-      {
-        path: '/cars',
-        name: '车辆管理',
-        component: () => import(/* webpackChunkName: "cars" */ '../views/cars/Cars.vue'),
-        meta: {
-          auth: true,
-          icon: 'zx-tongji1',
-          role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
-        }
-      },
-      {
         path: '/alarm',
         name: '告警管理',
         component: () => import(/* webpackChunkName: "alarm" */ '../views/alarm/Alarm.vue'),
@@ -139,24 +119,90 @@ export const routes = [
         ],
       },
       {
-        path: '/user',
-        name: '用户管理',
-        component: () => import(/* webpackChunkName: "about" */ '../views/user/User.vue'),
+        path: '/statement',
+        name: '系统报表',
+        redirect: '/statement/cars',
+        component: () => import(/* webpackChunkName: "statement" */ '../views/statement/Statement.vue'),
         meta: {
           auth: true,
           icon: 'zx-tongji1',
-          role: ['SuperAdmin', 'VQ', 'PC']
-        }
+          role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
+        },
+        children: [
+          {
+            path: '/statement/cars',
+            name: '车辆记录',
+            component: () => import(/* webpackChunkName: "cars" */ '../views/statement/cars/Cars.vue'),
+            meta: {
+              auth: true,
+              icon: 'zx-tongji1',
+              role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
+            }
+          },
+        ]
       },
       {
         path: '/system',
         name: '系统管理',
+        redirect: '/system/device',
         component: () => import(/* webpackChunkName: "system" */ '../views/system/System.vue'),
         meta: {
           auth: true,
           icon: 'zx-tongji1',
           role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
-        }
+        },
+        children: [
+          {
+            path: '/system/device',
+            name: '标签管理',
+            component: () => import(/* webpackChunkName: "system" */ '../views/system/device/Device.vue'),
+            meta: {
+              auth: true,
+              icon: 'zx-tongji1',
+              role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
+            }
+          },
+          {
+            path: '/system/baseStation',
+            name: '基站管理',
+            component: () => import(/* webpackChunkName: "system" */ '../views/system/baseStation/BaseStation.vue'),
+            meta: {
+              auth: true,
+              icon: 'zx-tongji1',
+              role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
+            }
+          },
+          {
+            path: '/system/user',
+            name: '用户管理',
+            component: () => import(/* webpackChunkName: "system" */ '../views/system/user/User.vue'),
+            meta: {
+              auth: true,
+              icon: 'zx-tongji1',
+              role: ['SuperAdmin', 'VQ', 'PC']
+            }
+          },
+          {
+            path: '/system/logs',
+            name: '系统日志',
+            component: () => import(/* webpackChunkName: "system" */ '../views/system/logs/Logs.vue'),
+            meta: {
+              auth: true,
+              icon: 'zx-tongji1',
+              role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
+            }
+          },
+          {
+            path: '/system/option',
+            name: '系统设置',
+            component: () => import(/* webpackChunkName: "system" */ '../views/system/option/Option.vue'),
+            meta: {
+              auth: true,
+              icon: 'zx-tongji1',
+              role: ['SuperAdmin', 'VQ', 'PC']
+            }
+          },
+        ]
       },
       {
         path: '/fence',
@@ -168,16 +214,6 @@ export const routes = [
           role: ['SuperAdmin']
         }
       },
-      // {
-      //   path: '/car',
-      //   name: '车辆列表',
-      //   component: () => import(/* webpackChunkName: "about" */ '../views/Car.vue'),
-      //   meta: {
-      //     auth: true,
-      //     icon: 'zx-tongji1',
-      //     role: ['admin']
-      //   }
-      // }
     ]
   },
   {
@@ -186,19 +222,6 @@ export const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/UnAuth.vue'),
     meta: {
       auth: false
-    }
-  }
-]
-
-export const asyncRoutes = [
-  {
-    path: '/user',
-    name: '用户管理',
-    component: () => import(/* webpackChunkName: "about" */ '../views/user/User.vue'),
-    meta: {
-      auth: true,
-      icon: 'zx-tongji1',
-      role: ['SuperAdmin', 'PC', 'VQ']
     }
   }
 ]

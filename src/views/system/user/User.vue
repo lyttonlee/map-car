@@ -36,7 +36,7 @@
   </div>
 </template>
 <script>
-import avatar from '../../assets/img/avatar.jpg'
+import avatar from '@/assets/img/avatar.jpg'
 import AddUser from './AddUserDialog'
 import EditUser from './EditUserDIalog'
 import {
@@ -45,7 +45,7 @@ import {
 import {
   queryUsers,
   deleteUser
-} from '../../api/user'
+} from '../../../api/user'
 export default {
   components: {
     AddUser,

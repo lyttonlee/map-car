@@ -3,7 +3,6 @@ import Vuex from 'vuex'
 import {
   LOGOUT,
   LOGIN,
-  ADDROUTES,
   ROLES,
 } from './types'
 import router from '../router'
@@ -18,9 +17,6 @@ import {
   Notification
 } from 'element-ui'
 import {
-  computedAddRoutes
-} from '../model/routeModel'
-import {
   getAllRoles
 } from '../api/user'
 
@@ -32,8 +28,6 @@ export default new Vuex.Store({
     username: '' || localStorage.getItem('username'),
     roles: '' || localStorage.getItem('roles'),
     nickname: '' || localStorage.getItem('nickname'),
-    addRoutes: [],
-    hasAdded: false,
     roleList: []
   },
   mutations: {
@@ -57,10 +51,6 @@ export default new Vuex.Store({
       state.roles = user.roles
       state.nickname = user.nickname
     },
-    [ADDROUTES]: (state, routes) => {
-      state.addRoutes = routes
-      state.hasAdded = true
-    },
     [ROLES]: (state, roles) => {
       state.roleList = roles
     }
@@ -79,15 +69,6 @@ export default new Vuex.Store({
         })
       })
     },
-    addExtraRoute ({ commit }, role) {
-      let accordRoutes = computedAddRoutes(role)
-      accordRoutes.forEach((route) => {
-        routes[1].children.push(route)
-      })
-      router.addRoutes(routes)
-      console.log(router)
-      commit(ADDROUTES, accordRoutes)
-    },
     logout ({ commit }) {
       return new Promise((resolve) => {
         commit(LOGOUT)
@@ -101,14 +82,6 @@ export default new Vuex.Store({
           let { code, result, desc } = res
           if (code === 0) { // 登录成功
             // 判断登录角色需要额外添加的route 路由
-            // let roles = result.roles
-            // let accordRoutes = computedAddRoutes(roles)
-            // console.log(accordRoutes)
-            // accordRoutes.forEach((route) => {
-            //   routes[1].children.push(route)
-            // })
-            // router.addRoutes(routes)
-            // commit(ADDROUTES, accordRoutes)
             console.log(routes)
             // router.addRoutes(accordRoutes)
             // console.log(router)

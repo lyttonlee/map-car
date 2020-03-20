@@ -36,13 +36,13 @@ router.beforeEach((to, from, next) => {
   // }
   // 要去的页面需要登录权限
   let canVisit = (roles) => {
-    console.log(to)
+    // console.log(to)
     return to.meta.role.includes(roles)
   }
   if (to.meta.auth) {
     // 再判断是否是登录状态
     if (token) {
-      console.log(canVisit(roles))
+      // console.log(canVisit(roles))
       if (!canVisit(roles)) { // 去的是没有访问权限的页面
         next({
           path: '/unauth'
@@ -68,8 +68,8 @@ router.beforeEach((to, from, next) => {
 Vue.config.productionTip = false
 Vue.use(ElementUi)
 Vue.component('zx-icon', Icon)
-console.log(window.location)
-console.log(process.env.NODE_ENV)
+// console.log(window.location)
+// console.log(process.env.NODE_ENV)
 new Vue({
   router,
   store,

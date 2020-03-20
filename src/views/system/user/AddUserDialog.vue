@@ -1,29 +1,29 @@
 <template>
   <el-dialog
-    title="编辑用户"
+    title="添加用户"
     :visible="visible"
     :destroy-on-close="true"
     width="60%"
     :show-close="false"
   >
-    <el-form :model="userModel" :rules="rules" ref="editUser" label-width="100px">
+    <el-form :model="addUserModel" :rules="rules" ref="addUser" label-width="100px">
       <el-form-item label="用户名" prop="username">
-        <el-input v-model="userModel.username"></el-input>
+        <el-input v-model="addUserModel.username"></el-input>
       </el-form-item>
       <el-form-item label="昵称" prop="nickname">
-        <el-input v-model="userModel.nickname"></el-input>
+        <el-input v-model="addUserModel.nickname"></el-input>
       </el-form-item>
       <el-form-item label="头像" prop="avatar">
-        <el-input v-model="userModel.avatar"></el-input>
+        <el-input v-model="addUserModel.avatar"></el-input>
       </el-form-item>
-      <!-- <el-form-item label="密码" prop="password">
-        <el-input type="password" v-model="userModel.password"></el-input>
+      <el-form-item label="密码" prop="password">
+        <el-input type="password" v-model="addUserModel.password"></el-input>
       </el-form-item>
       <el-form-item label="验证密码" prop="confirmPassword">
-        <el-input type="password" v-model="userModel.confirmPassword"></el-input>
-      </el-form-item> -->
-      <!-- <el-form-item label="角色" prop="roles">
-        <el-select style="width: 100%" v-model="userModel.roles" placeholder="请选择角色">
+        <el-input type="password" v-model="addUserModel.confirmPassword"></el-input>
+      </el-form-item>
+      <el-form-item label="角色" prop="roles">
+        <el-select style="width: 100%" v-model="addUserModel.roles" placeholder="请选择角色">
           <el-option
             v-for="item in createRoles"
             :key="item.id"
@@ -31,9 +31,9 @@
             :value="item.name">
           </el-option>
         </el-select>
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item v-if="isShowSelectProductLine" label="产线" prop="productLine">
-        <el-select style="width: 100%" v-model="userModel.productLine" placeholder="请选择产线">
+        <el-select style="width: 100%" v-model="addUserModel.productLine" placeholder="请选择产线">
           <el-option
             v-for="item in lines"
             :key="item.id"
@@ -44,8 +44,8 @@
       </el-form-item>
     </el-form>
     <div slot="footer">
-      <el-button type="success" :loading="isLoading" @click="doEditUser">确定</el-button>
-      <el-button @click="closeDialog">取消</el-button>
+      <el-button type="success" :loading="isLoading" @click="doCreateUser">确定</el-button>
+      <el-button  @click="exit">取消</el-button>
     </div>
   </el-dialog>
 </template>
@@ -55,8 +55,8 @@ import {
   mapActions,
 } from 'vuex'
 import {
-  editUser
-} from '../../api/user'
+  createUser
+} from '../../../api/user'
 export default {
   data () {
     const validatePassword = (rule, value, callback) => {
@@ -71,18 +71,21 @@ export default {
     const validateConfirmPassword = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码!'))
-      } else if (value !== this.userModel.password) {
+      } else if (value !== this.addUserModel.password) {
         callback(new Error('两次输入的密码不一致！'))
       } else {
         callback()
       }
     }
     return {
-      isLoading: false,
       visible: false,
-      selectRole: '',
-      user: '',
-      userModel: {
+      isLoading: false,
+      lines: [
+        { id: 1, description: '广本产线' },
+        { id: 2, description: '其它产线' }
+      ],
+      createRoles: [],
+      addUserModel: {
         username: '',
         roles: '',
         password: '',
@@ -116,19 +119,21 @@ export default {
           { validator: validateConfirmPassword, trigger: 'blur' }
         ]
       },
-      createRoles: [],
-      lines: [
-        { id: 1, description: '广本产线' },
-        { id: 2, description: '其它产线' }
-      ],
+      selectRole: '',
+      // options: [
+      //   { value: 'PC', label: 'PC' },
+      //   { value: 'VQ操作员', label: 'VQ操作员' },
+      //   { value: 'PA', label: 'PA' },
+      // ]
     }
   },
   computed: {
     ...mapState(['roleList', 'roles']),
+    // 判断是否显示选择产线
     isShowSelectProductLine () {
       if (this.roles === 'VQ') {
         return false
-      } else if (this.userModel.roles === 'PC') {
+      } else if (this.addUserModel.roles === 'PC') {
         return false
       } else {
         return true
@@ -137,32 +142,54 @@ export default {
   },
   methods: {
     ...mapActions(['requestRoles']),
-    closeDialog () {
+    // 取消
+    exit () {
       this.visible = false
     },
-    doEditUser () {
+    // 创建用户
+    doCreateUser () {
       this.isLoading = true
-      let user = {
-        id: this.userModel.id,
-        master: true,
-        username: this.userModel.username,
-        nickname: this.userModel.nickname,
-        imageUrl: this.userModel.imageUrl
-      }
-      editUser(user).then((res) => {
-        console.log(res)
-        let { code, desc } = res
-        if (code === 0) {
-          this.isLoading = false
-          this.$notify.success({
-            message: desc
+      this.$refs['addUser'].validate((valid) => {
+        if (valid) {
+          let user = {
+            imageUrl: this.addUserModel.avatar,
+            master: true,
+            nickname: this.addUserModel.nickname,
+            password: this.addUserModel.password,
+            roles: [{
+              name: this.addUserModel.roles
+            }],
+            username: this.addUserModel.username,
+            productLineId: this.addUserModel.productLine
+          }
+          if (!this.isShowSelectProductLine) {
+            delete user.productLineId
+          }
+          console.log(user)
+          createUser(user).then((res) => {
+            let { code, result, desc } = res
+            console.log(result)
+            if (code === 0) {
+              this.$emit('addedUser')
+              this.$notify.success({
+                message: desc
+              })
+              this.visible = false
+            } else {
+              this.$notify.error({
+                message: desc
+              })
+              this.isLoading = false
+            }
+          }).catch((err) => {
+            console.log(err)
+            this.$notify.error({
+              message: '网络超时或服务器异常！请稍后再试'
+            })
+            this.isLoading = false
           })
-          this.visible = false
         } else {
           this.isLoading = false
-          this.$notify.error({
-            message: desc
-          })
         }
       })
     },
@@ -186,12 +213,10 @@ export default {
         console.log(this.createRoles)
       })
     },
-    // setFiled
-    setFormField (user) {
-      console.log(user)
-      this.userModel = user
-    }
   },
+  // mounted () {
+  //   this.computedCanCreatedRoles(this.roles)
+  // },
   created () {
     this.computedCanCreatedRoles(this.roles)
   }
