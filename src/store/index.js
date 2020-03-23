@@ -4,6 +4,8 @@ import {
   LOGOUT,
   LOGIN,
   ROLES,
+  CARSTATUS,
+  LOCATORSTATUS
 } from './types'
 import router from '../router'
 import {
@@ -19,6 +21,10 @@ import {
 import {
   getAllRoles
 } from '../api/user'
+import {
+  queryCarStatus,
+  queryLocatorStatus
+} from '../api/common'
 
 Vue.use(Vuex)
 
@@ -28,7 +34,11 @@ export default new Vuex.Store({
     username: '' || localStorage.getItem('username'),
     roles: '' || localStorage.getItem('roles'),
     nickname: '' || localStorage.getItem('nickname'),
-    roleList: []
+    roleList: [],
+    carStatus: '',
+    locatorStatus: '',
+    productLineId: 1,
+    floorId: 1,
   },
   mutations: {
     [LOGOUT]: (state) => {
@@ -53,7 +63,13 @@ export default new Vuex.Store({
     },
     [ROLES]: (state, roles) => {
       state.roleList = roles
-    }
+    },
+    [CARSTATUS]: (state, carStatus) => {
+      state.carStatus = carStatus
+    },
+    [LOCATORSTATUS]: (state, status) => {
+      state.locatorStatus = status
+    },
   },
   actions: {
     // 获取用户角色枚举
@@ -99,6 +115,23 @@ export default new Vuex.Store({
           const error = '网络波动或服务器超时!请稍后再试'
           reject(error)
         })
+      })
+    },
+    // 获取可枚举的初始状态
+    queryStatus ({ commit }) {
+      queryLocatorStatus().then((res) => {
+        let { code, result } = res
+        if (code === 0) {
+          console.log(result)
+          commit(LOCATORSTATUS, result)
+        }
+      })
+      queryCarStatus().then((res) => {
+        let { code, result } = res
+        if (code === 0) {
+          console.log(result)
+          commit(CARSTATUS, result)
+        }
       })
     }
   },

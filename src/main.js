@@ -18,6 +18,7 @@ import VueSocketIo from 'vue-socket.io'
 
 // moment
 import moment from 'moment'
+moment.locale('zh-cn')
 
 Vue.prototype.$moment = moment
 Vue.use(new VueSocketIo({

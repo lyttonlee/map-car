@@ -15,11 +15,11 @@
       </div>
       <template v-for="(car, index) in renderedCars">
         <div class="list-item" @click="showCarInfo(car)" :key="index">
-          <div :class="computeCarClassColorByStatu(car.isAlarm, car.isDelay)">
+          <div :class="computeCarClassColorByStatu(car.vehicle.status, car.vehicleDeliverStatus.bindTime)">
             <zx-icon type="zx-car2"></zx-icon>
           </div>
-          <div class="car-oui">{{car.oui}}</div>
-          <div class="car-time">{{formatTime(car.bindTime)}}</div>
+          <div class="car-oui">{{car.vehicle.identification}}</div>
+          <div :class="formatTime(car.vehicleDeliverStatus.bindTime) > 8 ? 'warn' : 'success'">{{formatTime(car.vehicleDeliverStatus.bindTime)}}小时</div>
         </div>
       </template>
     </div>
@@ -46,11 +46,12 @@ export default {
   },
   methods: {
     initCars () {
+      console.log(this.cars)
       this.renderedCars = this.cars
     },
     formatTime (s) {
       let repairTime = moment().valueOf() - s
-      return moment.duration(repairTime, 's').asHours().toFixed(2)
+      return moment.duration(repairTime / 1000, 's').asHours().toFixed(2)
     },
     changeMenu (index) {
       if (this.activeIndex !== index) {
@@ -60,10 +61,13 @@ export default {
             this.renderedCars = this.cars
             break
           case 1:
-            this.renderedCars = this.cars.filter((car) => car.isAlarm === true)
+            this.renderedCars = this.cars.filter((car) => car.vehicle.status !== 0)
             break
           case 2:
-            this.renderedCars = this.cars.filter((car) => car.isDelay === true)
+            this.renderedCars = this.cars.filter((car) => {
+              // car.vehicleDeliverStatus.bindTime
+              return this.formatTime(car.vehicleDeliverStatus.bindTime) >= 8
+            })
             break
           default:
             this.renderedCars = this.cars
@@ -72,11 +76,9 @@ export default {
       }
     },
     // 计算车辆应该显示的颜色
-    computeCarClassColorByStatu (alarm, delay) {
-      if (alarm) {
+    computeCarClassColorByStatu (code) {
+      if (code !== 0) {
         return 'error'
-      } else if (delay) {
-        return 'warn'
       } else {
         return 'normal'
       }

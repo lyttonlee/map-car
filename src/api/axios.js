@@ -20,9 +20,10 @@ const err = (error) => {
       })
       router.push('/login')
     }
-  }
-  if (error.response && error.response.status === 400) {
-    console.log('bad')
+  } else {
+    Notification.error({
+      message: '很抱歉！您老的网络连接可能断开了，请稍后再试！！'
+    })
   }
   return Promise.reject(error)
 }

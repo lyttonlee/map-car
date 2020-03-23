@@ -11,10 +11,10 @@
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
-      <el-input size="small" placeholder="请输入要查询的车辆"></el-input>
-      <CarList @showCarInfo="showCarInfo" :cars="cars" />
+      <el-input size="small" v-model="search" @blur="doSearch" placeholder="请输入要查询的车辆"></el-input>
+      <CarList v-if="bindCars.length > 0" @showCarInfo="showCarInfo" :cars="bindCars" />
     </div>
-    <CarInfo :car="showingCar" @close="closeInfo" v-show="isShowing" />
+    <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
     <!-- <RepairTrack ref="repairTrack" /> -->
   </div>
 </template>
@@ -49,12 +49,7 @@ export default {
       bindCars: [],
       markers: [],
       showingCar: {},
-      cars: [
-        { oui: 'dasdas1', bindTime: 1584435419000, isAlarm: true, isDelay: false },
-        { oui: 'dasdas2', bindTime: 1584435419000, isAlarm: false, isDelay: true },
-        { oui: 'dasdas3', bindTime: 1584435419000, isAlarm: true, isDelay: false },
-        { oui: 'dasdas4', bindTime: 1584435419000, isAlarm: false, isDelay: false },
-      ]
+      search: '', // 要搜索的车架号 模糊匹配
     }
   },
   sockets: {
@@ -75,35 +70,52 @@ export default {
       // console.log(data)
       let newAlarm = JSON.parse(data)
       console.log(newAlarm)
-      // 将告警加入到告警列表
-      this.alarms.push(newAlarm.content)
-      for (let index = 0; index < 5; index++) {
-        this.alarms.push(newAlarm.content)
-      }
       // 改变对应marker的状态
+      // 找到对应的marker
+      let markerIndex = this.markers.findIndex((item) => item.locatorId === newAlarm.locatorId)
+      // 改变marker以及数据状态
+      if (markerIndex !== -1) {
+        let currentMarker = this.markers[markerIndex].marker
+        // console.log('move')
+        // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
+        let alarmIcon = this.createPointMarker('alarm')
+        console.log('改变了车的颜色状态')
+        currentMarker.setIcon(alarmIcon)
+        // 改变车辆列表数据状态显示
+        // console.log(this.bindCars)
+        let currentCarIndex = this.bindCars.findIndex((car) => car.locator.id === newAlarm.locatorId)
+        this.bindCars[currentCarIndex].vehicle.status = 1
+        this.bindCars = [...this.bindCars]
+        // this.$notify.error({
+        //   message: newAlarm.vehicleId + '发生告警: ' + newAlarm.message + this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss') + '位置： ？？？',
+        //   position: 'bottom-right',
+        //   duration: 500
+        // })
+        // this.getBindCars()
+      }
     },
     position (data) {
-      console.log('接收到position事件推送')
+      // console.log('接收到position事件推送')
       // console.log(data)
       const newPos = JSON.parse(data)
-      console.log(newPos)
+      // console.log(newPos)
       // 找到对应的marker
       let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
       // 移动位置
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker
-        console.log('move')
+        // console.log('move')
         // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
         currentMarker.moveTo([newPos.content.y, newPos.content.x], 500)
         setTimeout(() => {
-          currentMarker.setRotation(newPos.content.deg || 0)
+          newPos.content.deg && currentMarker.setRotation(newPos.content.deg)
         }, 600)
       }
     },
     bind (data) {
-      console.log(data)
+      // console.log(data)
       const newCar = JSON.parse(data)
-      console.log(newCar)
+      // console.log(newCar)
       // 验证这辆车是否已存在与列表中，若存在则无视，若不存在则在车辆列表中添加这辆车并创建一个新的marker
       const carId = newCar.vehicle.id
       let hasThisCar = this.bindCars.find((car) => car.vehicle.id === carId)
@@ -119,8 +131,27 @@ export default {
     },
     showCarInfo (car) {
       console.log(car)
-      this.isShowing = true
-      this.showingCar = car
+      let oui = car.vehicle.id
+      // 查询这两车的信息
+      let param = {
+        productLineId: 1,
+        bind: true,
+        vehicleId: oui
+      }
+      queryCars(param).then((res) => {
+        console.log(res)
+        let { code, desc, result } = res
+        if (code === 0) {
+          this.showingCar = result.resultList[0]
+          if (this.isShowing === false) {
+            this.isShowing = true
+          }
+        } else {
+          this.$notify.error({
+            message: desc
+          })
+        }
+      })
     },
     closeInfo () {
       this.isShowing = false
@@ -165,10 +196,10 @@ export default {
         initialRotationAngle: 90,
         title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
       })
-      marker.moveTo([2, -8], 500)
-      setTimeout(() => {
-        marker.setRotation(125)
-      }, 600)
+      // marker.moveTo([2, -8], 500)
+      // setTimeout(() => {
+      //   marker.setRotation(125)
+      // }, 600)
       // 为marker绑上车和定位器的ID
       marker.carId = car.vehicle.id
       marker.locatorId = car.locator.id
@@ -188,7 +219,7 @@ export default {
       let param = {
         productLineId: 1,
         bind: true,
-        id: oui
+        vehicleId: oui
       }
       queryCars(param).then((res) => {
         console.log(res)
@@ -233,6 +264,16 @@ export default {
         console.log(res)
       })
     },
+    // 搜索车架号查询
+    doSearch () {
+      if (this.search === '') {
+        // ..
+        // this.getBindCars()
+      } else {
+        this.bindCars = this.bindCars.filter((car) => car.vehicle.identification.includes(this.search))
+        console.log(this.bindCars)
+      }
+    }
   },
   mounted () {
     // eslint-disable-next-line no-undef
@@ -252,7 +293,7 @@ export default {
     L.imageOverlay(imgUrl, imgBounds).addTo(map)
     this.map = map
     this.getBindCars()
-    this.getCarInfo()
+    // this.getCarInfo()
   },
   beforeDestroy () {
     this.cartime && clearInterval(this.cartime)

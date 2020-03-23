@@ -325,7 +325,6 @@ L.Marker.MovingMarker = L.Marker.extend({
 
     if (this.isEnded()) {
       // no need to animate
-      console.log('animate over')
       return;
     }
 

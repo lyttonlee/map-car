@@ -15,8 +15,10 @@
         </el-table-column>
       </el-table>
       <el-button @click="addFence">ADD</el-button>
+      <el-button @click="transAddress">Test Address</el-button>
       <div v-if="isCreating" class="fence-data">
         <el-input placeholder="围栏名称" v-model="fenceName"></el-input>
+        <el-input placeholder="围栏type" v-model="fenceType"></el-input>
         <template v-for="(point, index) in fencePoints">
           <div :key="index">{{point}}</div>
         </template>
@@ -32,6 +34,9 @@ import {
   createFence,
   deleteFence,
 } from '../../api/fence'
+import {
+  transXYToAddress
+} from '../../api/common'
 export default {
   // ..
   data () {
@@ -42,6 +47,8 @@ export default {
       fencePoints: [], // 围栏的点坐标
       isCreating: false, // 是否正在创建围栏
       fenceLayers: [], // 地图围栏图形集合
+      fenceType: 3,
+      colors: ['#67C23A', '#E6A23C', '#F56C6C', '#909399']
     }
   },
   computed: {
@@ -90,20 +97,20 @@ export default {
     renderFence (fence) {
       // 解析点
       let points = fence.points.split(';')
-      console.log(points)
+      console.log(fence)
       let formatPoints = points.map((point) => {
         let [x, y] = point.split('_')
         return [y, x]
       })
-      console.log(formatPoints)
-      const polygon = L.polygon(formatPoints)
+      // console.log(formatPoints)
+      const polygon = L.polygon(formatPoints, { color: this.colors[fence.type] })
       // 围栏区域添加文字
       // polygon.bindPopup(fence.name)
       // polygon.openPopup()
-      polygon.bindTooltip(fence.name)
+      polygon.bindTooltip(fence.name + '  ' + 'type' + fence.type)
       this.fenceLayers.push(polygon)
       this.map && polygon.addTo(this.map)
-      console.log(this.fenceLayers)
+      // console.log(this.fenceLayers)
     },
     // 设置围栏参数
     addFence () {
@@ -111,7 +118,7 @@ export default {
       let polyline
       this.isCreating = true
       this.map && this.map.on('click', (ev) => {
-        console.log(ev)
+        // console.log(ev)
         let point = [ ev.latlng.lat, ev.latlng.lng ]
         points.push(point)
         this.fencePoints.push(`${ev.latlng.lng}_${ev.latlng.lat}_0`)
@@ -120,7 +127,7 @@ export default {
           polyline.addTo(this.map)
           this.fenceLayers.push(polyline)
         } else if (points.length > 2) {
-          console.log(polyline)
+          // console.log(polyline)
           polyline.addLatLng(point)
         }
       })
@@ -128,24 +135,25 @@ export default {
     // 提交数据创建围栏
     submitFence () {
       this.fencePoints.push(this.fencePoints[0])
-      console.log(this.fencePoints)
+      // console.log(this.fencePoints)
       let param = {
         enable: true,
         fenceType: 3,
         name: this.fenceName,
         points: this.fencePoints.join(';'),
-        type: 2,
+        type: this.fenceType,
         mapInfo: {
           id: this.mapInfo.id
         }
       }
       createFence(1, param).then((res) => {
-        console.log(res)
+        // console.log(res)
         let { code, desc } = res
         if (code === 0) {
           this.$notify.success({
             message: desc
           })
+          this.map && this.map.off('click')
           this.refreshMap()
         } else {
           this.$notify.error({
@@ -161,7 +169,7 @@ export default {
         zoneId: fence.id
       }
       deleteFence(params).then((res) => {
-        console.log(res)
+        // console.log(res)
         let { code, desc } = res
         if (code === 0) {
           this.$notify.success({
@@ -177,7 +185,7 @@ export default {
     },
     // 重新绘制当前围栏
     editCurrentFence (fence) {
-      console.log(fence)
+      // console.log(fence)
       // 清楚地图围栏
       // 重新画围栏
     },
@@ -186,7 +194,9 @@ export default {
       this.fenceName = ''
       this.fencePoints = []
       this.fences = []
-      console.log(this.fenceLayers)
+      this.fenceType = 3
+      this.isCreating = false
+      // console.log(this.fenceLayers)
       this.fenceLayers.forEach((layer) => {
         layer.remove()
       })
@@ -205,12 +215,29 @@ export default {
         attributionControl: false // 不显示leaflet 图标logo
 
       })
-      console.log(this.mapInfo)
+      // console.log(this.mapInfo)
       const imgUrl = this.mapInfo.twoDFilePath
       const imgBounds = [[this.mapInfo.coordinateDown, this.mapInfo.coordinateLeft], [this.mapInfo.coordinateUpper, this.mapInfo.coordinateRight]]
       // eslint-disable-next-line no-undef
       L.imageOverlay(imgUrl, imgBounds).addTo(map)
       this.map = map
+      this.getAllFences()
+    },
+    // 解析地址
+    transAddress () {
+      this.map && this.map.on('click', (ev) => {
+        console.log(ev)
+        let point = ev.latlng
+        let param = {
+          productLineId: 1,
+          floorId: 3,
+          x: point.lng,
+          y: point.lat,
+        }
+        transXYToAddress(param).then((res) => {
+          console.log(res)
+        })
+      })
     }
   },
   created () {
@@ -218,7 +245,7 @@ export default {
   },
   mounted () {
     this.getMapConfig()
-    this.getAllFences()
+    // this.getAllFences()
   }
 }
 </script>
