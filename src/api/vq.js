@@ -8,8 +8,8 @@ export const getStatisticData = () => {
   return request.get('/api/monitor/v1.0/statisticData')
 }
 
-export const getBindList = () => {
-  return request.get('/api/monitor/v1.0/bindList')
+export const getBindList = (params) => {
+  return request.get('/api/monitor/v1.0/bindList', { params })
 }
 
 export const getAlarmList = () => {
@@ -18,4 +18,8 @@ export const getAlarmList = () => {
 
 export const getAlalrmTypes = () => {
   return request.get('/api/alarm/v1.0/types')
+}
+
+export const queryCars = (param) => {
+  return request.post('/api/vehicle/v1.0/query', param)
 }

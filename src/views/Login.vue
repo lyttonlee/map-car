@@ -42,7 +42,7 @@ export default {
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, max: 15, message: '密码长度必须是6-15字符', trigger: 'blur' },
+          { min: 3, max: 15, message: '密码长度必须是3-15字符', trigger: 'blur' },
         ]
       },
     }

@@ -26,7 +26,8 @@ import successCar from '../assets/img/car-blue.png'
 import errorCar from '../assets/img/car-red.png'
 import warnCar from '../assets/img/car-yellow.png'
 import {
-  getBindList
+  getBindList,
+  queryCars,
 } from '../api/vq'
 // import RepairTrack from '../components/RepairTrack'
 export default {
@@ -157,11 +158,12 @@ export default {
       //   icon,
       //   title: car.vehicle.name + ' ' + car.locator.y + ' ' + car.locator.x
       // })
+      console.log(car)
       const marker = L.Marker.movingMarker([carPos], [], {
         rotate: true,
         icon,
         initialRotationAngle: 90,
-        title: car.vehicle.name + ' ' + car.locator.y + ' ' + car.locator.x
+        title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
       })
       marker.moveTo([2, -8], 500)
       setTimeout(() => {
@@ -181,11 +183,35 @@ export default {
     // 点击marker
     clickMarker (ev) {
       console.log(ev)
-      this.isShowing = true
+      let oui = ev.target.carId
+      // 查询这两车的信息
+      let param = {
+        productLineId: 1,
+        bind: true,
+        id: oui
+      }
+      queryCars(param).then((res) => {
+        console.log(res)
+        let { code, desc, result } = res
+        if (code === 0) {
+          this.showingCar = result.resultList[0]
+          if (this.isShowing === false) {
+            this.isShowing = true
+          }
+        } else {
+          this.$notify.error({
+            message: desc
+          })
+        }
+      })
+      // this.isShowing = true
     },
     // 获取绑定的车辆信息
     getBindCars () {
-      getBindList().then((res) => {
+      let params = {
+        productLineId: 1
+      }
+      getBindList(params).then((res) => {
         console.log(res)
         if (res.code === 0) {
           this.bindCars = res.result
@@ -195,6 +221,16 @@ export default {
             })
           }
         }
+      })
+    },
+    // 查询车辆信息
+    getCarInfo () {
+      let param = {
+        productLineId: 1,
+        bind: true,
+      }
+      queryCars(param).then((res) => {
+        console.log(res)
       })
     },
   },
@@ -211,11 +247,12 @@ export default {
     })
     // console.log(map)
     const imgUrl = imgMap
-    const imgBounds = [[-0.8, -22.4], [8.0, 1.2]]
+    const imgBounds = [[-0.8, -22.7], [8.0, 1.2]]
     // eslint-disable-next-line no-undef
     L.imageOverlay(imgUrl, imgBounds).addTo(map)
     this.map = map
     this.getBindCars()
+    this.getCarInfo()
   },
   beforeDestroy () {
     this.cartime && clearInterval(this.cartime)

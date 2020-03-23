@@ -1,0 +1,18 @@
+.el-table {
+  background-color: rgba(44, 44, 44, 0.527);
+}
+.el-table--border::after, .el-table--group::after, .el-table::before {
+  background-color: rgb(17, 17, 17);
+}
+
+.el-table th, .el-table tr {
+  background-color: rgba(44, 44, 44, 0.527);
+}
+
+.el-table td, .el-table th.is-leaf {
+  border-bottom: 1px solid rgb(7, 7, 7);
+}
+.el-input__inner {
+  background-color: rgba(44, 44, 44, 0.527);
+  border: 1px solid rgb(17, 17, 17);
+}

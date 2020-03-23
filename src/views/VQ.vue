@@ -211,7 +211,10 @@ export default {
     },
     // 获取绑定的车辆信息
     getBindCars () {
-      getBindList().then((res) => {
+      let params = {
+        productLineId: 1
+      }
+      getBindList(params).then((res) => {
         console.log(res)
         if (res.code === 0) {
           this.bindCars = res.result
