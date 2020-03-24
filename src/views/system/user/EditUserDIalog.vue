@@ -14,7 +14,8 @@
         <el-input v-model="userModel.nickname"></el-input>
       </el-form-item>
       <el-form-item label="头像" prop="avatar">
-        <el-input v-model="userModel.avatar"></el-input>
+        <!-- <el-input v-model="userModel.avatar"></el-input> -->
+        <Upload v-model="userModel.imageUrl" />
       </el-form-item>
       <!-- <el-form-item label="密码" prop="password">
         <el-input type="password" v-model="userModel.password"></el-input>
@@ -33,7 +34,7 @@
         </el-select>
       </el-form-item> -->
       <el-form-item v-if="isShowSelectProductLine" label="产线" prop="productLine">
-        <el-select style="width: 100%" v-model="userModel.productLine" placeholder="请选择产线">
+        <el-select style="width: 100%" v-model="userModel.productLineId" placeholder="请选择产线">
           <el-option
             v-for="item in lines"
             :key="item.id"
@@ -58,6 +59,9 @@ import {
   editUser
 } from '../../../api/user'
 export default {
+  components: {
+    Upload: () => import('@/components/Upload'),
+  },
   data () {
     const validatePassword = (rule, value, callback) => {
       if (value === '') {
@@ -88,9 +92,9 @@ export default {
         password: '',
         confirmPassword: '',
         nickname: '',
-        avatar: '',
+        imageUrl: '',
         master: false,
-        productLine: ''
+        productLineId: ''
       },
       rules: {
         username: [

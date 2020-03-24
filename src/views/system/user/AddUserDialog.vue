@@ -8,19 +8,20 @@
   >
     <el-form :model="addUserModel" :rules="rules" ref="addUser" label-width="100px">
       <el-form-item label="用户名" prop="username">
-        <el-input v-model="addUserModel.username"></el-input>
+        <el-input v-model="addUserModel.username"  placeholder="请输入用户名"></el-input>
       </el-form-item>
       <el-form-item label="昵称" prop="nickname">
-        <el-input v-model="addUserModel.nickname"></el-input>
+        <el-input v-model="addUserModel.nickname"  placeholder="请输入昵称"></el-input>
       </el-form-item>
       <el-form-item label="头像" prop="avatar">
-        <el-input v-model="addUserModel.avatar"></el-input>
+        <Upload v-model="addUserModel.avatar" @uploadOk="uploadOk" />
+        <!-- <el-input v-model="addUserModel.avatar"></el-input> -->
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input type="password" v-model="addUserModel.password"></el-input>
+        <el-input type="password" v-model="addUserModel.password" placeholder="请输入密码"></el-input>
       </el-form-item>
       <el-form-item label="验证密码" prop="confirmPassword">
-        <el-input type="password" v-model="addUserModel.confirmPassword"></el-input>
+        <el-input type="password" v-model="addUserModel.confirmPassword" placeholder="请再次输入密码"></el-input>
       </el-form-item>
       <el-form-item label="角色" prop="roles">
         <el-select style="width: 100%" v-model="addUserModel.roles" placeholder="请选择角色">
@@ -58,6 +59,9 @@ import {
   createUser
 } from '../../../api/user'
 export default {
+  components: {
+    Upload: () => import('@/components/Upload'),
+  },
   data () {
     const validatePassword = (rule, value, callback) => {
       if (value === '') {
@@ -143,6 +147,10 @@ export default {
   methods: {
     ...mapActions(['requestRoles']),
     // 取消
+    uploadOk (url) {
+      console.log(url)
+      console.log(this.addUserModel)
+    },
     exit () {
       this.visible = false
     },

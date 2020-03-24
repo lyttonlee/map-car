@@ -13,9 +13,9 @@
           </template>
         </el-table-column>
         <el-table-column label="头像">
-          <template>
-            <!-- <img style="width: 30px" :src="scope.row.imageUrl" alt=""> -->
-            <img style="width: 30px" :src="avatar" alt="">
+          <template slot-scope="scope">
+            <img style="width: 30px" :src="scope.row.imageUrl" alt="">
+            <!-- <img style="width: 30px" :src="avatar" alt=""> -->
           </template>
         </el-table-column>
         <el-table-column label="创建时间">

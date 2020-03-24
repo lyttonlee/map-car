@@ -72,6 +72,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: @font-color;
+  font-size: 14px;
   // background: #eee;
   .select {
     position: fixed;

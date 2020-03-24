@@ -1,10 +1,10 @@
 <template>
   <div class="nav">
     <div class="user">
-      <img src="../assets/logo.png" class="avatar" alt="avatar">
-      <div>Mack Sire</div>
-      <div>VQ manger</div>
-      <el-button class="logout" size="small" type="danger" @click="logout">退出登录</el-button>
+      <img :src="imageUrl" class="avatar-menu" alt="avatar">
+      <div>{{nickname}}</div>
+      <div>{{roles}}</div>
+      <el-button class="logout" size="small" @click="logout">退出登录</el-button>
     </div>
     <div class="menu">
       <template v-for="(menu, index) in renderRoutes">
@@ -28,7 +28,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['addRoutes', 'hasAdded', 'roles'])
+    ...mapState(['addRoutes', 'hasAdded', 'roles', 'nickname', 'imageUrl'])
   },
   methods: {
     ...mapActions(['addExtraRoute']),
@@ -74,7 +74,7 @@ export default {
     padding: 10px;
     margin: 100px 0 20px 0;
     border-bottom: 1px solid @back-color;
-    .avatar {
+    .avatar-menu {
       width: 80px;
       border-radius: 50%;
       border: 1px solid @page-color;

@@ -36,7 +36,7 @@ export default {
     color: antiquewhite;
     text-decoration: none;
     line-height: 40px;
-    font-size: .9rem;
+    font-size: .8rem;
     &:hover {
       background: rgb(89, 92, 87);
       color: azure;

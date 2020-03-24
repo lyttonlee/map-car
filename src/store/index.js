@@ -34,6 +34,7 @@ export default new Vuex.Store({
     username: '' || localStorage.getItem('username'),
     roles: '' || localStorage.getItem('roles'),
     nickname: '' || localStorage.getItem('nickname'),
+    imageUrl: '' || localStorage.getItem('imageUrl'),
     roleList: [],
     carStatus: '',
     locatorStatus: '',
@@ -46,20 +47,24 @@ export default new Vuex.Store({
       localStorage.removeItem('token')
       localStorage.removeItem('username')
       localStorage.removeItem('nickname')
+      localStorage.removeItem('imageUrl')
       state.token = ''
       state.username = ''
       state.roles = ''
       state.nickname = ''
+      state.imageUrl = ''
     },
     [LOGIN]: (state, user) => {
       localStorage.setItem('username', user.username)
       localStorage.setItem('token', user.token)
       localStorage.setItem('roles', user.roles)
       localStorage.setItem('nickname', user.nickname)
+      localStorage.setItem('imageUrl', user.imageUrl)
       state.token = user.token
       state.username = user.username
       state.roles = user.roles
       state.nickname = user.nickname
+      state.imageUrl = user.imageUrl
     },
     [ROLES]: (state, roles) => {
       state.roleList = roles

@@ -86,11 +86,11 @@ export default {
         let currentCarIndex = this.bindCars.findIndex((car) => car.locator.id === newAlarm.locatorId)
         this.bindCars[currentCarIndex].vehicle.status = 1
         this.bindCars = [...this.bindCars]
-        // this.$notify.error({
-        //   message: newAlarm.vehicleId + '发生告警: ' + newAlarm.message + this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss') + '位置： ？？？',
-        //   position: 'bottom-right',
-        //   duration: 500
-        // })
+        this.$notify.error({
+          message: newAlarm.vehicleId + '发生告警: ' + newAlarm.message + this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss') + '位置： ？？？',
+          position: 'bottom-right',
+          duration: 500
+        })
         // this.getBindCars()
       }
     },
@@ -304,24 +304,17 @@ export default {
 
 <style lang="less" scoped>
 .home {
-  .search {
-    position: fixed;
-    width: 600px;
-    top: 80px;
-    left: 20%;
-    z-index: 1001;
-  }
   .list {
     position: fixed;
     width: 350px;
-    top: 30px;
-    right: 20px;
+    top: 0;
+    right: 0;
     z-index: 1001;
-    height: 80%;
+    height: 100%;
     border-radius: 10px;
     background: rgba(56, 56, 56, 0.75);
     box-shadow: 2px 2px 5px #666;
-    padding: 30px 5px;
+    padding: 40px 5px;
     .item {
       cursor: pointer;
       margin: 10px 0;
@@ -330,9 +323,9 @@ export default {
   }
   .switch {
     font-size: 0.8rem;
-    padding: 15px;
+    padding: 10px;
     position: fixed;
-    top: 20px;
+    top: 0;
     right: 20px;
     z-index: 1002;
     cursor: pointer;

@@ -95,7 +95,7 @@ export default {
   margin: 15px 0 0 0;
   .header {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     border-bottom: 1px solid #fff;
     .menu {
       cursor: pointer;
@@ -109,10 +109,15 @@ export default {
     margin-top: 15px;
     .list-item {
       cursor: pointer;
-      margin-top: 10px;
+      // margin-top: 10px;
+      padding-top: 10px;
       border-bottom: .5px solid rgba(251, 252, 250, 0.473);
       display: grid;
-      grid-template-columns: 20% 40% 20% 20%;
+      grid-template-columns: 20% 50% 30%;
+      &:hover {
+        background: rgba(34, 34, 34, 0.603);
+        border-bottom: .5px solid rgba(251, 252, 250, 0.699);
+      }
     }
   }
 }

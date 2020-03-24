@@ -10,6 +10,7 @@
       <div class="item">入荷时间: {{$moment(car.bindTime).format('YYYY-MM-DD HH:mm:ss')}}</div>
       <div class="item">维修时长: {{$moment(car.bindTime).toNow(true)}}</div>
       <div class="item">当前状态: {{computedCarStatu(car.statu, car.bindTime)}}</div>
+      <div class="item">标签电量: {{computedCarStatu(car.statu, car.bindTime)}}</div>
       <div class="item">当前位置: {{address}}</div>
       <div class="item">当前时间: {{$moment(currentTime).format('YYYY-MM-DD HH:mm:ss')}}</div>
     </div>
@@ -107,18 +108,19 @@ export default {
   width: 300px;
   height: 70vh;
   border-radius: 10px;
-  background: rgba(56, 56, 56, 0.75);
+  background: rgba(59, 58, 58, 0.856);
   box-shadow: 2px 2px 5px #666;
   padding: 10px 5px;
   z-index: 1001;
   position: fixed;
   right: 400px;
   top: 80px;
+  font-size: .9rem;
   .car-info {
     margin: 10px;
     text-align: left;
     .item {
-      margin-top: 8px;
+      margin: 12px 0 6px 0;
     }
   }
   .close {

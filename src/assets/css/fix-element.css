@@ -16,3 +16,7 @@
   background-color: rgba(44, 44, 44, 0.527);
   border: 1px solid rgb(17, 17, 17);
 }
+
+.el-timeline-item__wrapper {
+  text-align: left;
+}

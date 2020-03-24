@@ -40,14 +40,6 @@
       <div class="item" id="out-put"></div>
       <div class="item">
         <!-- <h4>告警列表</h4> -->
-        <SeamLessScroll :data="alarms" class="seamless" :class-option="scrollOptions" >
-          <template v-for="(item, index) in alarms">
-            <div :key="index" class="alarm-item">
-              <div class="name">{{item.message}}</div>
-              <div class="time">{{timeToNow(item.timestamp)}}</div>
-            </div>
-          </template>
-        </SeamLessScroll>
       </div>
       <div class="item">
         <!-- <h4>超八小时未出荷车辆列表</h4> -->
@@ -86,7 +78,7 @@ import getLastDays from '../mock/days'
 import imgMap from '../assets/img/office-map.png'
 import { cars } from '../mock/cars'
 import moment from 'moment'
-import SeamLessScroll from 'vue-seamless-scroll'
+// import SeamLessScroll from 'vue-seamless-scroll'
 import {
   getRealTimeData,
   getStatisticData,
@@ -111,7 +103,7 @@ export default {
   },
   components: {
     // ShowTime
-    SeamLessScroll
+    // SeamLessScroll
   },
   computed: {
     scrollOptions () {
@@ -156,9 +148,6 @@ export default {
       console.log(newAlarm)
       // 将告警加入到告警列表
       this.alarms.push(newAlarm.content)
-      for (let index = 0; index < 5; index++) {
-        this.alarms.push(newAlarm.content)
-      }
       // 改变对应marker的状态
     },
     position (data) {
