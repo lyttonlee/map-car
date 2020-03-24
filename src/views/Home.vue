@@ -11,7 +11,6 @@
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
-      <el-input size="small" v-model="search" @blur="doSearch" placeholder="请输入要查询的车辆"></el-input>
       <CarList v-if="bindCars.length > 0" @showCarInfo="showCarInfo" :cars="bindCars" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
@@ -49,7 +48,6 @@ export default {
       bindCars: [],
       markers: [],
       showingCar: {},
-      search: '', // 要搜索的车架号 模糊匹配
     }
   },
   sockets: {
@@ -264,16 +262,6 @@ export default {
         console.log(res)
       })
     },
-    // 搜索车架号查询
-    doSearch () {
-      if (this.search === '') {
-        // ..
-        // this.getBindCars()
-      } else {
-        this.bindCars = this.bindCars.filter((car) => car.vehicle.identification.includes(this.search))
-        console.log(this.bindCars)
-      }
-    }
   },
   mounted () {
     // eslint-disable-next-line no-undef

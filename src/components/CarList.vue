@@ -1,5 +1,6 @@
 <template>
   <div class="car-list">
+    <el-input class="input" size="small" v-model="search" @blur="doSearch" placeholder="请输入要查询的车辆"></el-input>
     <div class="header">
       <template v-for="(menu, index) in menus">
         <div :class="activeIndex === index ? `menu active` : 'menu'" @click="changeMenu(index)" :key="index">{{menu}}</div>
@@ -38,13 +39,27 @@ export default {
     return {
       menus: ['全部', '告警', '超时'],
       activeIndex: 0,
-      renderedCars: []
+      renderedCars: [],
+      search: '', // 要搜索的车架号 模糊匹配
     }
   },
   created () {
     this.initCars()
   },
   methods: {
+    // 搜索车架号查询
+    doSearch () {
+      if (this.search === '') {
+        // ..
+        // this.getBindCars()
+        this.activeIndex = 0
+        this.renderedCars = this.cars
+      } else {
+        this.activeIndex = 0
+        this.renderedCars = this.cars.filter((car) => car.vehicle.identification.includes(this.search))
+        // console.log(this.bindCars)
+      }
+    },
     initCars () {
       console.log(this.cars)
       this.renderedCars = this.cars
@@ -92,7 +107,9 @@ export default {
 </script>
 <style lang="less" scoped>
 .car-list {
-  margin: 15px 0 0 0;
+  .input {
+    margin-bottom: 15px;
+  }
   .header {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
