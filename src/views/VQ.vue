@@ -10,7 +10,10 @@
           <template v-for="(item, index) in broad">
             <div :key="index" class="overview-item">
               <h3>{{item.title}}</h3>
-              <div :class="judgeTodayData(index, item.now, item.yesterday)">今日: {{item.now}}</div>
+              <div :class="judgeTodayData(index, item.now, item.yesterday)">
+                  <!-- <CountTo :key="index" :to="item.now"></CountTo> -->
+                  <CountTo :key="index" :to="item.now" :uid="index + '0'" suffix="%" :decimalPlaces="2" />
+                </div>
               <div>昨日: {{item.yesterday}}</div>
               <div>七日: {{item.averageOfWeek}}</div>
             </div>
@@ -40,6 +43,7 @@
       <div class="item" id="out-put"></div>
       <div class="item">
         <!-- <h4>告警列表</h4> -->
+        <CountTo :to="num" uid="test" suffix="%" />
       </div>
       <div class="item">
         <!-- <h4>超八小时未出荷车辆列表</h4> -->
@@ -99,11 +103,13 @@ export default {
       bindCars: [],
       // 地图上所有车的点数组
       markers: [],
+      num: 5
     }
   },
   components: {
     // ShowTime
     // SeamLessScroll
+    CountTo: () => import('../components/CountTo'),
   },
   computed: {
     scrollOptions () {
@@ -120,6 +126,9 @@ export default {
     this.getBoradData()
     this.getChartData()
     this.getAlarmData()
+    setInterval(() => {
+      this.num += 5
+    }, 5000)
     // this.getBindCars()
     // for (let index = 1; index < 20; index++) {
     //   this.alarms.push({
