@@ -3,18 +3,18 @@
     <div id="map-fence" class="page"></div>
     <div class="control">
       <!-- 控制区域 -->
-      <el-table :data="fences">
+      <el-table :data="fences" size="small" >
         <el-table-column label="围栏名称" prop="name"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button-group>
-              <el-button type="danger" @click="deleteCurrentFence(scope.row)" >删除</el-button>
+              <el-button type="danger" round size="small" @click="deleteCurrentFence(scope.row)" >删除</el-button>
               <!-- <el-button type="primary" @click="editCurrentFence(scope.row)" >修改</el-button> -->
             </el-button-group>
           </template>
         </el-table-column>
       </el-table>
-      <el-button @click="addFence">ADD</el-button>
+      <el-button @click="addFence">ADD Fence</el-button>
       <el-button @click="transAddress">Test Address</el-button>
       <div v-if="isCreating" class="fence-data">
         <el-input placeholder="围栏名称" v-model="fenceName"></el-input>
@@ -236,6 +236,13 @@ export default {
         }
         transXYToAddress(param).then((res) => {
           console.log(res)
+          let { code, result } = res
+          if (code === 0) {
+            this.$notify.success({
+              message: result + ' x:' + point.lng + ' y:' + point.lat,
+              position: 'bottom-right',
+            })
+          }
         })
       })
     }

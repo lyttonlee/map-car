@@ -5,7 +5,8 @@ import {
   LOGIN,
   ROLES,
   CARSTATUS,
-  LOCATORSTATUS
+  LOCATORSTATUS,
+  ALARMCONFIG,
 } from './types'
 import router from '../router'
 import {
@@ -25,6 +26,9 @@ import {
   queryCarStatus,
   queryLocatorStatus
 } from '../api/common'
+import {
+  queryAlarmConfig
+} from '../api/alarm'
 
 Vue.use(Vuex)
 
@@ -40,6 +44,7 @@ export default new Vuex.Store({
     locatorStatus: '',
     productLineId: 1,
     floorId: 1,
+    alarmConfig: '',
   },
   mutations: {
     [LOGOUT]: (state) => {
@@ -74,6 +79,9 @@ export default new Vuex.Store({
     },
     [LOCATORSTATUS]: (state, status) => {
       state.locatorStatus = status
+    },
+    [ALARMCONFIG]: (state, status) => {
+      state.alarmConfig = status
     },
   },
   actions: {
@@ -123,7 +131,7 @@ export default new Vuex.Store({
       })
     },
     // 获取可枚举的初始状态
-    queryStatus ({ commit }) {
+    queryStatus ({ commit, state }) {
       queryLocatorStatus().then((res) => {
         let { code, result } = res
         if (code === 0) {
@@ -136,6 +144,16 @@ export default new Vuex.Store({
         if (code === 0) {
           console.log(result)
           commit(CARSTATUS, result)
+        }
+      })
+      let params = {
+        productLineId: state.productLineId
+      }
+      queryAlarmConfig(params).then((res) => {
+        let { code, result } = res
+        if (code === 0) {
+          console.log(result)
+          commit(ALARMCONFIG, result)
         }
       })
     }

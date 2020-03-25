@@ -4,7 +4,7 @@
       <img :src="imageUrl" class="avatar-menu" alt="avatar">
       <div>{{nickname}}</div>
       <div>{{roles}}</div>
-      <el-button class="logout" size="small" @click="logout">退出登录</el-button>
+      <el-button class="logout" type="primary" round size="small" @click="logout">退出登录</el-button>
     </div>
     <div class="menu">
       <template v-for="(menu, index) in renderRoutes">

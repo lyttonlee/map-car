@@ -35,6 +35,9 @@ import Side from '@/components/Side'
 import ToggleMenu from '@/components/ToggleMenu'
 // import SelectLine from './components/SelectLine'
 import bus from '@/bus/bus'
+import {
+  mapActions
+} from 'vuex'
 export default {
   data () {
     return {
@@ -56,7 +59,14 @@ export default {
     showSelect () {
       console.log('show')
       this.$refs['selectLine'].visible = true
+    },
+    ...mapActions(['queryStatus']),
+    getAllStatus () {
+      this.queryStatus()
     }
+  },
+  created () {
+    this.getAllStatus()
   },
   mounted () {
     // ..

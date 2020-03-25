@@ -1,4 +1,4 @@
-.el-table {
+/* .el-table {
   background-color: rgba(44, 44, 44, 0.527);
 }
 .el-table--border::after, .el-table--group::after, .el-table::before {
@@ -15,7 +15,7 @@
 .el-input__inner {
   background-color: rgba(44, 44, 44, 0.527);
   border: 1px solid rgb(17, 17, 17);
-}
+} */
 
 .el-timeline-item__wrapper {
   text-align: left;

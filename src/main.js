@@ -5,11 +5,12 @@ import store from './store'
 import 'normalize.css'
 import 'animate.css'
 import ElementUi from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
+// import 'element-ui/lib/theme-chalk/index.css'
 // 字体图标
 import './assets/css/font.css'
 // 覆盖element-ui 默认样式
 import './assets/css/fix-element.css'
+import './assets/css/index.css'
 // 图标组件
 import Icon from '@/components/Icon'
 
