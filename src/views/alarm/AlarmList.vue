@@ -24,11 +24,12 @@
       <el-table-column label="操作">
         <template slot-scope="scope">
           <div v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation}}</div>
-          <el-button v-else size="small" @click="doDispose(scope.row)" type="primary">处理告警</el-button>
+          <el-button v-else size="mini" @click="doDispose(scope.row)" type="primary">处理告警</el-button>
         </template>
       </el-table-column>
     </el-table>
     <el-pagination
+      class="pagination"
       :hide-on-single-page="true"
       :total="pagination.total"
       :page-size="pagination.pageSize"
@@ -37,13 +38,15 @@
       layout="total, prev, pager, next">
     </el-pagination>
     <div class="dispose" v-if="showDispose">
-      <h3>告警处理</h3>
-      <el-input class="input" v-model="disposeInfo" placeholder="请输入处理记录！"></el-input>
-      <div class="action">
-        <el-button-group>
-          <el-button round="" type="primary" :disabled="!disposeInfo" :loading="loading" @click="submitDispose()">确定</el-button>
-          <el-button round="" type="danger" @click="quitDispose" >退出</el-button>
-        </el-button-group>
+      <div class="box">
+        <h3>告警处理</h3>
+        <el-input class="input" v-model="disposeInfo" placeholder="请输入处理记录！"></el-input>
+        <div class="action">
+          <el-button-group>
+            <el-button round="" type="primary" :disabled="!disposeInfo" :loading="loading" @click="submitDispose()">确定</el-button>
+            <el-button round="" type="danger" @click="quitDispose" >退出</el-button>
+          </el-button-group>
+        </div>
       </div>
     </div>
   </div>
@@ -61,7 +64,7 @@ export default {
     return {
       alarms: [],
       pagination: {
-        pageSize: 15,
+        pageSize: 2,
         total: 0,
         current: 1,
       },
@@ -180,22 +183,37 @@ export default {
   .search {
     margin: 15px 0;
   }
+  .pagination {
+    width: 100%;
+    background: rgba(39, 39, 38, 0.589);
+    padding: 5px 0;
+    margin-top: 15px;
+    border-radius: 10px;
+  }
   .dispose {
-    width: 500px;
-    height: 20vh;
+    width: 100%;
+    height: 100vh;
     position: fixed;
-    top: 200px;
-    left: 600px;
-    background: rgb(82, 82, 82);
-    border-radius: 20px;
-    padding: 15px;
-    box-shadow: 2px 3px 5px #333;
+    background: rgba(128, 128, 128, 0.534);
+    top: 0;
+    left: 0;
     z-index: 2000;
-    .input {
-      width: 100%;
-    }
-    .action {
-      margin-top: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .box {
+      width: 500px;
+      height: 20vh;
+      background: rgb(82, 82, 82);
+      border-radius: 20px;
+      padding: 15px;
+      box-shadow: 2px 3px 5px #333;
+      .input {
+        width: 100%;
+      }
+      .action {
+        margin-top: 30px;
+      }
     }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="count" :id="`count-${uid}`"></div>
+  <div :class="className ? 'count ' + className : 'count'" :id="`count-${uid}`"></div>
 </template>
 <script>
 import { CountUp } from 'countup.js'
@@ -17,6 +17,12 @@ export default {
     },
     decimalPlaces: {
       default: 0
+    },
+    duration: {
+      default: 2
+    },
+    className: {
+      default: ''
     }
   },
   data () {
@@ -41,7 +47,7 @@ export default {
     init () {
       this.counter = new CountUp(`count-${this.uid}`, this.to, {
         startVal: 0,
-        duration: 2,
+        duration: this.duration,
         decimalPlaces: this.decimalPlaces,
         suffix: this.suffix
       })

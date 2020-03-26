@@ -24,7 +24,7 @@ export default {
 <style lang="less" scoped>
 .menus {
   width: 100%;
-  // padding: 10px 0;
+  // padding-left: 20px;
   text-align: left;
   vertical-align: middle;
   background: rgba(39, 39, 39, 0.5);
