@@ -64,7 +64,7 @@ export default {
     return {
       alarms: [],
       pagination: {
-        pageSize: 2,
+        pageSize: 15,
         total: 0,
         current: 1,
       },

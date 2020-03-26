@@ -43,7 +43,13 @@
       <div class="item" id="out-put"></div>
       <div class="item">
         <!-- <h4>告警列表</h4> -->
-        <CountTo :to="num" uid="test" suffix="%" />
+        <!-- <CountTo :to="num" uid="test" suffix="%" /> -->
+        <!--  -->
+        <div class="total-layout">
+          <TotalItem :info="{a: 2}" id="car-come" />
+          <TotalItem :info="{a: 2}" id="car-out" />
+          <TotalItem :info="{a: 2}" id="car-exist"/>
+        </div>
       </div>
       <div class="item">
         <!-- <h4>超八小时未出荷车辆列表</h4> -->
@@ -89,9 +95,9 @@ import {
   getBindList,
   getAlarmList,
 } from '../api/vq'
-import alarmCar from '../assets/img/point-red.png'
-import overtimeCar from '../assets/img/point-yellow.png'
-import normalCar from '../assets/img/point-blue.png'
+import alarmCar from '../assets/img/car-red.png'
+import overtimeCar from '../assets/img/car-yellow.png'
+import normalCar from '../assets/img/car-blue.png'
 export default {
   data () {
     return {
@@ -110,6 +116,7 @@ export default {
     // ShowTime
     // SeamLessScroll
     CountTo: () => import('../components/CountTo'),
+    TotalItem: () => import('../components/TotalItem'),
   },
   computed: {
     scrollOptions () {
@@ -155,9 +162,25 @@ export default {
       // console.log(data)
       let newAlarm = JSON.parse(data)
       console.log(newAlarm)
-      // 将告警加入到告警列表
-      this.alarms.push(newAlarm.content)
       // 改变对应marker的状态
+      // 找到对应的marker
+      let markerIndex = this.markers.findIndex((item) => item.locatorId === newAlarm.locatorId)
+      // 改变marker以及数据状态
+      if (markerIndex !== -1) {
+        let currentMarker = this.markers[markerIndex].marker
+        // console.log('move')
+        // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
+        let alarmIcon = this.createPointMarker('alarm')
+        console.log('改变了车的颜色状态')
+        currentMarker.setIcon(alarmIcon)
+        this.$notify.error({
+          dangerouslyUseHTMLString: true,
+          // message: newAlarm.vehicleId + '发生告警: ' + newAlarm.message + this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss') + '位置：' + newAlarm.address,
+          message: `<div>${newAlarm.vehicleId}发生告警</div><div>内容: '${newAlarm.message}</div><div>时间: ${this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss')}</div><div>地点: ${newAlarm.address}</div>`,
+          position: 'bottom-right',
+          duration: 2500
+        })
+      }
     },
     position (data) {
       console.log('接收到position事件推送')
@@ -170,7 +193,11 @@ export default {
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker
         // console.log('move')
-        currentMarker.setLatLng([newPos.content.y, newPos.content.x])
+        // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
+        currentMarker.moveTo([newPos.content.y, newPos.content.x], 500)
+        setTimeout(() => {
+          newPos.content.deg && currentMarker.setRotation(newPos.content.deg)
+        }, 600)
       }
     },
     bind (data) {
@@ -184,7 +211,26 @@ export default {
         this.bindCars.push(newCar)
         this.renderMarker(newCar)
       }
-    }
+    },
+    unBind (data) {
+      const removeCar = JSON.parse(data)
+      console.log('删除了car')
+      console.log(removeCar)
+      // 找到是否有这辆车
+      let carIndex = this.bindCars.findIndex((car) => car.vehicle.id === removeCar.id)
+      // 移除数据
+      if (carIndex !== -1) { // 存在这辆车
+        this.bindCars.split(carIndex, 1)
+        // 找出这个marker
+        // 找到对应的marker
+        let markerIndex = this.markers.findIndex((item) => item.id === removeCar.id)
+        if (markerIndex !== -1) {
+          let currentMarker = this.markers[markerIndex].marker
+          // 删除marker
+          currentMarker.remove()
+        }
+      }
+    },
   },
   methods: {
     // 获取动态数据
@@ -485,12 +531,21 @@ export default {
     },
     // 渲染车辆点到地图上
     renderMarker (car) {
+      let bindTime = car.vehicleDeliverStatus.bindTime
+      // console.log(bindTime)
+      let iconType = this.formatTimeOnly(bindTime) > 8 ? 'overtime' : 'normal'
+      // console.log(iconType)
       let carPos = [car.locator.y, car.locator.x]
-      let icon = this.createPointMarker('normal')
-      const marker = L.marker(carPos, {
+      let icon = this.createPointMarker(iconType)
+      const marker = L.Marker.movingMarker([carPos], [], {
+        rotate: true,
         icon,
-        title: car.vehicle.name + ' ' + car.locator.y + ' ' + car.locator.x
+        initialRotationAngle: 90,
+        title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
       })
+      // 为marker绑上车和定位器的ID
+      marker.carId = car.vehicle.id
+      marker.locatorId = car.locator.id
       this.markers.push({
         marker,
         id: car.vehicle.id,
@@ -499,6 +554,10 @@ export default {
       this.map && marker.addTo(this.map)
     },
     // moment,
+    formatTimeOnly (s) {
+      let repairTime = this.$moment().valueOf() - s
+      return this.$moment.duration(repairTime / 1000, 's').asHours().toFixed(2)
+    },
     formatTime (s) {
       return moment.duration(s, 's').asHours().toFixed(2)
     },
@@ -531,6 +590,8 @@ export default {
     const map = L.map('map-small', {
       center: [4, -10],
       zoom: 6,
+      minZoom: 6,
+      maxZoom: 6,
       zoomControl: false, // 默认不显示缩放按钮
       attributionControl: false // 不显示leaflet 图标logo
 
@@ -582,22 +643,10 @@ export default {
         background: rgba(53, 51, 51, 0.322);
         border-radius: 20px;
         box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-        // height: 200px;
-        .seamless {
-          overflow: hidden;
-          height: 100%;
-          .alarm-item {
-            margin: 10px 0 0 0;
-            padding: 0 5px;
-            display: grid;
-            grid-template-columns: 50% 50%;
-            .name {
-              text-align: left;
-            }
-            .time {
-              text-align: right;
-            }
-          }
+        .total-layout {
+          display: grid;
+          grid-template-rows: 1fr 1fr 1fr;
+          row-gap: 13px;
         }
         .item-car {
           // height: 100%;

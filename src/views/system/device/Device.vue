@@ -4,46 +4,75 @@
       <el-input placeholder="搜索筛选框"></el-input>
     </div>
     <div class="add">
-      <el-button @click="addDevice">添加标签</el-button>
+      <!-- <el-button @click="addDevice">添加标签</el-button> -->
     </div>
     <el-table :data="devices" style="width: 100%;background:#fff0" size="mini">
-      <el-table-column label="设备编号" prop="name"></el-table-column>
-      <el-table-column label="状态" prop="statu"></el-table-column>
-      <el-table-column label="位置(红色为异常)">
+      <el-table-column label="设备编号" prop="sn"></el-table-column>
+      <el-table-column label="状态">
         <template slot-scope="scope">
-          <div :class="scope.row.pox === '异常' ? 'error' : ''">{{scope.row.addr}}</div>
+          <div :class="scope.row.bind === true ? 'success' : ''">{{scope.row.bind === true ? '已绑定' : '未绑定'}}</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="电量">
+        <template slot-scope="scope">
+          <div :class="scope.row.power && scope.row.power > 20 ? '' : 'error'">{{scope.row.power ? scope.row.address + '%' : '未知(已离线)'}}</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="位置">
+        <template slot-scope="scope">
+          <div :class="scope.row.address ? '' : 'error'">{{scope.row.address ? scope.row.address : '未知区域'}}</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="记录时间">
+        <template slot-scope="scope">
+          <div>{{$moment(scope.row.position_time).format('YYYY-MM-DD HH:mm:ss')}}</div>
         </template>
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button size="small">编辑</el-button>
-          <el-button size="small" @click="deleteDevice(scope.row)">删除</el-button>
-          <el-button size="small" @click="sendVoice(scope.row.name)">发声</el-button>
-          <!-- <el-button v-if="scope.row.pox === '异常'" size="small" type="danger">查看异常位置</el-button> -->
+          <el-button-group>
+            <el-button round type="primary" size="mini" @click="sendVoice(scope.row.name)">发声</el-button>
+            <el-button round type="danger" size="mini" @click="deleteDevice(scope.row)">删除</el-button>
+          </el-button-group>
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      class="pagination"
+      :hide-on-single-page="true"
+      :total="pagination.total"
+      :page-size="pagination.pageSize"
+      :current-page="pagination.current"
+      @current-change="pageChanged"
+      layout="total, prev, pager, next">
+    </el-pagination>
     <AddDeviceDialog ref="addDeviceDialog" />
   </div>
 </template>
 <script>
 import AddDeviceDialog from './AddDeviceDialog'
+import {
+  queryUWB
+} from '../../../api/car'
+import {
+  mapState
+} from 'vuex'
 export default {
   components: {
     AddDeviceDialog
   },
   data () {
     return {
-      devices: [
-        { name: 'sx2123132', statu: '未使用', pox: '正常', addr: '总装车间第二排' },
-        { name: 'sa332323', statu: '使用中', pox: '正常', addr: '总装车间第二排' },
-        { name: '213424234', statu: '使用中', pox: '异常', addr: '未知地点-超出范围' },
-        { name: '4324234234', statu: '使用中', pox: '正常', addr: '总装车间第二排' },
-        { name: '643542342', statu: '未使用', pox: '正常', addr: '总装车间第二排' },
-        { name: '432432434', statu: '未使用', pox: '异常', addr: '未知地点-超出范围' },
-        { name: '654353532', statu: '使用中', pox: '正常', addr: '总装车间第二排' }
-      ]
+      devices: [],
+      pagination: {
+        pageSize: 15,
+        total: 0,
+        current: 1,
+      },
     }
+  },
+  computed: {
+    ...mapState(['productLineId'])
   },
   methods: {
     addDevice () {
@@ -63,7 +92,41 @@ export default {
         message: `已删除设备${device.name}`,
         type: 'success'
       })
-    }
+    },
+    // 获取标签列表
+    getDeviceList (param) {
+      console.log('query')
+      let queryParam
+      if (param) {
+        queryParam = param
+      } else {
+        queryParam = {
+          productLineId: this.productLineId,
+          pageSize: this.pagination.pageSize,
+        }
+      }
+      queryUWB(queryParam).then((res) => {
+        console.log(res)
+        let { code, result } = res
+        if (code === 0) {
+          this.devices = result.resultList
+          this.pagination.total = result.pageObject.totalSize
+          this.pagination.current = result.pageObject.currentPage
+        }
+      })
+    },
+    pageChanged (ev) {
+      console.log(ev)
+      let param = {
+        productLineId: this.productLineId,
+        pageSize: this.pagination.pageSize,
+        currentPage: ev
+      }
+      this.getDeviceList(param)
+    },
+  },
+  created () {
+    this.getDeviceList()
   }
 }
 </script>
@@ -71,6 +134,13 @@ export default {
 .page {
   .search {
     margin: 15px 0;
+  }
+  .pagination {
+    width: 100%;
+    background: rgba(39, 39, 38, 0.589);
+    padding: 5px 0;
+    margin-top: 15px;
+    border-radius: 10px;
   }
   .add {
     margin:  10px 0;

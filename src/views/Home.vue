@@ -85,9 +85,10 @@ export default {
         this.bindCars[currentCarIndex].vehicle.status = 1
         this.bindCars = [...this.bindCars]
         this.$notify.error({
-          message: newAlarm.vehicleId + '发生告警: ' + newAlarm.message + this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss') + '位置： ？？？',
+          dangerouslyUseHTMLString: true,
+          message: `<div>${newAlarm.vehicleId}发生告警</div><div>内容: '${newAlarm.message}</div><div>时间: ${this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss')}</div><div>地点: ${newAlarm.address}</div>`,
           position: 'bottom-right',
-          duration: 500
+          duration: 2500
         })
         // this.getBindCars()
       }
@@ -121,7 +122,26 @@ export default {
         this.bindCars.push(newCar)
         this.renderMarker(newCar)
       }
-    }
+    },
+    unBind (data) {
+      const removeCar = JSON.parse(data)
+      console.log('删除了car')
+      console.log(removeCar)
+      // 找到是否有这辆车
+      let carIndex = this.bindCars.findIndex((car) => car.vehicle.id === removeCar.id)
+      // 移除数据
+      if (carIndex !== -1) { // 存在这辆车
+        this.bindCars.split(carIndex, 1)
+        // 找出这个marker
+        // 找到对应的marker
+        let markerIndex = this.markers.findIndex((item) => item.id === removeCar.id)
+        if (markerIndex !== -1) {
+          let currentMarker = this.markers[markerIndex].marker
+          // 删除marker
+          currentMarker.remove()
+        }
+      }
+    },
   },
   methods: {
     toggleShowSide () {
@@ -181,23 +201,19 @@ export default {
     },
     // 渲染车辆点到地图上
     renderMarker (car) {
+      // console.log(car)
+      let bindTime = car.vehicleDeliverStatus.bindTime
+      // console.log(bindTime)
+      let iconType = this.formatTime(bindTime) > 8 ? 'overtime' : 'normal'
+      // console.log(iconType)
       let carPos = [car.locator.y, car.locator.x]
-      let icon = this.createPointMarker('normal')
-      // const marker = L.marker(carPos, {
-      //   icon,
-      //   title: car.vehicle.name + ' ' + car.locator.y + ' ' + car.locator.x
-      // })
-      console.log(car)
+      let icon = this.createPointMarker(iconType)
       const marker = L.Marker.movingMarker([carPos], [], {
         rotate: true,
         icon,
         initialRotationAngle: 90,
         title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
       })
-      // marker.moveTo([2, -8], 500)
-      // setTimeout(() => {
-      //   marker.setRotation(125)
-      // }, 600)
       // 为marker绑上车和定位器的ID
       marker.carId = car.vehicle.id
       marker.locatorId = car.locator.id
@@ -208,6 +224,10 @@ export default {
         locatorId: car.locator.id
       })
       this.map && marker.addTo(this.map)
+    },
+    formatTime (s) {
+      let repairTime = this.$moment().valueOf() - s
+      return this.$moment.duration(repairTime / 1000, 's').asHours().toFixed(2)
     },
     // 点击marker
     clickMarker (ev) {
