@@ -6,17 +6,9 @@
     </div> -->
     <div class="layout">
       <div class="item">
-        <div class="overview">
+        <div class="total-layout">
           <template v-for="(item, index) in broad">
-            <div :key="index" class="overview-item">
-              <h3>{{item.title}}</h3>
-              <div :class="judgeTodayData(index, item.now, item.yesterday)">
-                  <!-- <CountTo :key="index" :to="item.now"></CountTo> -->
-                  <CountTo :key="index" :to="item.now" :uid="index + '0'" suffix="%" :decimalPlaces="2" />
-                </div>
-              <div>昨日: {{item.yesterday}}</div>
-              <div>七日: {{item.averageOfWeek}}</div>
-            </div>
+            <TotalItem :key="index" :id="'car-broad-' + index" :info="item" type="broad" />
           </template>
         </div>
       </div>
@@ -34,13 +26,10 @@
       </div>
       <div class="item" id="out-put"></div>
       <div class="item">
-        <!-- <h4>告警列表</h4> -->
-        <!-- <CountTo :to="num" uid="test" suffix="%" /> -->
-        <!--  -->
         <div class="total-layout">
-          <TotalItem :info="{a: 2}" id="car-come" />
-          <TotalItem :info="{a: 2}" id="car-out" />
-          <TotalItem :info="{a: 2}" id="car-exist"/>
+          <template v-for="(item, index) in storeData">
+            <TotalItem :key="index" :id="'car-store-' + index" :info="item" />
+          </template>
         </div>
       </div>
       <div class="item">
@@ -75,17 +64,20 @@
 import echart from 'echarts'
 import bus from '@/bus/bus'
 import { baseChartOption } from '../config/chartConfig'
-import { broads } from '../mock/broad'
+// import { broads } from '../mock/broad'
 import getLastDays from '../mock/days'
 import imgMap from '../assets/img/office-map.png'
 import { cars } from '../mock/cars'
 import moment from 'moment'
 // import SeamLessScroll from 'vue-seamless-scroll'
 import {
-  getRealTimeData,
+  // getRealTimeData,
   getStatisticData,
   getBindList,
   getAlarmList,
+  queryStore,
+  queryEfficiency,
+  querySummary,
 } from '../api/vq'
 import alarmCar from '../assets/img/car-red.png'
 import overtimeCar from '../assets/img/car-yellow.png'
@@ -93,7 +85,7 @@ import normalCar from '../assets/img/car-blue.png'
 export default {
   data () {
     return {
-      broad: broads[0],
+      broad: '',
       cars,
       alarms: [],
       charts: [],
@@ -102,12 +94,13 @@ export default {
       // 地图上所有车的点数组
       markers: [],
       // percentData: ''
+      storeData: '',
     }
   },
   components: {
     // ShowTime
     // SeamLessScroll
-    CountTo: () => import('../components/CountTo'),
+    // CountTo: () => import('../components/CountTo'),
     TotalItem: () => import('../components/TotalItem'),
   },
   computed: {
@@ -155,6 +148,8 @@ export default {
     this.getBoradData()
     this.getChartData()
     this.getAlarmData()
+    this.getStoreData()
+    this.getImportantSummary()
   },
   sockets: {
     connect (data) {
@@ -173,7 +168,7 @@ export default {
       // console.log('接收到alarm事件推送')
       // console.log(data)
       let newAlarm = JSON.parse(data)
-      console.log(newAlarm)
+      // console.log(newAlarm)
       // 改变对应marker的状态
       // 找到对应的marker
       let markerIndex = this.markers.findIndex((item) => item.locatorId === newAlarm.locatorId)
@@ -191,7 +186,7 @@ export default {
           iconType = 'alarm'
         }
         let Icon = this.createPointMarker(iconType)
-        console.log('改变了车的颜色状态')
+        // console.log('改变了车的颜色状态')
         currentMarker.setIcon(Icon)
         this.$notify.error({
           dangerouslyUseHTMLString: true,
@@ -203,8 +198,8 @@ export default {
       }
     },
     position (data) {
-      console.log('接收到position事件推送')
-      console.log(data)
+      // console.log('接收到position事件推送')
+      // console.log(data)
       const newPos = JSON.parse(data)
       // console.log(newPos)
       // 找到对应的marker
@@ -221,9 +216,9 @@ export default {
       }
     },
     bind (data) {
-      console.log(data)
+      // console.log(data)
       const newCar = JSON.parse(data)
-      console.log(newCar)
+      // console.log(newCar)
       // 验证这辆车是否已存在与列表中，若存在则无视，若不存在则在车辆列表中添加这辆车并创建一个新的marker
       const carId = newCar.vehicle.id
       let hasThisCar = this.bindCars.find((car) => car.vehicle.id === carId)
@@ -265,13 +260,53 @@ export default {
         return false
       }
     },
-    // 获取动态数据
+    // 获取效率数据
     getBoradData () {
-      getRealTimeData().then((res) => {
+      queryEfficiency().then((res) => {
         // console.log(res)
         if (res.code === 0) {
-          this.broad = res.result
+          let broadInfo = res.result
+          broadInfo.forEach((item) => {
+            if (item.index === 1) {
+              item.icon = 'zx-xiaoshichuhe-1'
+            } else if (item.index === 2) {
+              item.icon = 'zx-xiaoshichuhe-'
+            } else if (item.index === 3) {
+              item.icon = 'zx-pingjunchuhe-1'
+              item.today = item.today / 1000 / 60 / 60
+              item.yesterday = item.yesterday / 1000 / 60 / 60
+              item.average = item.average / 1000 / 60 / 60
+            }
+          })
+          // console.log(storeInfo)
+          this.broad = broadInfo
         }
+      })
+    },
+    // 获取库存信息
+    getStoreData () {
+      queryStore().then((res) => {
+        // console.log(res)
+        if (res.code === 0) {
+          let storeInfo = res.result
+          storeInfo.forEach((item) => {
+            if (item.index === 1) {
+              item.icon = 'zx-ruku'
+            } else if (item.index === 2) {
+              item.icon = 'zx-chuku'
+            } else if (item.index === 3) {
+              item.icon = 'zx-kucun'
+            }
+          })
+          // console.log(storeInfo)
+          this.storeData = storeInfo
+        }
+      })
+    },
+    // 获取重要事件
+    getImportantSummary () {
+      querySummary().then((res) => {
+        console.log(res)
       })
     },
     // 获取过往统计数据
@@ -599,6 +634,7 @@ export default {
     intervalBroad () {
       this.broadTime = setInterval(() => {
         this.getBoradData()
+        this.getStoreData()
       }, 5000)
     },
     // // 转变进度条的内容显示

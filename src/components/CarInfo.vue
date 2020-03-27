@@ -10,12 +10,15 @@
       <div class="item">入荷时间: {{$moment(car.bindTime).format('YYYY-MM-DD HH:mm:ss')}}</div>
       <div class="item">维修时长: {{$moment(car.bindTime).toNow(true)}}</div>
       <div class="item">当前状态: {{computedCarStatu(car.statu, car.bindTime)}}</div>
-      <div class="item">标签电量: {{computedCarStatu(car.statu, car.bindTime)}}</div>
+      <!-- <div class="item">标签电量: {{computedCarStatu(car.statu, car.bindTime)}}</div> -->
       <div class="item">当前位置: {{address}}</div>
-      <div class="item">当前时间: {{$moment(currentTime).format('YYYY-MM-DD HH:mm:ss')}}</div>
+      <div class="item">当前时间: {{currentTime ? $moment(currentTime).format('YYYY-MM-DD HH:mm:ss') : ''}}</div>
     </div>
     <div class="process">
-      <el-timeline>
+      <template v-for="(log, index) in car.logs">
+        <Log :key="index" :log="log" />
+      </template>
+      <!-- <el-timeline>
         <el-timeline-item
           v-for="(activity, index) in car.logs"
           :key="index"
@@ -23,7 +26,7 @@
           <div>{{activity.detail}}</div>
           <div>操作员: {{activity.nickName ? activity.nickName : '系统自动生成'}}</div>
         </el-timeline-item>
-      </el-timeline>
+      </el-timeline> -->
     </div>
     <!-- <div>{{car}}</div> -->
   </div>
@@ -34,6 +37,9 @@ import {
   queryLocatorAddress
 } from '../api/common'
 export default {
+  components: {
+    Log: () => import('./Log')
+  },
   props: {
     car: {
       required: true,
@@ -52,6 +58,7 @@ export default {
       this.$emit('close')
     },
     computedCarStatu (code, bindTime) {
+      console.log(code)
       const isDelay = (bindTime) => {
         // console.log(bindTime)
         let duration = moment().valueOf() - bindTime
@@ -67,28 +74,28 @@ export default {
       let statu
       if (code !== 0) { // 告警状态，判断是否超时
         if (isDelay(bindTime)) { // 已超时
-          statu = 'delay'
+          statu = '告警 超时'
         } else {
-          statu = 'alarm'
+          statu = '告警'
         }
       } else { // 非告警状态，说明正常
-        statu = 'normal'
+        statu = '正常'
       }
       return statu
     },
     // 查询定位器的实时位置
     getCurrentAddressByLocatorId () {
-      console.log(this.car)
+      // console.log(this.car)
       let params = {
         locatorId: this.car.locatorId
       }
       queryLocatorAddress(params).then((res) => {
-        console.log(res)
+        // console.log(res)
         let { code, result, timestamp } = res
         if (code === 0) {
           this.address = result
           this.currentTime = timestamp
-          console.log(this.car)
+          // console.log(this.car)
         }
       })
     }

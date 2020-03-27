@@ -23,3 +23,18 @@ export const getAlalrmTypes = () => {
 export const queryCars = (param) => {
   return request.post('/api/vehicle/v1.0/query', param)
 }
+
+// 获取库存信息
+export const queryStore = () => {
+  return request.get('/api/monitor/v1.0/statistic/store')
+}
+
+// 获取效率信息
+export const queryEfficiency = () => {
+  return request.get('/api/monitor/v1.0/statistic/efficiency')
+}
+
+// 获取重要信息
+export const querySummary = () => {
+  return request.get('/api/monitor/v1.0/important/summary')
+}

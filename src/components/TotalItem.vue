@@ -2,18 +2,18 @@
   <div class="sum">
     <div class="left">
       <div class="icon">
-        <zx-icon :type="icon"></zx-icon>
+        <zx-icon :type="info.icon"></zx-icon>
       </div>
-      <div class="title">{{'入库'}}</div>
+      <div class="title">{{info.name}}</div>
     </div>
     <div class="content">
       <!-- <div class="title">{{'入库'}}</div> -->
       <div class="main">
-        <CountTo className="font" :to="250" :uid="id"  />
+        <CountTo :className="'font ' + computeStoreClass(info.index, info.today, info.yesterday)" :to="info.today" :uid="id" :decimalPlaces="computedPlace()" :suffix="computedSuffix(info.index)"  />
       </div>
       <div class="history">
-        <div>昨日: {{234}}</div>
-        <div>七日: {{312}}</div>
+        <div>昨日: {{type === 'broad' ? info.yesterday.toFixed(2) : info.yesterday}}</div>
+        <div>七日: {{type === 'broad' ? info.average.toFixed(2) : info.average}}</div>
       </div>
     </div>
   </div>
@@ -33,6 +33,66 @@ export default {
     id: {
       required: true,
       default: 'car'
+    },
+    type: {
+      default: 'store'
+    }
+  },
+  methods: {
+    // ..
+    computeStoreClass (index, today, yesterday) {
+      if (this.type === 'store') { // 库存信息
+        if (index === 1 || index === 2) { // 入荷 出荷
+          if (today >= yesterday) { // 工作量更大
+            return 'success'
+          } else {
+            return 'error'
+          }
+        } else if (index === 3) { // 在库
+          if (today >= yesterday) { // 剩余工作更多
+            return 'error'
+          } else {
+            return 'success'
+          }
+        } else {
+          return ''
+        }
+      } else {
+        // .
+        if (index === 3 || index === 2) {
+          if (today >= yesterday) {
+            return 'error'
+          } else {
+            return 'success'
+          }
+        } else if (index === 1) {
+          if (today >= yesterday) {
+            return 'success'
+          } else {
+            return 'error'
+          }
+        } else {
+          return ''
+        }
+      }
+    },
+    computedSuffix (index) {
+      if (this.type === 'broad') {
+        if (index === 3) {
+          return 'h'
+        } else {
+          return '%'
+        }
+      } else {
+        return ''
+      }
+    },
+    computedPlace () {
+      if (this.type === 'broad') {
+        return 2
+      } else {
+        return 0
+      }
     }
   }
 }
@@ -40,7 +100,7 @@ export default {
 <style lang="less">
 .sum {
   display: grid;
-  grid-template-columns: 45% auto;
+  grid-template-columns: 50% auto;
   height: 100%;
   box-sizing: border-box;
   column-gap: 10px;
@@ -54,11 +114,13 @@ export default {
     width: 100%;
     display: grid;
     grid-template-columns: 30% auto;
+    column-gap: 5px;
     .icon {
       font-size: 2rem;
     }
     .title {
-      font-size: 1.3rem;
+      font-size: 1.1rem;
+      font-weight: 600;
       text-align: left;
       // line-height: 100%;
       align-self: center;

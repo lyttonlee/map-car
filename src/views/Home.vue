@@ -155,6 +155,18 @@ export default {
   },
   methods: {
     ...mapActions(['getMapInfo']),
+    isDelay (bindTime) {
+      // console.log(bindTime)
+      let duration = this.$moment().valueOf() - bindTime
+      // console.log(duration)
+      let hours = this.$moment.duration(duration / 1000, 's').hours()
+      // console.log(hours)
+      if (hours >= 8) {
+        return true
+      } else {
+        return false
+      }
+    },
     toggleShowSide () {
       this.showSide = !this.showSide
     },
@@ -285,16 +297,6 @@ export default {
             })
           }
         }
-      })
-    },
-    // 查询车辆信息
-    getCarInfo () {
-      let param = {
-        productLineId: 1,
-        bind: true,
-      }
-      queryCars(param).then((res) => {
-        console.log(res)
       })
     },
   },

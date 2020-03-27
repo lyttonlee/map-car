@@ -4,6 +4,11 @@ export const queryMap = (params) => {
   return request.get('/api/map/v1.0/entire', { params })
 }
 
+// 获取基站信息
+export const queryBaseStation = (params) => {
+  return request.get('/api/map/v1.0/baseStations/query', { params })
+}
+
 export const queryFence = (params) => {
   return request.get('/api/map/v1.0/zone', { params })
 }
