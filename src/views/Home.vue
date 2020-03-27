@@ -20,7 +20,7 @@
 
 <script>
 /* eslint-disable no-undef */
-import imgMap from '../assets/img/office-map.png'
+// import imgMap from '../assets/img/office-map.png'
 import successCar from '../assets/img/car-blue.png'
 import errorCar from '../assets/img/car-red.png'
 import warnCar from '../assets/img/car-yellow.png'
@@ -28,6 +28,10 @@ import {
   getBindList,
   queryCars,
 } from '../api/vq'
+import {
+  mapState,
+  mapActions,
+} from 'vuex'
 // import RepairTrack from '../components/RepairTrack'
 export default {
   name: 'home',
@@ -49,6 +53,9 @@ export default {
       markers: [],
       showingCar: {},
     }
+  },
+  computed: {
+    ...mapState(['mapInfo'])
   },
   sockets: {
     connect (data) {
@@ -74,16 +81,19 @@ export default {
       // 改变marker以及数据状态
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker
-        // console.log('move')
-        // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
-        let alarmIcon = this.createPointMarker('alarm')
-        console.log('改变了车的颜色状态')
-        currentMarker.setIcon(alarmIcon)
-        // 改变车辆列表数据状态显示
-        // console.log(this.bindCars)
+        // 判断车辆是仅告警还是有超时
         let currentCarIndex = this.bindCars.findIndex((car) => car.locator.id === newAlarm.locatorId)
         this.bindCars[currentCarIndex].vehicle.status = 1
         this.bindCars = [...this.bindCars]
+        let iconType
+        if (this.isDelay(this.bindCars[currentCarIndex].vehicleDeliverStatus.bindTime)) {
+          iconType = 'overtime'
+        } else {
+          iconType = 'alarm'
+        }
+        let Icon = this.createPointMarker(iconType)
+        console.log('改变了车的颜色状态')
+        currentMarker.setIcon(Icon)
         this.$notify.error({
           dangerouslyUseHTMLString: true,
           message: `<div>${newAlarm.vehicleId}发生告警</div><div>内容: '${newAlarm.message}</div><div>时间: ${this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss')}</div><div>地点: ${newAlarm.address}</div>`,
@@ -144,6 +154,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['getMapInfo']),
     toggleShowSide () {
       this.showSide = !this.showSide
     },
@@ -256,7 +267,7 @@ export default {
       // this.isShowing = true
     },
     // 获取绑定的车辆信息
-    getBindCars () {
+    getBindCars (isInit) {
       let params = {
         productLineId: 1
       }
@@ -264,7 +275,11 @@ export default {
         console.log(res)
         if (res.code === 0) {
           this.bindCars = res.result
-          if (this.bindCars.length > 0) {
+          if (!isInit) {
+            console.log('fresh')
+            this.bindCars = [...this.bindCars]
+          }
+          if (this.bindCars.length > 0 && isInit === true) {
             this.bindCars.forEach((car) => {
               this.renderMarker(car)
             })
@@ -284,28 +299,38 @@ export default {
     },
   },
   mounted () {
-    // eslint-disable-next-line no-undef
-    const map = L.map('map', {
-      center: [4, -10],
-      zoom: 6,
-      minZoom: 6,
-      maxZoom: 6,
-      zoomControl: false, // 默认不显示缩放按钮
-      attributionControl: false // 不显示leaflet 图标logo
+    this.getMapInfo().then((mapInfo) => {
+      // eslint-disable-next-line no-undef
+      const map = L.map('map', {
+        center: [4, -10],
+        zoom: 6,
+        minZoom: 6,
+        maxZoom: 6,
+        zoomControl: false, // 默认不显示缩放按钮
+        attributionControl: false // 不显示leaflet 图标logo
 
+      })
+      console.log(mapInfo)
+      const imgUrl = mapInfo.twoDFilePath
+      const imgBounds = [[mapInfo.coordinateDown, mapInfo.coordinateLeft], [mapInfo.coordinateUpper, mapInfo.coordinateRight]]
+      // const imgUrl = imgMap
+      // const imgBounds = [[-0.8, -22.7], [8.0, 1.2]]
+      // eslint-disable-next-line no-undef
+      L.imageOverlay(imgUrl, imgBounds).addTo(map)
+      this.map = map
+      this.getBindCars(true)
+      this.carListTime = setInterval(this.getBindCars, 30000)
+    }).catch((err) => {
+      console.log(err)
+      this.$notify.error({
+        message: '获取地图数据失败[失望脸]'
+      })
     })
-    // console.log(map)
-    const imgUrl = imgMap
-    const imgBounds = [[-0.8, -22.7], [8.0, 1.2]]
-    // eslint-disable-next-line no-undef
-    L.imageOverlay(imgUrl, imgBounds).addTo(map)
-    this.map = map
-    this.getBindCars()
     // this.getCarInfo()
   },
   beforeDestroy () {
-    this.cartime && clearInterval(this.cartime)
-    this.cartime = null
+    this.carListTime && clearInterval(this.carListTime)
+    this.carListTime = null
   }
 }
 </script>

@@ -46,6 +46,16 @@ export default {
   created () {
     this.initCars()
   },
+  watch: {
+    cars: {
+      handler: function (newValue) {
+        if (newValue) {
+          this.initCars()
+        }
+      },
+      deep: true
+    }
+  },
   methods: {
     // 搜索车架号查询
     doSearch () {

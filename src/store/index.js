@@ -7,6 +7,7 @@ import {
   CARSTATUS,
   LOCATORSTATUS,
   ALARMCONFIG,
+  MAPINFO,
 } from './types'
 import router from '../router'
 import {
@@ -29,6 +30,9 @@ import {
 import {
   queryAlarmConfig
 } from '../api/alarm'
+import {
+  queryMap
+} from '../api/fence'
 
 Vue.use(Vuex)
 
@@ -45,6 +49,7 @@ export default new Vuex.Store({
     productLineId: 1,
     floorId: 1,
     alarmConfig: '',
+    mapInfo: '',
   },
   mutations: {
     [LOGOUT]: (state) => {
@@ -82,6 +87,9 @@ export default new Vuex.Store({
     },
     [ALARMCONFIG]: (state, status) => {
       state.alarmConfig = status
+    },
+    [MAPINFO]: (state, mapInfo) => {
+      state.mapInfo = mapInfo
     },
   },
   actions: {
@@ -155,6 +163,25 @@ export default new Vuex.Store({
           console.log(result)
           commit(ALARMCONFIG, result)
         }
+      })
+    },
+    // 获取地图数据
+    getMapInfo ({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        let params = {
+          productLineId: state.productLineId
+        }
+        queryMap(params).then((res) => {
+          let { code, result, desc } = res
+          if (code === 0) {
+            console.log(result)
+            commit(MAPINFO, result[0].buildings[0].floors[0])
+            resolve(result[0].buildings[0].floors[0])
+          } else {
+            let err = new Error(desc)
+            reject(err)
+          }
+        })
       })
     }
   },

@@ -23,21 +23,13 @@
       <div class="item item-row-1-3 item-col-2-4 map">
         <div id="map-small" class="page"></div>
         <div class="percent">
-          <div class="percent-item">
-            <div class="text">正常车辆</div>
-            <el-progress :show-text="false" :stroke-width="8" :percentage="43"></el-progress>
-            <div class="number">43% (100辆)</div>
-          </div>
-          <div class="percent-item">
-            <div class="text">告警车辆</div>
-            <el-progress :show-text="false" :stroke-width="8" :percentage="21" status="exception"></el-progress>
-            <div class="number">21% (45辆)</div>
-          </div>
-          <div class="percent-item">
-            <div class="text">超时车辆</div>
-            <el-progress :show-text="false" :stroke-width="8" :percentage="36" status="warning"></el-progress>
-            <div class="number">36% (67辆)</div>
-          </div>
+          <template v-for="(item, index) in percentData">
+            <div :key="index" class="percent-item">
+              <div class="text">{{item.title}}</div>
+              <el-progress :show-text="false" :stroke-width="8" :percentage="item.percent" :status="item.color"></el-progress>
+              <div class="number">{{item.percent}}% ({{item.num}}辆)</div>
+            </div>
+          </template>
         </div>
       </div>
       <div class="item" id="out-put"></div>
@@ -109,7 +101,7 @@ export default {
       bindCars: [],
       // 地图上所有车的点数组
       markers: [],
-      num: 5
+      // percentData: ''
     }
   },
   components: {
@@ -119,30 +111,50 @@ export default {
     TotalItem: () => import('../components/TotalItem'),
   },
   computed: {
-    scrollOptions () {
-      return {
-        step: 1, // 数值越大速度滚动越快
-        // .
-        openWatch: true,
-        limitMoveNum: 2,
-        singleHeight: 30,
+    percentData () {
+      // console.log(this.bindCars)
+      const isDelay = (bindTime) => {
+        // console.log(bindTime)
+        let duration = this.$moment().valueOf() - bindTime
+        // console.log(duration)
+        let hours = this.$moment.duration(duration / 1000, 's').hours()
+        // console.log(hours)
+        if (hours >= 8) {
+          return true
+        } else {
+          return false
+        }
       }
-    }
+      let allNum = this.bindCars.length
+      let normalNum = this.bindCars.filter((car) => car.vehicle.status === 0).length
+      let alarmNum = this.bindCars.filter((car) => car.vehicle.status === 1).length
+      let overtimeNum = this.bindCars.filter((car) => isDelay(car.vehicleDeliverStatus.bindTime)).length
+      let normal = {
+        title: '正常车辆',
+        num: normalNum,
+        percent: Math.floor(normalNum / allNum * 100) || 0,
+        color: 'success'
+      }
+      let alarm = {
+        title: '告警车辆',
+        num: alarmNum,
+        percent: Math.floor(alarmNum / allNum * 100) || 0,
+        color: 'exception',
+      }
+      let overtime = {
+        title: '超时车辆',
+        num: overtimeNum,
+        percent: Math.floor(overtimeNum / allNum * 100) || 0,
+        color: 'warning'
+      }
+      // console.log([normal, alarm, overtime])
+      return [normal, alarm, overtime]
+    },
   },
   created () {
     this.getBoradData()
     this.getChartData()
     this.getAlarmData()
-    setInterval(() => {
-      this.num += 5
-    }, 5000)
-    // this.getBindCars()
-    // for (let index = 1; index < 20; index++) {
-    //   this.alarms.push({
-    //     name: `xxxx告警${index}`,
-    //     time: `${index}小时前`
-    //   })
-    // }
   },
   sockets: {
     connect (data) {
@@ -168,11 +180,19 @@ export default {
       // 改变marker以及数据状态
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker
-        // console.log('move')
-        // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
-        let alarmIcon = this.createPointMarker('alarm')
+        // 判断车辆是仅告警还是有超时
+        let currentCarIndex = this.bindCars.findIndex((car) => car.locator.id === newAlarm.locatorId)
+        this.bindCars[currentCarIndex].vehicle.status = 1
+        this.bindCars = [...this.bindCars]
+        let iconType
+        if (this.isDelay(this.bindCars[currentCarIndex].vehicleDeliverStatus.bindTime)) {
+          iconType = 'overtime'
+        } else {
+          iconType = 'alarm'
+        }
+        let Icon = this.createPointMarker(iconType)
         console.log('改变了车的颜色状态')
-        currentMarker.setIcon(alarmIcon)
+        currentMarker.setIcon(Icon)
         this.$notify.error({
           dangerouslyUseHTMLString: true,
           // message: newAlarm.vehicleId + '发生告警: ' + newAlarm.message + this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss') + '位置：' + newAlarm.address,
@@ -233,6 +253,18 @@ export default {
     },
   },
   methods: {
+    isDelay (bindTime) {
+      // console.log(bindTime)
+      let duration = this.$moment().valueOf() - bindTime
+      // console.log(duration)
+      let hours = this.$moment.duration(duration / 1000, 's').hours()
+      // console.log(hours)
+      if (hours >= 8) {
+        return true
+      } else {
+        return false
+      }
+    },
     // 获取动态数据
     getBoradData () {
       getRealTimeData().then((res) => {
