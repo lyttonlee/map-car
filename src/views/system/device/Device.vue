@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="search">
-      <el-input placeholder="搜索筛选框"></el-input>
+      <el-input v-model="search" @blur="doSearch" placeholder="请输入要查找的设备编号！"></el-input>
     </div>
     <div class="add">
       <!-- <el-button @click="addDevice">添加标签</el-button> -->
@@ -69,6 +69,7 @@ export default {
         total: 0,
         current: 1,
       },
+      search: '',
     }
   },
   computed: {
@@ -123,6 +124,20 @@ export default {
         currentPage: ev
       }
       this.getDeviceList(param)
+    },
+    doSearch () {
+      console.log('do')
+      if (this.search) {
+        let param = {
+          productLineId: this.productLineId,
+          pageSize: this.pagination.pageSize,
+          currentPage: 1,
+          dimMatch: this.search
+        }
+        this.getDeviceList(param)
+      } else {
+        this.getDeviceList()
+      }
     },
   },
   created () {

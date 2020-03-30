@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="head">
-      <el-button type="success" @click="addUser">添加用户</el-button>
+      <el-button type="primary" size="mini" round @click="addUser">添加用户</el-button>
     </div>
     <div class="list">
       <el-table :data="users" style="width: 100%;background:#fff0" size="mini">
@@ -25,8 +25,10 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button type="danger" size="small" @click="editUser(scope.row)">编辑</el-button>
-            <el-button  size="small" @click="deleteUserById(scope.row.id)">删除</el-button>
+            <el-button-group>
+              <el-button type="primary" round size="mini" @click="editUser(scope.row)">编辑</el-button>
+              <el-button type="danger" round size="mini" @click="deleteUserById(scope.row.id)">删除</el-button>
+            </el-button-group>
           </template>
         </el-table-column>
       </el-table>

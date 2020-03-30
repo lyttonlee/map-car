@@ -7,6 +7,8 @@
 import {
   queryBaseStation
 } from '../../../api/fence'
+import normalStation from '../../../assets/img/station-normal.png'
+import alarmStation from '../../../assets/img/station-alarm.png'
 import {
   mapState,
   mapActions
@@ -15,7 +17,7 @@ export default {
   data () {
     return {
       mapInfo: '',
-      baseStations: ''
+      baseStationMarkers: []
     }
   },
   computed: {
@@ -32,7 +34,9 @@ export default {
         console.log(res)
         let { code, result } = res
         if (code === 0) {
-          this.baseStations = result
+          result.forEach((station) => {
+            this.createStation(station)
+          })
         }
       })
     },
@@ -64,9 +68,39 @@ export default {
       L.imageOverlay(imgUrl, imgBounds).addTo(map)
       this.map = map
     },
+    // 创建基站信息点
+    createStation (station) {
+      let icon = L.icon({
+        iconUrl: station.online ? normalStation : alarmStation,
+        // iconSize: [30, 20]
+        iconAnchor: [0, 30]
+      })
+      let stationMarker = L.marker([station.y, station.x], {
+        icon,
+        title: station.sn,
+      })
+      this.baseStationMarkers.push(stationMarker)
+      this.map && stationMarker.addTo(this.map)
+    },
+    // 每5分钟刷新基站状态
+    intervalStationStatu () {
+      this.time = setInterval(() => {
+        // 清楚已有的marker
+        this.baseStationMarkers.forEach((station) => {
+          station.remove()
+        })
+        this.baseStationMarkers = []
+        // 重新请求新数据
+        this.getStationStatus()
+      }, 5 * 60 * 1000)
+    }
   },
   mounted () {
     this.queryMap()
+    this.intervalStationStatu()
+  },
+  beforeDestroy () {
+    this.time && clearInterval(this.time)
   }
 }
 </script>

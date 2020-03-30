@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="search">
-      <el-input placeholder="搜索筛选框"></el-input>
+      <el-input v-model="search" @blur="doSearch" placeholder="请输入要搜索车辆的车架号"></el-input>
     </div>
     <el-table :data="cars" style="width: 100%;background:#fff0" size="mini">
       <el-table-column label="类型" prop="vehicleName"></el-table-column>
@@ -92,7 +92,8 @@ export default {
       },
       cars: [],
       showDispose: false,
-      showingCar: ''
+      showingCar: '',
+      search: '',
     }
   },
   computed: {
@@ -118,6 +119,20 @@ export default {
           this.pagination.current = result.pageObject.currentPage
         }
       })
+    },
+    doSearch () {
+      // console.log('do')
+      if (this.search) {
+        let param = {
+          productLineId: this.productLineId,
+          pageSize: this.pagination.pageSize,
+          currentPage: 1,
+          dimMatch: this.search
+        }
+        this.getCarList(param)
+      } else {
+        this.getCarList()
+      }
     },
     pageChanged (ev) {
       console.log(ev)
