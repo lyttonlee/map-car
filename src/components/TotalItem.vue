@@ -46,11 +46,11 @@ export default {
           if (today >= yesterday) { // 工作量更大
             return 'success'
           } else {
-            return 'error'
+            return 'warn'
           }
         } else if (index === 3) { // 在库
           if (today >= yesterday) { // 剩余工作更多
-            return 'error'
+            return 'warn'
           } else {
             return 'success'
           }
@@ -61,7 +61,7 @@ export default {
         // .
         if (index === 3 || index === 2) {
           if (today >= yesterday) {
-            return 'error'
+            return 'warn'
           } else {
             return 'success'
           }
@@ -69,7 +69,7 @@ export default {
           if (today >= yesterday) {
             return 'success'
           } else {
-            return 'error'
+            return 'warn'
           }
         } else {
           return ''
@@ -98,6 +98,7 @@ export default {
 }
 </script>
 <style lang="less">
+@import '../assets/less/color.less';
 .sum {
   display: grid;
   grid-template-columns: 50% auto;
@@ -105,7 +106,8 @@ export default {
   box-sizing: border-box;
   column-gap: 10px;
   padding: 15px 10px;
-  background: rgba(51, 47, 47, 0.61);
+  background: @base-background;
+  box-shadow: @shadow-base;
   border-radius: 10px;
   align-items: center;
   // justify-items: start;

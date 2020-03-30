@@ -15,7 +15,7 @@
       </el-table-column>
       <el-table-column label="电量">
         <template slot-scope="scope">
-          <div :class="scope.row.power && scope.row.power > 20 ? '' : 'error'">{{scope.row.power ? scope.row.address + '%' : '未知(已离线)'}}</div>
+          <div :class="scope.row.power && scope.row.power > 20 ? '' : 'error'">{{scope.row.power ? scope.row.power + '%' : '未知(已离线)'}}</div>
         </template>
       </el-table-column>
       <el-table-column label="位置">
@@ -32,7 +32,7 @@
         <template slot-scope="scope">
           <el-button-group>
             <el-button round type="primary" size="mini" @click="sendVoice(scope.row.name)">发声</el-button>
-            <el-button round type="danger" size="mini" @click="deleteDevice(scope.row)">删除</el-button>
+            <!-- <el-button round type="danger" size="mini" @click="deleteDevice(scope.row)">删除</el-button> -->
           </el-button-group>
         </template>
       </el-table-column>
@@ -131,13 +131,14 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+@import '../../../assets/less/color.less';
 .page {
   .search {
     margin: 15px 0;
   }
   .pagination {
     width: 100%;
-    background: rgba(39, 39, 38, 0.589);
+    background: @base-background;
     padding: 5px 0;
     margin-top: 15px;
     border-radius: 10px;

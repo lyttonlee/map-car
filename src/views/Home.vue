@@ -338,6 +338,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@import '../assets/less/color.less';
 .home {
   .list {
     position: fixed;
@@ -347,8 +348,8 @@ export default {
     z-index: 1001;
     height: 100%;
     border-radius: 10px;
-    background: rgba(56, 56, 56, 0.75);
-    box-shadow: 2px 2px 5px #666;
+    background: @base-background;
+    box-shadow: @shadow-base;
     padding: 40px 5px;
     .item {
       cursor: pointer;

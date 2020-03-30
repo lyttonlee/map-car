@@ -22,31 +22,35 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+@import '../../assets/less/color.less';
 .menus {
   width: 100%;
-  // padding-left: 20px;
+  padding-left: 20px;
+  box-sizing: border-box;
   text-align: left;
   vertical-align: middle;
-  background: rgba(39, 39, 39, 0.5);
+  background: @base-background;
+  box-shadow: @shadow-base;
+  border-radius: 10px;
   height: 50px;
   .menu {
     padding: 10px 20px;
     display: inline-block;
     height: 30px;
-    color: antiquewhite;
+    color: @font-color;
     text-decoration: none;
     line-height: 40px;
     font-size: .8rem;
     &:hover {
-      background: rgb(89, 92, 87);
-      color: azure;
+      background: @page-background;
+      color: @font-color;
     }
   }
   .router-link-active {
     // margin: 0 10px;
-    background: rgb(89, 92, 87);
-    color: azure;
-    border-bottom: 1px solid #fff;
+    background: @page-background;
+    color: @primary-color;
+    border-bottom: 1px solid @primary-color;
   }
 }
 </style>

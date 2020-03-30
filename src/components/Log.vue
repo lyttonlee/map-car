@@ -23,20 +23,21 @@ export default {
   }
 }
 </script>
-<style lang="less">
+<style lang="less" scope>
+@import '../assets/less/color.less';
 .log {
   display: grid;
   grid-template-columns: 40% 50%;
   column-gap: 10px;
   margin-top: 15px;
   padding: 5px;
-  background: rgba(46, 46, 46, 0.534);
+  background: @page-background;
   border-radius: 10px;
   .date {
     border-right: 1px solid #666;
     .date-time {
       font-size: 1.5rem;
-      color: darkcyan;
+      color: @primary-color;
     }
     .date-md {
       font-size: 1.1rem;

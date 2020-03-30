@@ -179,13 +179,14 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+@import '../../assets/less/color.less';
 .page {
   .search {
     margin: 15px 0;
   }
   .pagination {
     width: 100%;
-    background: rgba(39, 39, 38, 0.589);
+    background: @base-background;
     padding: 5px 0;
     margin-top: 15px;
     border-radius: 10px;

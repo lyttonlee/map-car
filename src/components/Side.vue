@@ -61,7 +61,7 @@ export default {
 @import '../assets/less/main.less';
 .router-link-active {
   color: @primary-color !important;
-  background: rgba(78, 78, 78, 0.925);
+  background: @page-background;
 }
 .nav {
   height: 100vh;
@@ -73,11 +73,11 @@ export default {
     width: 100%;
     padding: 10px;
     margin: 100px 0 20px 0;
-    border-bottom: 1px solid @back-color;
+    border-bottom: 1px solid #fff;
     .avatar-menu {
       width: 80px;
       border-radius: 50%;
-      border: 1px solid @page-color;
+      border: 1px solid @primary-color;
     }
     .logout {
       margin-top: 10px;
@@ -95,7 +95,7 @@ export default {
       padding: 15px 0 15px 35px;
       text-align: left;
       &:hover {
-        background: rgba(78, 78, 78, 0.925);
+        background: @page-background;
         color: rgb(202, 202, 202);
       }
     }

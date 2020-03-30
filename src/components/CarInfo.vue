@@ -111,12 +111,13 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+@import '../assets/less/color.less';
 .info {
   width: 300px;
   height: 70vh;
   border-radius: 10px;
-  background: rgba(59, 58, 58, 0.856);
-  box-shadow: 2px 2px 5px #666;
+  background: @base-background;
+  box-shadow: @shadow-base;
   padding: 10px 5px;
   z-index: 1001;
   position: fixed;

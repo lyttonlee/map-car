@@ -144,6 +144,7 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+@import '../../../assets/less/color.less';
 .page {
   .total  {
     margin-top: 15px;
@@ -153,11 +154,11 @@ export default {
     column-gap: 20px;
     .item  {
       padding: 25px;
-      background: rgba(39, 39, 38, 0.589);
+      background: @base-background;
       border-radius: 10px;
       .font {
         font-size: 4rem;
-        color: cornflowerblue;
+        color: @primary-color;
       }
     }
   }
@@ -166,7 +167,7 @@ export default {
   }
   .pagination {
     width: 100%;
-    background: rgba(39, 39, 38, 0.589);
+    background: @base-background;
     padding: 5px 0;
     margin-top: 15px;
     border-radius: 10px;

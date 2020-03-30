@@ -97,19 +97,19 @@ export default {
   .el-container {
     width: 100vw;
     height: 100vh;
-    background: @back-color;
+    background: @page-background;
     overflow: hidden;
     .el-aside {
       width: 200px !important;
       height: 100vh;
-      background: @aside-color;
+      background: @base-background;
       overflow: hidden;
       // box-shadow: 1px 0 5px rgb(121, 121, 121);
     }
     .el-main {
       width: 100%;
       // height: 100vh;
-      background: @page-color;
+      background: @page-background;
       padding: 10px;
       box-sizing: border-box;
       overflow: hidden;

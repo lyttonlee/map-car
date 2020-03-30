@@ -5,7 +5,7 @@
       <ShowTime />
     </div> -->
     <div class="layout">
-      <div class="item">
+      <div class="item unique-item">
         <div class="total-layout">
           <template v-for="(item, index) in broad">
             <TotalItem :key="index" :id="'car-broad-' + index" :info="item" type="broad" />
@@ -25,7 +25,7 @@
         </div>
       </div>
       <div class="item" id="out-put"></div>
-      <div class="item">
+      <div class="item  unique-item">
         <div class="total-layout">
           <template v-for="(item, index) in storeData">
             <TotalItem :key="index" :id="'car-store-' + index" :info="item" />
@@ -34,22 +34,16 @@
       </div>
       <div class="item">
         <!-- <h4>超八小时未出荷车辆列表</h4> -->
-        <el-carousel :autoplay="true" indicator-position="none" arrow="never">
-          <el-carousel-item v-for="(item, index) in cars" :key="index">
-            <div class="item-car">
-              <div class="head">
-                <div class="name">{{item.name}}</div>
-                <div :class="formatTime(item.ducration) < 4 ? 'time success' : 'time warn'">{{formatTime(item.ducration)}}小时</div>
-              </div>
-              <div class="problem">{{item.problem}}</div>
-              <div class="lines">
-                <template v-for="(line, index) in item.timeLines">
-                  <div class="line" :key="index">
-                    <div class="text">{{line.text}}</div>
-                    <div class="time">{{line.time}}</div>
-                  </div>
-                </template>
-              </div>
+        <el-carousel :autoplay="true" indicator-position="none" arrow="never" :interval="5000" >
+          <el-carousel-item v-for="(item, index) in importantLogs" :key="index">
+            <div class="item-log">
+              <template v-for="(log, index) in item">
+                <div class="log" :key="index">
+                  <div>{{log.name}}</div>
+                  <div>{{log.content}}</div>
+                  <div>{{$moment(log.time).toNow()}}</div>
+                </div>
+              </template>
             </div>
           </el-carousel-item>
         </el-carousel>
@@ -95,6 +89,7 @@ export default {
       markers: [],
       // percentData: ''
       storeData: '',
+      importantLogs: []
     }
   },
   components: {
@@ -106,27 +101,27 @@ export default {
   computed: {
     percentData () {
       // console.log(this.bindCars)
-      const isDelay = (bindTime) => {
-        // console.log(bindTime)
-        let duration = this.$moment().valueOf() - bindTime
-        // console.log(duration)
-        let hours = this.$moment.duration(duration / 1000, 's').hours()
-        // console.log(hours)
-        if (hours >= 8) {
-          return true
-        } else {
-          return false
-        }
-      }
+      // const isDelay = (bindTime) => {
+      //   // console.log(bindTime)
+      //   let duration = this.$moment().valueOf() - bindTime
+      //   // console.log(duration)
+      //   let hours = this.$moment.duration(duration / 1000, 's').hours()
+      //   // console.log(hours)
+      //   if (hours >= 8) {
+      //     return true
+      //   } else {
+      //     return false
+      //   }
+      // }
       let allNum = this.bindCars.length
       let normalNum = this.bindCars.filter((car) => car.vehicle.status === 0).length
       let alarmNum = this.bindCars.filter((car) => car.vehicle.status === 1).length
-      let overtimeNum = this.bindCars.filter((car) => isDelay(car.vehicleDeliverStatus.bindTime)).length
+      // let overtimeNum = this.bindCars.filter((car) => isDelay(car.vehicleDeliverStatus.bindTime)).length
       let normal = {
         title: '正常车辆',
         num: normalNum,
         percent: Math.floor(normalNum / allNum * 100) || 0,
-        color: 'success'
+        // color: 'primary'
       }
       let alarm = {
         title: '告警车辆',
@@ -134,14 +129,14 @@ export default {
         percent: Math.floor(alarmNum / allNum * 100) || 0,
         color: 'exception',
       }
-      let overtime = {
-        title: '超时车辆',
-        num: overtimeNum,
-        percent: Math.floor(overtimeNum / allNum * 100) || 0,
-        color: 'warning'
-      }
+      // let overtime = {
+      //   title: '超时车辆',
+      //   num: overtimeNum,
+      //   percent: Math.floor(overtimeNum / allNum * 100) || 0,
+      //   color: 'warning'
+      // }
       // console.log([normal, alarm, overtime])
-      return [normal, alarm, overtime]
+      return [normal, alarm]
     },
   },
   created () {
@@ -306,7 +301,19 @@ export default {
     // 获取重要事件
     getImportantSummary () {
       querySummary().then((res) => {
-        console.log(res)
+        // console.log(res)
+        let { code, result } = res
+        if (code === 0) {
+          // console.log(result)
+          for (let index = 0; index < result.length; index += 5) {
+            // console.log(index)
+            // let item = result.slice(index, index + 5)
+            let item = result.slice(index, index + 5)
+            // console.log(item)
+            this.importantLogs.push(item)
+          }
+          // console.log(this.importantLogs)
+        }
       })
     },
     // 获取过往统计数据
@@ -372,7 +379,7 @@ export default {
         title: {
           text: this.charts[2].tableName,
           textStyle: {
-            color: '#999'
+            color: '#cecece'
           },
           // textAlign: 'center',
           left: '30%',
@@ -412,13 +419,28 @@ export default {
             boundaryGap: false,
             name: '日期',
             // data: legend,
-            data: getLastDays(7)
+            data: getLastDays(7),
+            axisLine: {
+              lineStyle: {
+                color: '#cecece',
+                width: 1
+              }
+            },
           }
         ],
         yAxis: [
           {
             type: 'value',
-            name: '数量'
+            name: '数量',
+            splitLine: {
+              show: false
+            },
+            axisLine: {
+              lineStyle: {
+                color: '#cecece',
+                width: 1
+              }
+            },
           }
         ],
         series: Object.keys(this.charts[2].datas).map((item) => {
@@ -440,7 +462,7 @@ export default {
         title: {
           text: this.charts[1].tableName,
           textStyle: {
-            color: '#999'
+            color: '#cecece'
           },
           // textAlign: 'center',
           left: '30%',
@@ -477,15 +499,35 @@ export default {
             boundaryGap: false,
             name: '日期',
             // data: legend,
-            data: getLastDays(7)
+            data: getLastDays(7),
+            axisLine: {
+              lineStyle: {
+                color: '#cecece',
+                width: 1
+              }
+            },
           }
         ],
         yAxis: [
           {
             type: 'value',
-            name: '百分比'
+            name: '百分比',
+            splitLine: {
+              show: false
+            },
+            axisLine: {
+              lineStyle: {
+                color: '#cecece',
+                width: 1
+              }
+            },
           }
         ],
+        axisLine: {
+          lineStyle: {
+            color: '#cecece'
+          }
+        },
         series: Object.keys(this.charts[1].datas).map((item) => {
           return {
             name: item,
@@ -504,7 +546,7 @@ export default {
         title: {
           text: this.charts[0].tableName,
           textStyle: {
-            color: '#999'
+            color: '#cecece'
           },
           // textAlign: 'center',
           left: '30%',
@@ -531,13 +573,28 @@ export default {
             boundaryGap: false,
             name: '日期',
             // data: legend,
-            data: getLastDays(7)
+            data: getLastDays(7),
+            axisLine: {
+              lineStyle: {
+                color: '#cecece',
+                width: 1
+              }
+            },
           }
         ],
         yAxis: [
           {
             type: 'value',
-            name: '小时'
+            name: '小时',
+            splitLine: {
+              show: false
+            },
+            axisLine: {
+              lineStyle: {
+                color: '#cecece',
+                width: 1
+              }
+            },
           }
         ],
         series: Object.keys(this.charts[0].datas).map((item) => {
@@ -637,6 +694,11 @@ export default {
         this.getStoreData()
       }, 5000)
     },
+    intervalSummary () {
+      this.summaryTime = setInterval(() => {
+        this.getImportantSummary()
+      }, 30000)
+    }
     // // 转变进度条的内容显示
     // format (percent) {
     //   return `正常车辆 ${percent}%`
@@ -684,18 +746,13 @@ export default {
   beforeDestroy () {
     bus.$off('menuSizeChanged')
     this.broadTime && clearInterval(this.broadTime)
+    this.summaryTime && clearInterval(this.summaryTime)
   }
 }
 </script>
 <style lang="less" scoped>
+@import '../assets/less/color.less';
 .page {
-    .page-title {
-      margin: 20px 0;
-      padding: 30px 0;
-      background: rgba(53, 51, 51, 0.322);
-      border-radius: 30px;
-      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-    }
 
     .layout {
       height: 90%;
@@ -706,47 +763,32 @@ export default {
       grid-template-rows: 40% 30% 30%;
       grid-gap: 20px;
       grid-auto-flow: column dense;
-
+      .unique-item {
+        background: @page-background !important;
+        box-shadow: none !important;
+      }
       .item {
-        background: rgba(53, 51, 51, 0.322);
+        background: @base-background;
         border-radius: 20px;
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: @shadow-base;
+        // border: .5px solid #fff;
         .total-layout {
           display: grid;
           grid-template-rows: 1fr 1fr 1fr;
           row-gap: 13px;
         }
-        .item-car {
+        .item-log {
           // height: 100%;
-          font-size: .8rem;
+          // font-size: .8rem;
           padding: 5px;
-          .head {
+          .log {
             display: grid;
-            grid-template-columns: 70% 30%;
-            margin-top: 5px;
-            margin: 10px 0;
-            .name {
-              text-align: left;
-              font-size: 1rem;
-              color: aquamarine;
-            }
-            .time {
-              text-align: right;
-            }
-          }
-          .problem {
-            text-align: left;
-          }
-          .line {
-            display: grid;
-            grid-template-columns: 60% 40%;
-            margin-top: 5px;
-            .text {
-              text-align: left;
-            }
-            .time {
-              text-align: right;
-            }
+            grid-template-columns: 20% 60% 20%;
+            padding: 10px 5px;
+            border-radius: 5px;
+            box-sizing: border-box;
+            // background: rgb(37, 39, 39);
+            margin-top: 10px;
           }
         }
         .overview {
