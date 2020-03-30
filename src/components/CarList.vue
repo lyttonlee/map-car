@@ -116,6 +116,7 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+@import '../assets/less/color.less';
 .car-list {
   .input {
     margin-bottom: 15px;
@@ -128,8 +129,8 @@ export default {
       cursor: pointer;
     }
     .active {
-      border-bottom: 1px solid chartreuse;
-      color: chartreuse;
+      border-bottom: 1px solid @primary-color;
+      color: @primary-color;
     }
   }
   .list {
@@ -142,7 +143,7 @@ export default {
       display: grid;
       grid-template-columns: 20% 50% 30%;
       &:hover {
-        background: rgba(34, 34, 34, 0.603);
+        background: @page-background;
         border-bottom: .5px solid rgba(251, 252, 250, 0.699);
       }
     }

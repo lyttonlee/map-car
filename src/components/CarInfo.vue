@@ -85,7 +85,7 @@ export default {
     },
     // 查询定位器的实时位置
     getCurrentAddressByLocatorId () {
-      // console.log(this.car)
+      console.log(this.car)
       let params = {
         locatorId: this.car.locatorId
       }
@@ -116,8 +116,8 @@ export default {
   width: 300px;
   height: 70vh;
   border-radius: 10px;
-  background: @base-background;
-  box-shadow: @shadow-base;
+  background: @base-background-opacity;
+  // box-shadow: @shadow-base;
   padding: 10px 5px;
   z-index: 1001;
   position: fixed;

@@ -23,7 +23,7 @@ export default {
   }
 }
 </script>
-<style lang="less" scope>
+<style lang="less" scoped>
 @import '../assets/less/color.less';
 .log {
   display: grid;
@@ -31,7 +31,7 @@ export default {
   column-gap: 10px;
   margin-top: 15px;
   padding: 5px;
-  background: @page-background;
+  background: @page-background-opacity;
   border-radius: 10px;
   .date {
     border-right: 1px solid #666;

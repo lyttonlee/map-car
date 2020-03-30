@@ -23,8 +23,8 @@
       <el-table-column label="位置" prop="address"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <div v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation}}</div>
-          <el-button v-else size="mini" @click="doDispose(scope.row)" type="primary">处理告警</el-button>
+          <el-button size="mini" round type="info" :disabled="true" v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation}}</el-button>
+          <el-button v-else round size="mini" @click="doDispose(scope.row)" type="primary">处理告警</el-button>
         </template>
       </el-table-column>
     </el-table>

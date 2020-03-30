@@ -348,8 +348,8 @@ export default {
     z-index: 1001;
     height: 100%;
     border-radius: 10px;
-    background: @base-background;
-    box-shadow: @shadow-base;
+    background: @base-background-opacity;
+    // box-shadow: @shadow-base;
     padding: 40px 5px;
     .item {
       cursor: pointer;
