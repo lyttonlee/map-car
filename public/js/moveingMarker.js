@@ -134,20 +134,44 @@ L.Marker.MovingMarker = L.Marker.extend({
     this._durations.push(duration);
   },
 
-  moveTo: function (latlng, duration) {
-    this._stopAnimation();
-    this._latlngs = [this.getLatLng(), L.latLng(latlng)];
-    this._durations = [duration];
-    this._state = L.Marker.MovingMarker.notStartedState;
-    this.start();
-    this.options.loop = false;
+  isSamePlace: function (latlng) {
+    let nowPos = this.getLatLng()
+    // console.log(latlng)
+    // console.log(nowPos)
+    if (nowPos.lat === latlng[0] && nowPos.lng === latlng[1]) {
+      // console.log('same position')
+      return true
+    } else {
+      return false
+    }
+  },
+
+  moveTo: function (latlng, duration, deg) {
+    if (!this.isSamePlace(latlng)) {
+      this._stopAnimation();
+      this._latlngs = [this.getLatLng(), L.latLng(latlng)];
+      this._durations = [duration];
+      this._deg = deg || null
+      this._state = L.Marker.MovingMarker.notStartedState;
+      this.start();
+      this.options.loop = false;
+    } else if (deg) {
+      this.setRotation(deg)
+    }
   },
 
   setRotation: function (deg) {
-    this._icon.style[L.DomUtil.TRANSFORM] +=
-      " rotateZ(" +
-      (this.options.initialRotationAngle + deg) +
-      "deg)";
+    this._icon.style[L.DomUtil.TRANSFORM + "Origin"] = this.options.rotationOrigin;
+    // this._icon.style[L.DomUtil.TRANSFORM] += " rotateZ(" +
+    //   (this.options.initialRotationAngle + deg) +
+    //   "deg)";
+    // console.log(this._icon.style[L.DomUtil.TRANSFORM])
+    let transformText = this._icon.style[L.DomUtil.TRANSFORM]
+    let regex = /rotateZ\([0-9]*deg\)/g
+    let newStr = transformText.replace(regex, '')
+    // console.log(newStr)
+    this._icon.style.transform = `${newStr} rotateZ(${this.options.initialRotationAngle + deg}deg)`
+    this._oldDeg = deg
   },
 
   addStation: function (pointIndex, duration) {
@@ -325,6 +349,11 @@ L.Marker.MovingMarker = L.Marker.extend({
 
     if (this.isEnded()) {
       // no need to animate
+      // 有角度就旋转角度
+      if (this._deg) {
+        console.log('旋转角度')
+        this.setRotation(this._deg)
+      }
       return;
     }
 
@@ -336,6 +365,7 @@ L.Marker.MovingMarker = L.Marker.extend({
         elapsedTime);
       this.setLatLng(p);
       if (this.options.rotate) {
+        // console.log('旋转了方向')
         this._updateRotation();
       }
     }

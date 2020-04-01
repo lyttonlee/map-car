@@ -74,7 +74,7 @@ export default {
       // console.log('接收到alarm事件推送')
       // console.log(data)
       let newAlarm = JSON.parse(data)
-      console.log(newAlarm)
+      // console.log(newAlarm)
       // 改变对应marker的状态
       // 找到对应的marker
       let markerIndex = this.markers.findIndex((item) => item.locatorId === newAlarm.locatorId)
@@ -92,7 +92,7 @@ export default {
           iconType = 'alarm'
         }
         let Icon = this.createPointMarker(iconType)
-        console.log('改变了车的颜色状态')
+        // console.log('改变了车的颜色状态')
         currentMarker.setIcon(Icon)
         this.$notify.error({
           dangerouslyUseHTMLString: true,
@@ -107,7 +107,7 @@ export default {
       // console.log('接收到position事件推送')
       // console.log(data)
       const newPos = JSON.parse(data)
-      // console.log(newPos)
+      console.log(newPos)
       // 找到对应的marker
       let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
       // 移动位置
@@ -115,10 +115,19 @@ export default {
         let currentMarker = this.markers[markerIndex].marker
         // console.log('move')
         // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
-        currentMarker.moveTo([newPos.content.y, newPos.content.x], 500)
-        setTimeout(() => {
-          newPos.content.deg && currentMarker.setRotation(newPos.content.deg)
-        }, 600)
+        console.log(newPos.content.angle)
+        currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
+        // setTimeout(() => {
+        //   if (newPos.content.angle) {
+        //     if (!currentMarker.deg || currentMarker.deg !== newPos.content.angle) {
+        //       currentMarker.setRotation(newPos.content.angle)
+        //       currentMarker.deg = newPos.content.angle
+        //     }
+        //   }
+        //   console.log(newPos.content.angle)
+        //   // newPos.content.angle && currentMarker.setRotation(newPos.content.angle)
+        //   // currentMarker.setRotation(45)
+        // }, 800)
       }
     },
     bind (data) {
