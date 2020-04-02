@@ -7,6 +7,42 @@
   // padding-top: 20px;
   background-color: @page-background;
 }
+
+// .marker-popup {
+//   background: @base-background !important;
+//   color: @font-color !important;
+// }
+// .leaflet-popup-content-wrapper {
+//   background: @info !important;
+//   color: @white !important;
+//   // border: .5px solid @font-color;
+// }
+// .leaflet-popup-tip {
+//   background: @info !important;
+//   color: @white !important;
+// }
+/*css主要部分的样式*/
+/*定义滚动条宽高及背景，宽高分别对应横竖滚动条的尺寸*/
+
+::-webkit-scrollbar {
+  width: 10px; /*对垂直流动条有效*/
+  height: 10px; /*对水平流动条有效*/
+}
+  
+/*定义滚动条的轨道颜色、内阴影及圆角*/
+::-webkit-scrollbar-track{
+  box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  background-color: @page-background;
+  border-radius: 3px;
+}
+
+
+/*定义滑块颜色、内阴影及圆角*/
+::-webkit-scrollbar-thumb{
+border-radius: 7px;
+box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+background-color: @base-background;
+}
 .el-table {
   border-radius: 10px;
   // box-shadow: @shadow-base;

@@ -116,7 +116,11 @@ export default {
         // console.log('move')
         // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
         console.log(newPos.content.angle)
+        // console.log(currentMarker)
+        // currentMarker.setPopupContent(newPos.content.y + ' ' + newPos.content.x)
+        // currentMarker.openPopup()
         currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
+        currentMarker.setPopupContent(newPos.content.y + ' ' + newPos.content.x)
         // setTimeout(() => {
         //   if (newPos.content.angle) {
         //     if (!currentMarker.deg || currentMarker.deg !== newPos.content.angle) {
@@ -227,7 +231,8 @@ export default {
       // eslint-disable-next-line no-undef
       // console.log(carImg)
       const icon = L.icon({
-        iconUrl: carImg
+        iconUrl: carImg,
+        iconAnchor: [7.5, 15.5]
       })
       return icon
     },
@@ -243,12 +248,15 @@ export default {
       const marker = L.Marker.movingMarker([carPos], [], {
         rotate: true,
         icon,
-        initialRotationAngle: 90,
+        initialRotationAngle: 0,
         title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
       })
       // 为marker绑上车和定位器的ID
       marker.carId = car.vehicle.id
       marker.locatorId = car.locator.id
+      marker.bindPopup(car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x, {
+        // className: 'marker-popup'
+      })
       marker.on('click', this.clickMarker)
       this.markers.push({
         marker,

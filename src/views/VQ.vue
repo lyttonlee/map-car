@@ -35,7 +35,7 @@
       <div class="item">
         <!-- <h4>超八小时未出荷车辆列表</h4> -->
         <el-carousel :autoplay="true" indicator-position="none" arrow="never" :interval="5000" >
-          <el-carousel-item v-for="(item, index) in importantLogs" :key="index">
+          <el-carousel-item v-show="bindCars.length > 0" v-for="(item, index) in importantLogs" :key="index">
             <div class="item-log">
               <template v-for="(log, index) in item">
                 <div class="log" :key="index">
@@ -100,43 +100,43 @@ export default {
   },
   computed: {
     percentData () {
-      // console.log(this.bindCars)
-      // const isDelay = (bindTime) => {
-      //   // console.log(bindTime)
-      //   let duration = this.$moment().valueOf() - bindTime
-      //   // console.log(duration)
-      //   let hours = this.$moment.duration(duration / 1000, 's').hours()
-      //   // console.log(hours)
-      //   if (hours >= 8) {
-      //     return true
-      //   } else {
-      //     return false
-      //   }
-      // }
-      let allNum = this.bindCars.length
-      let normalNum = this.bindCars.filter((car) => car.vehicle.status === 0).length
-      let alarmNum = this.bindCars.filter((car) => car.vehicle.status === 1).length
-      // let overtimeNum = this.bindCars.filter((car) => isDelay(car.vehicleDeliverStatus.bindTime)).length
-      let normal = {
-        title: '正常车辆',
-        num: normalNum,
-        percent: Math.floor(normalNum / allNum * 100) || 0,
-        // color: 'primary'
+      console.log(this.bindCars)
+      if (this.bindCars.length > 0) {
+        let allNum = this.bindCars.length
+        // eslint-disable-next-line eqeqeq
+        let normalNum = this.bindCars.filter((car) => car.vehicle.status === 0).length
+        // eslint-disable-next-line eqeqeq
+        let alarms = this.bindCars.filter((car) => {
+          // console.log(car)
+          return car.vehicle.status === 1
+        })
+        console.log(alarms)
+        let alarmNum = this.bindCars.filter((car) => car.vehicle.status === 1).length
+        // let overtimeNum = this.bindCars.filter((car) => isDelay(car.vehicleDeliverStatus.bindTime)).length
+        console.log(alarmNum)
+        let normal = {
+          title: '正常车辆',
+          num: normalNum,
+          percent: Math.floor(normalNum / allNum * 100) || 0,
+          // color: 'primary'
+        }
+        let alarm = {
+          title: '告警车辆',
+          num: alarmNum,
+          percent: Math.floor(alarmNum / allNum * 100) || 0,
+          color: 'exception',
+        }
+        // let overtime = {
+        //   title: '超时车辆',
+        //   num: overtimeNum,
+        //   percent: Math.floor(overtimeNum / allNum * 100) || 0,
+        //   color: 'warning'
+        // }
+        console.log([normal, alarm])
+        return [normal, alarm]
+      } else {
+        return ''
       }
-      let alarm = {
-        title: '告警车辆',
-        num: alarmNum,
-        percent: Math.floor(alarmNum / allNum * 100) || 0,
-        color: 'exception',
-      }
-      // let overtime = {
-      //   title: '超时车辆',
-      //   num: overtimeNum,
-      //   percent: Math.floor(overtimeNum / allNum * 100) || 0,
-      //   color: 'warning'
-      // }
-      // console.log([normal, alarm, overtime])
-      return [normal, alarm]
     },
   },
   created () {
@@ -204,10 +204,13 @@ export default {
         let currentMarker = this.markers[markerIndex].marker
         // console.log('move')
         // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
-        currentMarker.moveTo([newPos.content.y, newPos.content.x], 500)
-        setTimeout(() => {
-          newPos.content.deg && currentMarker.setRotation(newPos.content.deg)
-        }, 600)
+        // console.log(newPos.content.angle)
+        currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
+        currentMarker.setPopupContent(newPos.content.y + ' ' + newPos.content.x)
+        // currentMarker.moveTo([newPos.content.y, newPos.content.x], 500)
+        // setTimeout(() => {
+        //   newPos.content.deg && currentMarker.setRotation(newPos.content.deg)
+        // }, 600)
       }
     },
     bind (data) {
@@ -649,7 +652,8 @@ export default {
       // eslint-disable-next-line no-undef
       // console.log(carImg)
       const icon = L.icon({
-        iconUrl: carImg
+        iconUrl: carImg,
+        iconAnchor: [7.5, 15.5]
       })
       return icon
     },
@@ -664,12 +668,15 @@ export default {
       const marker = L.Marker.movingMarker([carPos], [], {
         rotate: true,
         icon,
-        initialRotationAngle: 90,
+        initialRotationAngle: 0,
         title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
       })
       // 为marker绑上车和定位器的ID
       marker.carId = car.vehicle.id
       marker.locatorId = car.locator.id
+      marker.bindPopup(car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x, {
+        // className: 'marker-popup'
+      })
       this.markers.push({
         marker,
         id: car.vehicle.id,

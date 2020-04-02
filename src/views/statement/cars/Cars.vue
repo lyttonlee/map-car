@@ -18,9 +18,9 @@
       <el-input v-model="search" @blur="doSearch" placeholder="请输入要搜索车辆的车架号"></el-input>
     </div>
     <el-table :data="cars" style="width: 100%;background:#fff0" size="mini">
-      <el-table-column label="类型" prop="vehicleName"></el-table-column>
-      <el-table-column min-width="200px" label="问题" prop="flawDetail"></el-table-column>
+      <!-- <el-table-column label="类型" prop="vehicleName"></el-table-column> -->
       <el-table-column min-width="100px" label="车架号" prop="vehicleIdentification"></el-table-column>
+      <el-table-column min-width="200px" label="问题" prop="flawDetail"></el-table-column>
       <el-table-column label="入荷时间">
         <template slot-scope="scope">
           {{$moment(scope.row.bindTime).format('YYYY-MM-DD HH:mm:ss')}}
@@ -201,7 +201,7 @@ export default {
     .box {
       width: 800px;
       height: 500px;
-      background: rgb(82, 82, 82);
+      background: @page-background;
       border-radius: 20px;
       padding: 15px;
       box-shadow: 2px 3px 5px #333;

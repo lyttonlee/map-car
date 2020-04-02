@@ -137,5 +137,9 @@ export default {
     text-align: left;
     cursor: pointer;
   }
+  .process {
+    height: 370px;
+    overflow-y: auto;
+  }
 }
 </style>

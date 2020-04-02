@@ -133,6 +133,7 @@ export default {
     .main {
       .font {
         font-size: 3rem;
+        // text-shadow: 1px 0 1px red;
       }
     }
     .history {

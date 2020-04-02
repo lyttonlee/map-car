@@ -71,7 +71,7 @@ export default {
       }
     },
     initCars () {
-      console.log(this.cars)
+      // console.log(this.cars)
       this.renderedCars = this.cars
     },
     formatTime (s) {
