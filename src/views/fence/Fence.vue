@@ -2,40 +2,55 @@
   <div class="page">
     <div id="map-fence" class="page"></div>
     <div class="control">
-      <!-- 控制区域 -->
-      <el-table :data="fences" size="small" >
-        <el-table-column label="围栏名称" prop="name"></el-table-column>
-        <el-table-column label="操作">
-          <template slot-scope="scope">
-            <el-button-group>
-              <el-button type="danger" round size="small" @click="deleteCurrentFence(scope.row)" >删除</el-button>
-              <!-- <el-button type="primary" @click="editCurrentFence(scope.row)" >修改</el-button> -->
-            </el-button-group>
+      <div class="left">
+        <!-- 控制区域 -->
+        <el-button @click="addFence">ADD Fence</el-button>
+        <el-button @click="transAddress">Test Address</el-button>
+        <el-button @click="drawCarport">Add Car Port</el-button>
+        <input type="file" @change="upload">
+        <el-button @click="drawTwoPoints">点2个点画出矩形</el-button>
+        <el-input placeholder="缩放marker 就是车" v-model="carScale" @change="changeCarScale"></el-input>
+        <el-input placeholder="旋转marker 就是车" v-model="carRotate" @change="changeCarRotate"></el-input>
+        <el-button type="info" @click="quitDraw">重置</el-button>
+        <div v-if="isDeleteParks" class="fence-data">
+          <template v-for="(point, index) in fencePoints">
+            <div :key="index">{{point}}</div>
           </template>
-        </el-table-column>
-      </el-table>
-      <el-button @click="addFence">ADD Fence</el-button>
-      <el-button @click="transAddress">Test Address</el-button>
-      <el-button @click="drawCarport">Add Car Port</el-button>
-      <div v-if="isCreating" class="fence-data">
-        <el-input placeholder="围栏名称" v-model="fenceName"></el-input>
-        <el-input placeholder="围栏type" v-model="fenceType"></el-input>
-        <el-input placeholder="请输入区域角度" v-model="angle"></el-input>
-        <template v-for="(point, index) in fencePoints">
-          <div :key="index">{{point}}</div>
-        </template>
-        <el-button :disabled="!canSubmit" @click="submitFence">submit</el-button>
+          <el-button :disabled="!canDelete" @click="submitPoints">确认</el-button>
+        </div>
+        <div v-if="isCreating" class="fence-data">
+          <el-input placeholder="围栏名称" v-model="fenceName"></el-input>
+          <el-input placeholder="围栏type" v-model="fenceType"></el-input>
+          <el-input placeholder="请输入区域角度" v-model="angle"></el-input>
+          <template v-for="(point, index) in fencePoints">
+            <div :key="index">{{point}}</div>
+          </template>
+          <el-button :disabled="!canSubmit" @click="submitFence">submit</el-button>
+        </div>
+        <div v-if="isCreateCarport">
+          <template v-for="(point, index) in fencePoints">
+            <div :key="index">{{point}}</div>
+          </template>
+          <el-input placeholder="车位名字" v-model="carportName"></el-input>
+          <el-input placeholder="X偏移" v-model="xOffset"></el-input>
+          <el-input placeholder="Y偏移" v-model="yOffset"></el-input>
+          <el-input placeholder="数量" v-model="offsetNum"></el-input>
+          <el-input placeholder="角度" v-model="portAngle"></el-input>
+          <el-button :disabled="!canDraw" @click="submitCarport">submit</el-button>
+        </div>
       </div>
-      <div v-if="isCreateCarport">
-        <template v-for="(point, index) in fencePoints">
-          <div :key="index">{{point}}</div>
-        </template>
-        <el-input placeholder="车位名字" v-model="carportName"></el-input>
-        <el-input placeholder="X偏移" v-model="xOffset"></el-input>
-        <el-input placeholder="Y偏移" v-model="yOffset"></el-input>
-        <el-input placeholder="数量" v-model="offsetNum"></el-input>
-        <el-input placeholder="角度" v-model="portAngle"></el-input>
-        <el-button :disabled="!canDraw" @click="submitCarport">submit</el-button>
+      <div class="content">
+        <el-table :data="fences" size="mini" >
+          <el-table-column label="围栏名称" prop="name"></el-table-column>
+          <el-table-column label="操作">
+            <template slot-scope="scope">
+              <el-button-group>
+                <el-button type="danger" round size="mini" @click="deleteCurrentFence(scope.row)" >删除</el-button>
+                <!-- <el-button type="primary" @click="editCurrentFence(scope.row)" >修改</el-button> -->
+              </el-button-group>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
     </div>
   </div>
@@ -47,12 +62,18 @@ import {
   createFence,
   deleteFence,
   createCarPort,
-  getUploadUrl,
+  deleteParks,
+  // getUploadUrl,
+  uploadParksFile
 } from '../../api/fence'
-import request from '../../api/axios'
+// import request from '../../api/axios'
 import {
   transXYToAddress
 } from '../../api/common'
+import Car from '../../assets/img/car-blue.png'
+import {
+  initCarSize
+} from '../../config/config'
 export default {
   // ..
   data () {
@@ -71,7 +92,10 @@ export default {
       yOffset: '',
       offsetNum: '',
       carportName: '',
-      portAngle: ''
+      portAngle: '',
+      isDeleteParks: false,
+      carScale: 1,
+      carRotate: '',
     }
   },
   computed: {
@@ -84,6 +108,13 @@ export default {
     },
     canDraw () {
       if (this.offsetNum && this.xOffset && this.yOffset && this.carportName && this.fencePoints.length > 3) {
+        return true
+      } else {
+        return false
+      }
+    },
+    canDelete () {
+      if (this.fencePoints.length === 2) {
         return true
       } else {
         return false
@@ -137,7 +168,7 @@ export default {
       // 围栏区域添加文字
       // polygon.bindPopup(fence.name)
       // polygon.openPopup()
-      polygon.bindTooltip(fence.name + '  ' + 'type' + fence.type)
+      polygon.bindTooltip(fence.name + '  ' + 'type' + fence.type + ' ' + 'angle' + fence.angle)
       this.fenceLayers.push(polygon)
       this.map && polygon.addTo(this.map)
       // console.log(this.fenceLayers)
@@ -186,6 +217,7 @@ export default {
             message: desc
           })
           this.map && this.map.off('click')
+          this.isCreating = false
           this.refreshMap()
         } else {
           this.$notify.error({
@@ -267,6 +299,20 @@ export default {
       L.imageOverlay(imgUrl, imgBounds).addTo(map)
       this.map = map
       this.getAllFences()
+      // 创建一个marker
+      const icon = L.icon({
+        iconUrl: Car,
+        iconAnchor: [7.5, 15.5]
+      })
+      // console.log(icon)
+      const marker = L.Marker.movingMarker([[4, -10]], [], {
+        rotate: true,
+        icon,
+        initialRotationAngle: 0,
+        draggable: true
+      })
+      this.carMarker = marker
+      marker.addTo(map)
     },
     // 解析地址
     transAddress () {
@@ -314,6 +360,7 @@ export default {
     },
     submitCarport () {
       console.log('do something')
+      this.fencePoints.push(this.fencePoints[0])
       let param = {
         name: this.carportName,
         num: this.offsetNum * 1,
@@ -342,31 +389,110 @@ export default {
         // reader.readAsBinaryString(res)
         reader.readAsDataURL(blob)
         reader.onload = (ev) => {
+          console.log(ev)
           const a = document.createElement('a')
           a.href = ev.target.result
           a.download = 'park list'
           a.click()
           a.remove()
-          // 获取上传文件接口
-          getUploadUrl().then((res) => {
-            console.log(res)
-            let { code, result } = res
-            if (code === 0) {
-              // 上传文件
-              let fd = new FormData()
-              fd.append('parks list', blob)
-              request.post(result, blob, {
-                headers: {
-                  'Content-Type': 'multipart/form-data'
-                }
-              }).then((res1) => {
-                console.log(res1)
-              })
-            }
-          })
+          this.isCreateCarport = false
+          this.refreshMap()
         }
       })
     },
+    upload (ev) {
+      let file = ev.target.files[0]
+      console.log(file)
+      let reader = new FileReader()
+      reader.readAsArrayBuffer(file)
+      reader.onload = (ev) => {
+        let blob = new Blob([ev.target.result], {
+          type: file.type
+        })
+        // 上传车位文件
+        let fd = new FormData()
+        fd.append(file.name, blob)
+        uploadParksFile(fd).then((res) => {
+          console.log(res)
+          let { code, result, desc } = res
+          if (code === 0) {
+            console.log(result)
+            console.log(desc)
+            this.$notify.success({
+              message: desc
+            })
+          }
+        })
+      }
+    },
+    // 清除围栏
+    drawTwoPoints () {
+      this.isDeleteParks = true
+      this.clearMap()
+      let points = []
+      let polyline
+      this.isCreating = false
+      this.isCreateCarport = false
+      this.map && this.map.on('click', (ev) => {
+        // console.log(ev)
+        let point = [ ev.latlng.lat, ev.latlng.lng ]
+        points.push(point)
+        this.fencePoints.push(`${ev.latlng.lng}_${ev.latlng.lat}_0`)
+        if (points.length === 2) {
+          let newPoints = [points[0], [points[0][0], points[1][1]], points[1], [points[1][0], points[0][1]]]
+          polyline = L.polygon(newPoints, { color: 'red' })
+          polyline.addTo(this.map)
+          this.fenceLayers.push(polyline)
+        } else if (points.length > 2) {
+          // console.log(polyline)
+          polyline.addLatLng(point)
+        }
+      })
+    },
+    submitPoints () {
+      let param = {
+        pointStr: this.fencePoints.join(';'),
+        mapName: this.mapInfo.name
+      }
+      deleteParks(param).then((res) => {
+        let { code, desc } = res
+        if (code === 0) {
+          this.$notify.success({
+            message: desc
+          })
+          this.isDeleteParks = false
+          this.clearMap()
+          this.refreshMap()
+        }
+      })
+    },
+    quitDraw () {
+      this.fencePoints = []
+      this.clearMap()
+    },
+    // 缩放车的大小
+    changeCarScale () {
+      let icon = this.carMarker.getIcon()
+      let size = initCarSize.map((pixe) => {
+        return pixe * this.carScale
+      })
+      let anchor = initCarSize.map((pixe) => {
+        return pixe * this.carScale / 2
+      })
+      let newIcon = L.icon({
+        iconUrl: icon.options.iconUrl,
+        iconAnchor: anchor,
+        iconSize: size
+      })
+      console.log(newIcon)
+      let m = this.carMarker.setIcon(newIcon)
+      m.setRotation(45)
+      // console.log(icon)
+    },
+    // 旋转车
+    changeCarRotate () {
+      this.carMarker.setRotation(this.carRotate)
+    }
   },
   created () {
     // this.getMapConfig()
@@ -381,16 +507,29 @@ export default {
 @import '../../assets/less/color.less';
 .page {
   .control {
+    display: grid;
     position: fixed;
-    width: 400px;
+    grid-template-columns: 300px auto;
+    width: 600px;
     height: 70vh;
     background: @page-background-opacity;
     box-shadow: @shadow-base;
     right: 30px;
     top: 100px;
     border-radius: 10px;
-    padding: 15px;
+    // padding: 15px;
     z-index: 2000;
+    .left {
+      background: @base-background-opacity;
+      padding: 15px 10px;
+    }
+    .content {
+      width: 100%;
+      padding: 15px;
+      box-sizing: border-box;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
   }
 }
 </style>

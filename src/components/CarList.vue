@@ -72,7 +72,9 @@ export default {
     },
     initCars () {
       // console.log(this.cars)
+      this.activeIndex = 0
       this.renderedCars = this.cars
+      // this.renderedCars = this.changeMenu(this.activeIndex)
     },
     formatTime (s) {
       let repairTime = moment().valueOf() - s
@@ -135,6 +137,8 @@ export default {
   }
   .list {
     margin-top: 15px;
+    max-height: 90vh;
+    overflow-y: auto;
     .list-item {
       cursor: pointer;
       // margin-top: 10px;

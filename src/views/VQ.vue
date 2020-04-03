@@ -48,19 +48,22 @@
           </el-carousel-item>
         </el-carousel>
       </div>
-      <div class="item item-col-1-3" id="repaired-percent-chart">出荷率时间比例图</div>
+      <div class="item item-col-1-3" id="repaired-percent-chart"></div>
       <div class="item item-col-3-5" id="repair-num-chart"></div>
     </div>
   </div>
 </template>
 <script>
 // import ShowTime from '@/components/showTime'
+import {
+  initCarSize
+} from '../config/config'
 import echart from 'echarts'
 import bus from '@/bus/bus'
 import { baseChartOption } from '../config/chartConfig'
 // import { broads } from '../mock/broad'
 import getLastDays from '../mock/days'
-import imgMap from '../assets/img/office-map.png'
+// import imgMap from '../assets/img/office-map.png'
 import { cars } from '../mock/cars'
 import moment from 'moment'
 // import SeamLessScroll from 'vue-seamless-scroll'
@@ -76,6 +79,10 @@ import {
 import alarmCar from '../assets/img/car-red.png'
 import overtimeCar from '../assets/img/car-yellow.png'
 import normalCar from '../assets/img/car-blue.png'
+import {
+  mapState,
+  mapActions,
+} from 'vuex'
 export default {
   data () {
     return {
@@ -99,21 +106,22 @@ export default {
     TotalItem: () => import('../components/TotalItem'),
   },
   computed: {
+    ...mapState(['carScale']),
     percentData () {
-      console.log(this.bindCars)
+      // console.log(this.bindCars)
       if (this.bindCars.length > 0) {
         let allNum = this.bindCars.length
         // eslint-disable-next-line eqeqeq
         let normalNum = this.bindCars.filter((car) => car.vehicle.status === 0).length
         // eslint-disable-next-line eqeqeq
-        let alarms = this.bindCars.filter((car) => {
-          // console.log(car)
-          return car.vehicle.status === 1
-        })
-        console.log(alarms)
+        // let alarms = this.bindCars.filter((car) => {
+        //   // console.log(car)
+        //   return car.vehicle.status === 1
+        // })
+        // console.log(alarms)
         let alarmNum = this.bindCars.filter((car) => car.vehicle.status === 1).length
         // let overtimeNum = this.bindCars.filter((car) => isDelay(car.vehicleDeliverStatus.bindTime)).length
-        console.log(alarmNum)
+        // console.log(alarmNum)
         let normal = {
           title: '正常车辆',
           num: normalNum,
@@ -132,7 +140,7 @@ export default {
         //   percent: Math.floor(overtimeNum / allNum * 100) || 0,
         //   color: 'warning'
         // }
-        console.log([normal, alarm])
+        // console.log([normal, alarm])
         return [normal, alarm]
       } else {
         return ''
@@ -182,7 +190,9 @@ export default {
         }
         let Icon = this.createPointMarker(iconType)
         // console.log('改变了车的颜色状态')
-        currentMarker.setIcon(Icon)
+        // console.log('改变了车的颜色状态')
+        let m = currentMarker.setIcon(Icon)
+        m.setRotation(currentMarker.angle)
         this.$notify.error({
           dangerouslyUseHTMLString: true,
           // message: newAlarm.vehicleId + '发生告警: ' + newAlarm.message + this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss') + '位置：' + newAlarm.address,
@@ -244,13 +254,31 @@ export default {
         }
       }
     },
+    changeBind (data) {
+      const car = JSON.parse(data)
+      console.log(car)
+      let carId = car.vehicle.id
+      // 替换车的定位器id
+      let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.id === carId)
+      this.bindCars[currentCarIndex] = car
+      this.bindCars = [...this.bindCars]
+      // 改变marker记录的定位器id
+      let markerIndex = this.markers.findIndex((item) => item.id === carId)
+      if (markerIndex !== -1) {
+        this.markers[markerIndex].locatorId = car.locator.id
+        this.markers[markerIndex].marker.locatorId = car.locator.id
+      }
+      // console.log(this.markers)
+      // console.log(this.bindCars)
+    }
   },
   methods: {
+    ...mapActions(['getMapInfo']),
     isDelay (bindTime) {
       // console.log(bindTime)
       let duration = this.$moment().valueOf() - bindTime
       // console.log(duration)
-      let hours = this.$moment.duration(duration / 1000, 's').hours()
+      let hours = this.$moment.duration(duration / 1000, 's').asHours().toFixed(2)
       // console.log(hours)
       if (hours >= 8) {
         return true
@@ -322,7 +350,7 @@ export default {
     // 获取过往统计数据
     getChartData () {
       getStatisticData().then((res) => {
-        console.log(res)
+        // console.log(res)
         if (res.code === 0) {
           this.charts = res.result
           this.loadOk = true
@@ -350,7 +378,7 @@ export default {
     // 获取当前所有告警信息
     getAlarmData () {
       getAlarmList().then((res) => {
-        console.log(res)
+        // console.log(res)
         if (res.code === 0) {
           this.alarms = res.result.resultList
         }
@@ -651,9 +679,11 @@ export default {
       }
       // eslint-disable-next-line no-undef
       // console.log(carImg)
+      // console.log(initCarSize)
       const icon = L.icon({
         iconUrl: carImg,
-        iconAnchor: [7.5, 15.5]
+        iconAnchor: [initCarSize[0] * this.carScale / 2, initCarSize[1] * this.carScale / 2],
+        iconSize: [initCarSize[0] * this.carScale, initCarSize[1] * this.carScale]
       })
       return icon
     },
@@ -720,33 +750,33 @@ export default {
     }
   },
   mounted () {
-    console.log('mounted')
-    this.getBindCars()
-    // 地图加载
-    // eslint-disable-next-line no-undef
-    const map = L.map('map-small', {
-      center: [4, -10],
-      zoom: 6,
-      minZoom: 6,
-      maxZoom: 6,
-      zoomControl: false, // 默认不显示缩放按钮
-      attributionControl: false // 不显示leaflet 图标logo
+    this.getMapInfo().then((mapInfo) => {
+      // eslint-disable-next-line no-undef
+      const map = L.map('map-small', {
+        center: [4, -10],
+        zoom: 6,
+        minZoom: 6,
+        maxZoom: 6,
+        zoomControl: false, // 默认不显示缩放按钮
+        attributionControl: false // 不显示leaflet 图标logo
 
+      })
+      // console.log(mapInfo)
+      const imgUrl = mapInfo.twoDFilePath
+      const imgBounds = [[mapInfo.coordinateDown, mapInfo.coordinateLeft], [mapInfo.coordinateUpper, mapInfo.coordinateRight]]
+      // const imgUrl = imgMap
+      // const imgBounds = [[-0.8, -22.7], [8.0, 1.2]]
+      // eslint-disable-next-line no-undef
+      L.imageOverlay(imgUrl, imgBounds).addTo(map)
+      this.map = map
+      this.getBindCars(true)
+      // this.carListTime = setInterval(this.getBindCars, 30000)
+    }).catch((err) => {
+      console.log(err)
+      this.$notify.error({
+        message: '获取地图数据失败[失望脸]'
+      })
     })
-    // console.log(map)
-    const imgUrl = imgMap
-    // 相对应来说点位(左下 右上) [[y,x],[y,x]]
-    const imgBounds = [[-0.8, -22.4], [8.0, 1.2]]
-    // eslint-disable-next-line no-undef
-    L.imageOverlay(imgUrl, imgBounds).addTo(map)
-    this.map = map
-    this.map.on('click', (ev) => {
-      console.log(ev)
-    })
-    // 获取完数据后渲染marker
-    // this.bindCars.forEach((car) => {
-    //   this.renderMarker(car)
-    // })
     // 看板总体数据概览变换
     this.intervalBroad()
   },

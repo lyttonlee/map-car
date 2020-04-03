@@ -209,12 +209,13 @@ export default {
         height: 400px;
         display: grid;
         grid-template-columns: 1fr 1fr;
+        column-gap: 15px;
         .info {
           // height: 400px;
           overflow-y: auto;
           padding: 5px;
           margin-top: 15px;
-          background: rgba(46, 46, 46, 0.534);
+          background: @base-background;
           border: 1px solid rgba(46, 46, 46, 0.534);
           border-radius: 10px;
           .item {
@@ -225,8 +226,11 @@ export default {
           }
         }
         .logs {
-          padding: 0 5px;
+          background: @base-background;
+          padding: 5px;
+          margin-top: 15px;
           overflow-y: auto;
+          border-radius: 10px;
         }
       }
       .action {

@@ -50,6 +50,7 @@ export default new Vuex.Store({
     floorId: 1,
     alarmConfig: '',
     mapInfo: '',
+    carScale: 3.5
   },
   mutations: {
     [LOGOUT]: (state) => {

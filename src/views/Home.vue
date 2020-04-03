@@ -25,6 +25,9 @@ import successCar from '../assets/img/car-blue.png'
 import errorCar from '../assets/img/car-red.png'
 import warnCar from '../assets/img/car-yellow.png'
 import {
+  initCarSize
+} from '../config/config'
+import {
   getBindList,
   queryCars,
 } from '../api/vq'
@@ -55,7 +58,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['mapInfo'])
+    ...mapState(['mapInfo', 'carScale'])
   },
   sockets: {
     connect (data) {
@@ -86,14 +89,17 @@ export default {
         this.bindCars[currentCarIndex].vehicle.status = 1
         this.bindCars = [...this.bindCars]
         let iconType
+        // console.log(this.isDelay(this.bindCars[currentCarIndex].vehicleDeliverStatus.bindTime))
         if (this.isDelay(this.bindCars[currentCarIndex].vehicleDeliverStatus.bindTime)) {
           iconType = 'overtime'
         } else {
           iconType = 'alarm'
         }
+        // console.log(iconType)
         let Icon = this.createPointMarker(iconType)
         // console.log('改变了车的颜色状态')
-        currentMarker.setIcon(Icon)
+        let m = currentMarker.setIcon(Icon)
+        m.setRotation(currentMarker.angle)
         this.$notify.error({
           dangerouslyUseHTMLString: true,
           message: `<div>${newAlarm.vehicleId}发生告警</div><div>内容: '${newAlarm.message}</div><div>时间: ${this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss')}</div><div>地点: ${newAlarm.address}</div>`,
@@ -106,8 +112,9 @@ export default {
     position (data) {
       // console.log('接收到position事件推送')
       // console.log(data)
+      // console.log(this.bindCars)
       const newPos = JSON.parse(data)
-      console.log(newPos)
+      // console.log(newPos)
       // 找到对应的marker
       let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
       // 移动位置
@@ -115,11 +122,12 @@ export default {
         let currentMarker = this.markers[markerIndex].marker
         // console.log('move')
         // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
-        console.log(newPos.content.angle)
+        // console.log(newPos.content.angle)
         // console.log(currentMarker)
         // currentMarker.setPopupContent(newPos.content.y + ' ' + newPos.content.x)
         // currentMarker.openPopup()
         currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
+        currentMarker.angle = newPos.content.angle
         currentMarker.setPopupContent(newPos.content.y + ' ' + newPos.content.x)
         // setTimeout(() => {
         //   if (newPos.content.angle) {
@@ -165,14 +173,31 @@ export default {
         }
       }
     },
+    changeBind (data) {
+      const car = JSON.parse(data)
+      console.log(car)
+      let carId = car.vehicle.id
+      // 替换车的定位器id
+      let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.id === carId)
+      this.bindCars[currentCarIndex] = car
+      this.bindCars = [...this.bindCars]
+      // 改变marker记录的定位器id
+      let markerIndex = this.markers.findIndex((item) => item.id === carId)
+      if (markerIndex !== -1) {
+        this.markers[markerIndex].locatorId = car.locator.id
+        this.markers[markerIndex].marker.locatorId = car.locator.id
+      }
+      console.log(this.markers)
+      console.log(this.bindCars)
+    }
   },
   methods: {
     ...mapActions(['getMapInfo']),
     isDelay (bindTime) {
       // console.log(bindTime)
       let duration = this.$moment().valueOf() - bindTime
-      // console.log(duration)
-      let hours = this.$moment.duration(duration / 1000, 's').hours()
+      // console.log(duration / 1000)
+      let hours = this.$moment.duration(duration / 1000, 's').asHours().toFixed(2)
       // console.log(hours)
       if (hours >= 8) {
         return true
@@ -193,13 +218,14 @@ export default {
         vehicleId: oui
       }
       queryCars(param).then((res) => {
-        console.log(res)
+        // console.log(res)
         let { code, desc, result } = res
         if (code === 0) {
           this.showingCar = result.resultList[0]
           if (this.isShowing === false) {
             this.isShowing = true
           }
+          // 找到marker
         } else {
           this.$notify.error({
             message: desc
@@ -232,7 +258,8 @@ export default {
       // console.log(carImg)
       const icon = L.icon({
         iconUrl: carImg,
-        iconAnchor: [7.5, 15.5]
+        iconAnchor: [initCarSize[0] * this.carScale / 2, initCarSize[1] * this.carScale / 2],
+        iconSize: [initCarSize[0] * this.carScale, initCarSize[1] * this.carScale]
       })
       return icon
     },
@@ -329,7 +356,7 @@ export default {
         attributionControl: false // 不显示leaflet 图标logo
 
       })
-      console.log(mapInfo)
+      // console.log(mapInfo)
       const imgUrl = mapInfo.twoDFilePath
       const imgBounds = [[mapInfo.coordinateDown, mapInfo.coordinateLeft], [mapInfo.coordinateUpper, mapInfo.coordinateRight]]
       // const imgUrl = imgMap
@@ -338,7 +365,7 @@ export default {
       L.imageOverlay(imgUrl, imgBounds).addTo(map)
       this.map = map
       this.getBindCars(true)
-      this.carListTime = setInterval(this.getBindCars, 30000)
+      // this.carListTime = setInterval(this.getBindCars, 30000)
     }).catch((err) => {
       console.log(err)
       this.$notify.error({

@@ -36,3 +36,17 @@ export const createCarPort = (param) => {
 export const getUploadUrl = () => {
   return request.get('/api/superAdmin/v1.0/post/url/parks')
 }
+
+// 上传车位文件
+export const uploadParksFile = (param) => {
+  return request.post('/api/superAdmin/v1.0/excel/parks', param, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+// 删除停车位
+export const deleteParks = (param) => {
+  return request.post('/api/superAdmin/v1.0/dele/parks', param)
+}
