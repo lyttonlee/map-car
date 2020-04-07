@@ -1,13 +1,26 @@
 <template>
   <div class="page">
     <div class="search">
-      <el-input placeholder="请输入要查询的日志"></el-input>
+      <el-input v-model="search" @blur="doSearch" placeholder="请输入要查找日志信息！"></el-input>
     </div>
     <el-table :data="logs" style="width: 100%;background:#fff0" size="mini">
-      <el-table-column label="人员" prop="name"></el-table-column>
-      <el-table-column label="事件内容" prop="event"></el-table-column>
-      <el-table-column label="时间" prop="time"></el-table-column>
+      <el-table-column label="人员" prop="nickname"></el-table-column>
+      <el-table-column label="事件内容" prop="content"></el-table-column>
+      <el-table-column label="时间">
+        <template slot-scope="scope">
+          <div>{{$moment(scope.row.timeStamp).format('YYYY-MM-DD HH:mm:ss')}}</div>
+        </template>
+      </el-table-column>
     </el-table>
+    <el-pagination
+      class="pagination"
+      :hide-on-single-page="true"
+      :total="pagination.total"
+      :page-size="pagination.pageSize"
+      :current-page="pagination.current"
+      @current-change="pageChanged"
+      layout="total, prev, pager, next">
+    </el-pagination>
     <!-- <div class="test">
       <Roll />
     </div> -->
@@ -15,6 +28,12 @@
 </template>
 <script>
 // import Roll from '../../components/roll/RollList'
+import {
+  mapState
+} from 'vuex'
+import {
+  getLogs
+} from '../../../api/logs'
 export default {
   components: {
     // Roll
@@ -26,21 +45,83 @@ export default {
         { name: 'XaL', event: '指派车辆XXXXX至XX,XX车间返修', time: '2020-2-12 15：23' },
         { name: 'XaL', event: '确定车辆XXXXX通过复检', time: '2020-2-13 16：00' },
         { name: 'XaL', event: '处理了告警', time: '2020-2-13 17：28' },
-      ]
+      ],
+      pagination: {
+        pageSize: 3,
+        total: 0,
+        current: 1,
+      },
+      search: '',
     }
+  },
+  computed: {
+    ...mapState(['productLineId'])
+  },
+  methods: {
+    getSystemLogs (param) {
+      let queryParam
+      if (param) {
+        queryParam = param
+      } else {
+        queryParam = {
+          productLineId: this.productLineId,
+          pageSize: this.pagination.pageSize,
+        }
+      }
+      getLogs(queryParam).then((res) => {
+        console.log(res)
+        let { code, result } = res
+        if (code === 0) {
+          this.logs = result.resultList
+          this.pagination.total = result.pageObject.totalSize
+          this.pagination.current = result.pageObject.currentPage
+        }
+      })
+    },
+    pageChanged (ev) {
+      console.log(ev)
+      let param = {
+        productLineId: this.productLineId,
+        pageSize: this.pagination.pageSize,
+        currentPage: ev
+      }
+      if (this.search) {
+        param.dimMatch = this.search
+      }
+      this.getSystemLogs(param)
+    },
+    doSearch () {
+      // console.log('do')
+      if (this.search) {
+        let param = {
+          productLineId: this.productLineId,
+          pageSize: this.pagination.pageSize,
+          currentPage: 1,
+          dimMatch: this.search
+        }
+        this.getSystemLogs(param)
+      } else {
+        this.getSystemLogs()
+      }
+    },
+  },
+  created () {
+    this.getSystemLogs()
   }
 }
 </script>
 <style lang="less" scoped>
+@import '../../../assets/less/main.less';
 .page {
   .search {
-    margin: 20px 0;
+    margin: 15px 0;
   }
-  .test {
-    margin:  50px 0;
-    background: #333;
-    height: 200px;
-    overflow: hidden;
+  .pagination {
+    width: 100%;
+    background: @base-background;
+    padding: 5px 0;
+    margin-top: 15px;
+    border-radius: 10px;
   }
 }
 </style>
