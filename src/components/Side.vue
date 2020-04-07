@@ -1,10 +1,12 @@
 <template>
   <div class="nav">
     <div class="user">
-      <img :src="imageUrl" class="avatar-menu" alt="avatar">
+      <!-- <img :src="imageUrl" class="avatar-menu" alt="avatar"> -->
+      <img src="../assets/img/logo.png" class="avatar-menu" alt="avatar">
       <div>{{nickname}}</div>
-      <div>{{roles}}</div>
-      <el-button class="logout" type="primary" round size="small" @click="logout">退出登录</el-button>
+      <!-- <div>{{roles}}</div> -->
+      <!-- <el-button class="logout" type="primary" round size="small" @click="logout">退出登录</el-button> -->
+      <div class="logout" @click="logout">退出登录</div>
     </div>
     <div class="menu">
       <template v-for="(menu, index) in renderRoutes">
@@ -78,9 +80,12 @@ export default {
       width: 80px;
       border-radius: 50%;
       border: 1px solid @primary-color;
+      margin-bottom: 8px;
     }
     .logout {
       margin-top: 10px;
+      color: #316c8e;
+      cursor: pointer;
     }
   }
   .menu {

@@ -24,8 +24,9 @@ export default {
 <style lang="less" scoped>
 @import '../../assets/less/color.less';
 .menus {
-  width: 100%;
+  // width: 100%;
   padding-left: 20px;
+  margin: 0 10px;
   box-sizing: border-box;
   text-align: left;
   vertical-align: middle;
@@ -33,6 +34,7 @@ export default {
   box-shadow: @shadow-base;
   border-radius: 10px;
   height: 50px;
+  box-sizing: border-box;
   .menu {
     padding: 10px 20px;
     display: inline-block;

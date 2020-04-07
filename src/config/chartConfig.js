@@ -1,10 +1,10 @@
-const textColor = '#ccc'
+const textColor = '#fefefe'
 const backgroundColor = '#6a7985'
 export const baseChartOption = {
-  color: ['#91c7ae', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'],
+  color: ['#00d2ff', '#fcff00', '#00ffde', '#6e7074', '#546570', '#c4ccd3'],
   title: {
     textStyle: {
-      color: '#999'
+      color: '#fff'
     },
     // textAlign: 'center',
     left: '30%',

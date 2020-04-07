@@ -406,11 +406,11 @@ export default {
       const repairNum = echart.init(document.getElementById('repair-num-chart'))
       const repairedPercentChart = echart.init(document.getElementById('repaired-percent-chart'))
       repairNum.setOption({
-        color: ['#91c7ae', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'],
+        color: ['#00ffde', '#00d2ff', '#fcff00', '#6e7074', '#546570', '#c4ccd3'],
         title: {
           text: this.charts[2].tableName,
           textStyle: {
-            color: '#cecece'
+            color: '#fff'
           },
           // textAlign: 'center',
           left: '30%',
@@ -426,7 +426,7 @@ export default {
           }
         },
         textStyle: {
-          color: '#999'
+          color: '#fefefe'
         },
         legend: {
           // type: 'scroll',
@@ -435,7 +435,7 @@ export default {
           bottom: '5%',
           data: this.charts[2].itemNames,
           textStyle: {
-            color: '#999'
+            color: '#fefefe'
           }
         },
         grid: {
@@ -453,7 +453,7 @@ export default {
             data: getLastDays(7),
             axisLine: {
               lineStyle: {
-                color: '#cecece',
+                color: '#fefefe',
                 width: 1
               }
             },
@@ -468,7 +468,7 @@ export default {
             },
             axisLine: {
               lineStyle: {
-                color: '#cecece',
+                color: '#fefefe',
                 width: 1
               }
             },
@@ -493,7 +493,7 @@ export default {
         title: {
           text: this.charts[1].tableName,
           textStyle: {
-            color: '#cecece'
+            color: '#fefefe'
           },
           // textAlign: 'center',
           left: '30%',
@@ -515,7 +515,7 @@ export default {
           bottom: '5%',
           data: this.charts[1].itemNames,
           textStyle: {
-            color: '#999'
+            color: '#fefefe'
           }
         },
         grid: {
@@ -533,7 +533,7 @@ export default {
             data: getLastDays(7),
             axisLine: {
               lineStyle: {
-                color: '#cecece',
+                color: '#fefefe',
                 width: 1
               }
             },
@@ -548,7 +548,7 @@ export default {
             },
             axisLine: {
               lineStyle: {
-                color: '#cecece',
+                color: '#fefefe',
                 width: 1
               }
             },
@@ -556,7 +556,7 @@ export default {
         ],
         axisLine: {
           lineStyle: {
-            color: '#cecece'
+            color: '#fefefe'
           }
         },
         series: Object.keys(this.charts[1].datas).map((item) => {
@@ -577,7 +577,7 @@ export default {
         title: {
           text: this.charts[0].tableName,
           textStyle: {
-            color: '#cecece'
+            color: '#fefefe'
           },
           // textAlign: 'center',
           left: '30%',
@@ -607,7 +607,7 @@ export default {
             data: getLastDays(7),
             axisLine: {
               lineStyle: {
-                color: '#cecece',
+                color: '#fefefe',
                 width: 1
               }
             },
@@ -622,7 +622,7 @@ export default {
             },
             axisLine: {
               lineStyle: {
-                color: '#cecece',
+                color: '#fefefe',
                 width: 1
               }
             },
@@ -801,7 +801,7 @@ export default {
       grid-gap: 20px;
       grid-auto-flow: column dense;
       .unique-item {
-        background: @page-background !important;
+        background: #00000000 !important;
         box-shadow: none !important;
       }
       .item {

@@ -140,7 +140,7 @@ export default {
       display: grid;
       grid-template-columns: 1fr 1fr;
       column-gap: 10px;
-      color: darkgrey;
+      color: @font-color;
     }
   }
 }

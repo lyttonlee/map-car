@@ -97,7 +97,8 @@ export default {
   .el-container {
     width: 100vw;
     height: 100vh;
-    background: @page-background;
+    // background: @page-background;
+    .liner-gradient;
     overflow: hidden;
     .el-aside {
       width: 200px !important;
@@ -108,9 +109,9 @@ export default {
     }
     .el-main {
       width: 100%;
-      // height: 100vh;
-      background: @page-background;
-      padding: 10px;
+      height: 100vh;
+      // background: @page-background;
+      padding: 0 !important;
       box-sizing: border-box;
       overflow: hidden;
     }
