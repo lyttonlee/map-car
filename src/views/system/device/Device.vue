@@ -123,6 +123,9 @@ export default {
         pageSize: this.pagination.pageSize,
         currentPage: ev
       }
+      if (this.search) {
+        param.dimMatch = this.search
+      }
       this.getDeviceList(param)
     },
     doSearch () {

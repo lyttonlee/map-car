@@ -23,7 +23,7 @@
       <el-table-column label="位置" prop="address"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button size="mini" round type="info" :disabled="true" v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation}}</el-button>
+          <el-button size="mini" round type="info" :disabled="true" v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation || '系统已自动处理'}}</el-button>
           <el-button v-else round size="mini" @click="doDispose(scope.row)" type="primary">处理告警</el-button>
         </template>
       </el-table-column>
@@ -117,6 +117,9 @@ export default {
         productLineId: this.productLineId,
         pageSize: this.pagination.pageSize,
         currentPage: ev
+      }
+      if (this.search) {
+        param.dimMatch = this.search
       }
       this.queryAlarmList(param)
     },

@@ -141,6 +141,9 @@ export default {
         pageSize: this.pagination.pageSize,
         currentPage: ev
       }
+      if (this.search) {
+        param.dimMatch = this.search
+      }
       this.getCarList(param)
     },
     quitModel () {
