@@ -31,7 +31,7 @@ export const routes = [
         component: () => import(/* webpackChunkName: "about" */ '../views/VQ.vue'),
         meta: {
           auth: true,
-          icon: 'zx-pinzhibaozhengQuality',
+          icon: 'zx-VQ',
           role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA']
         }
       },
@@ -92,7 +92,7 @@ export const routes = [
         redirect: '/alarm/list',
         meta: {
           auth: true,
-          icon: 'zx-tongji1',
+          icon: 'zx-alarm',
           role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
         },
         children: [
@@ -102,7 +102,7 @@ export const routes = [
             component: () => import(/* webpackChunkName: "alarm" */ '../views/alarm/AlarmList.vue'),
             meta: {
               auth: true,
-              icon: 'zx-tongji1',
+              icon: 'zx-alarm',
               role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
             },
           },
@@ -148,7 +148,7 @@ export const routes = [
         component: () => import(/* webpackChunkName: "system" */ '../views/system/System.vue'),
         meta: {
           auth: true,
-          icon: 'zx-tongji1',
+          icon: 'zx-xitongguanli-',
           role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
         },
         children: [
@@ -178,7 +178,7 @@ export const routes = [
             component: () => import(/* webpackChunkName: "system" */ '../views/system/user/User.vue'),
             meta: {
               auth: true,
-              icon: 'zx-tongji1',
+              icon: 'zx-renyuanguanli',
               role: ['SuperAdmin', 'VQ', 'PC']
             }
           },

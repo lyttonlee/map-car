@@ -81,7 +81,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: @font-color;
+  color: @sub-font-color;
   font-size: 14px;
   // background: #eee;
   .select {
