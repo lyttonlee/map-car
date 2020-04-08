@@ -51,16 +51,19 @@
         <h3>车辆详情</h3>
         <div class="detail">
           <div class="info">
-            <div class="item">车辆型号: {{showingCar.vehicleName}}</div>
+            <div class="item-unique">维修时长: {{ showingCar.unbindTime ? $moment.duration(showingCar.unbindTime - showingCar.bindTime).asHours().toFixed(2) : $moment(showingCar.bindTime).toNow(true)}}</div>
             <div class="item">车架号码: {{showingCar.vehicleIdentification}}</div>
+            <div class="item">车辆型号: {{showingCar.vehicleName}}</div>
+            <div class="item">车辆颜色: {{showingCar.vehicleName}}</div>
+            <div class="item">发动机号: {{showingCar.vehicleName}}</div>
+            <div class="item">变 速 箱: {{showingCar.vehicleName}}</div>
             <div class="item">车辆问题: {{showingCar.flawDetail}}</div>
             <div class="item">入荷时间: {{$moment(showingCar.bindTime).format('YYYY-MM-DD HH:mm:ss')}}</div>
-            <div class="item">维修时长: {{$moment(showingCar.bindTime).toNow(true)}}</div>
             <div v-if="showingCar.unbindTime" class="item">出荷时间: {{$moment(showingCar.unbindTime).format('YYYY-MM-DD HH:mm:ss')}}</div>
           </div>
           <div class="logs">
             <template v-for="(item, index) in showingCar.logs">
-              <Log :log="item" :key="index" />
+              <Log :log="item" :isLast="index === showingCar.logs.length - 1" :key="index" />
             </template>
           </div>
         </div>
@@ -207,7 +210,7 @@ export default {
       background: @page-background;
       border-radius: 20px;
       padding: 15px;
-      box-shadow: 2px 3px 5px #333;
+      box-shadow: @shadow-base;
       .detail {
         height: 400px;
         display: grid;
@@ -216,15 +219,22 @@ export default {
         .info {
           // height: 400px;
           overflow-y: auto;
-          padding: 5px;
+          padding: 10px 5px;
           margin-top: 15px;
           background: @base-background;
           border: 1px solid rgba(46, 46, 46, 0.534);
           border-radius: 10px;
           .item {
             font-size: 1rem;
-            border-bottom: 1px dashed #666;
+            // border-bottom: 1px dashed #666;
             padding: 10px 0 5px 5px;
+            text-align: left;
+            letter-spacing: 1.5px;
+          }
+          .item-unique {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: @primary-color;
             text-align: left;
           }
         }

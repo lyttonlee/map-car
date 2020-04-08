@@ -34,6 +34,7 @@ import {
 import {
   mapState,
   mapActions,
+  mapGetters,
 } from 'vuex'
 // import RepairTrack from '../components/RepairTrack'
 export default {
@@ -58,7 +59,8 @@ export default {
     }
   },
   computed: {
-    ...mapState(['mapInfo', 'carScale'])
+    ...mapState(['mapInfo', 'carScale']),
+    ...mapGetters(['overtime']),
   },
   sockets: {
     connect (data) {
@@ -199,7 +201,7 @@ export default {
       // console.log(duration / 1000)
       let hours = this.$moment.duration(duration / 1000, 's').asHours().toFixed(2)
       // console.log(hours)
-      if (hours >= 8) {
+      if (hours >= this.overtime) {
         return true
       } else {
         return false
@@ -263,13 +265,28 @@ export default {
       })
       return icon
     },
+    computedIconType (car) {
+      let bindTime = car.vehicleDeliverStatus.bindTime
+      console.log(this.formatTime(bindTime))
+      console.log(this.overtime)
+      console.log(this.formatTime(bindTime) > this.overtime)
+      if (this.formatTime(bindTime) * 1 > this.overtime * 1) {
+        console.log(true)
+        return 'overtime'
+      } else if (car.vehicle.status !== 0) {
+        return 'alarm'
+      } else {
+        return 'normal'
+      }
+    },
     // 渲染车辆点到地图上
     renderMarker (car) {
       // console.log(car)
-      let bindTime = car.vehicleDeliverStatus.bindTime
+      // let bindTime = car.vehicleDeliverStatus.bindTime
       // console.log(bindTime)
-      let iconType = this.formatTime(bindTime) > 8 ? 'overtime' : car.vehicle.status === 0 ? 'normal' : 'alarm'
-      // console.log(iconType)
+      // console.log(this.formatTime(bindTime))
+      let iconType = this.computedIconType(car)
+      console.log(iconType)
       let carPos = [car.locator.y, car.locator.x]
       let icon = this.createPointMarker(iconType)
       const marker = L.Marker.movingMarker([carPos], [], {

@@ -16,7 +16,7 @@
     </div>
     <div class="process">
       <template v-for="(log, index) in car.logs">
-        <Log :key="index" :log="log" />
+        <Log :key="index" :isLast="index === car.logs.length - 1" :log="log" />
       </template>
       <!-- <el-timeline>
         <el-timeline-item

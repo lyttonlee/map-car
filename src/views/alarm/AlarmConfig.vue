@@ -70,6 +70,7 @@ export default {
       if (code === 1) { // 低电告警
         return thresholdOne + '%'
       } else if (code === 2) { // 超时告警
+        console.log(thresholdOne)
         return this.$moment.duration(thresholdOne).asHours() + '小时'
       } else {
         return ''
@@ -137,7 +138,7 @@ export default {
         // if (this)
         let param = {
           id: this.content.id,
-          thresholdOne: this.content.code === 2 ? this.overTime * 60 * 60 : this.threshold
+          thresholdOne: this.content.code === 2 ? this.overTime * 60 * 60 * 1000 : this.threshold
         }
         editAlarm(param).then((res) => {
           console.log(res)
