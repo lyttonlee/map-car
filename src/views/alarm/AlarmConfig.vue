@@ -22,15 +22,31 @@
       </el-table-column>
     </el-table>
     <!-- {{alarmConfig}} -->
-    <Modal v-if="showModal" @quit="quit">
-      <div class="test">aasdasdas</div>
+    <Modal v-if="showModal" @quit="quit" @ok="handleOk">
+      <h3>修改告警配置</h3>
+      <div class="config-alarm">
+        <div>类型: {{content.name}}</div>
+        <div>信息: {{content.message}}</div>
+        <label>阈值: </label>
+        <el-input size="small" style="width: 200px" v-if="content.code == 1" placeholder="请输入要修改的阈值" v-model="threshold">
+          <template slot="append">{{computedAppend(content.code)}}</template>
+        </el-input>
+        <el-input size="small" style="width: 200px" v-if="content.code == 2" placeholder="请输入要修改的阈值" v-model="overTime">
+          <template slot="append">{{computedAppend(content.code)}}</template>
+        </el-input>
+      </div>
+      <!-- <div class="test">{{content}}</div> -->
     </Modal>
   </div>
 </template>
 <script>
 import {
-  mapState
+  mapState,
+  mapActions
 } from 'vuex'
+import {
+  editAlarm
+} from '../../api/alarm'
 export default {
   components: {
     Modal: () => import('../../components/Modal')
@@ -38,13 +54,16 @@ export default {
   data () {
     return {
       showModal: false,
-      content: ''
+      content: '',
+      threshold: '',
+      overTime: '',
     }
   },
   computed: {
     ...mapState(['alarmConfig'])
   },
   methods: {
+    ...mapActions(['queryStatus']),
     formatThreshold (row) {
       console.log(row)
       let { code, thresholdOne } = row
@@ -56,15 +75,87 @@ export default {
         return ''
       }
     },
+    computedAppend (code) {
+      let appendVal = ''
+      switch (code) {
+        case 1:
+          appendVal = '%'
+          break
+        case 2:
+          appendVal = '小时'
+          break
+        default:
+          appendVal = ''
+          break
+      }
+      return appendVal
+    },
     editAlarmConfig (config) {
-      console.log(config)
+      // console.log(config)
       this.content = config
+      this.threshold = config.thresholdOne
+      switch (config.code) {
+        case 1:
+          this.threshold = config.thresholdOne
+          break
+        case 2:
+          this.overTime = this.$moment.duration(config.thresholdOne).asHours()
+          break
+        default:
+          break
+      }
       this.showModal = true
     },
     quit () {
       this.content = ''
+      this.thresholdOne = ''
+      this.overTime = ''
       this.showModal = false
-    }
+    },
+    handleOk () {
+      console.log('do ok')
+      let valid = false
+      switch (this.content.code) {
+        case 1:
+          if (this.threshold > 0 && this.threshold <= 50) {
+            valid = true
+          } else {
+            this.$message.error('电量阈值需在0-50之间')
+          }
+          break
+        case 2:
+          if (this.overTime >= 1 && this.overTime <= 24) {
+            valid = true
+          } else {
+            this.$message.error('超时告警阈值需在1-24之间')
+          }
+          break
+        default:
+          break
+      }
+      if (valid) {
+        // if (this)
+        let param = {
+          id: this.content.id,
+          thresholdOne: this.content.code === 2 ? this.overTime * 60 * 60 : this.threshold
+        }
+        editAlarm(param).then((res) => {
+          console.log(res)
+          let { code, desc } = res
+          if (code === 0) {
+            this.$notify.success({
+              message: desc
+            })
+            this.queryStatus()
+            this.quit()
+          } else {
+            this.$notify.error({
+              message: desc
+            })
+          }
+        })
+      }
+    },
   }
 }
 </script>
@@ -72,6 +163,12 @@ export default {
 .page {
   .block {
     margin-top: 20px;
+  }
+  .config-alarm {
+    text-align: left;
+    div {
+      padding: 8px 0;
+    }
   }
 }
 </style>

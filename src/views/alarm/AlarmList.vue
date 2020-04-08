@@ -42,9 +42,9 @@
         <h3>告警处理</h3>
         <el-input class="input" v-model="disposeInfo" placeholder="请输入处理记录！"></el-input>
         <div class="action">
-          <el-button-group>
-            <el-button round="" type="primary" :disabled="!disposeInfo" :loading="loading" @click="submitDispose()">确定</el-button>
-            <el-button round="" type="danger" @click="quitDispose" >退出</el-button>
+          <el-button-group >
+            <el-button size="small" round type="primary" :disabled="!disposeInfo" :loading="loading" @click="submitDispose()">确定</el-button>
+            <el-button size="small" round type="danger" @click="quitDispose" >退出</el-button>
           </el-button-group>
         </div>
       </div>
@@ -208,10 +208,10 @@ export default {
     .box {
       width: 500px;
       height: 20vh;
-      background: rgb(82, 82, 82);
+      background: @page-background;
       border-radius: 20px;
       padding: 15px;
-      box-shadow: 2px 3px 5px #333;
+      box-shadow: @shadow-base;
       .input {
         width: 100%;
       }

@@ -1,6 +1,6 @@
 <template>
   <div class="modal">
-    <div class="box">
+    <div class="box" :style="`width: ${width}`">
       <div class="content">
         <slot />
       </div>
@@ -16,6 +16,11 @@
 <script>
 export default {
   // ..
+  props: {
+    width: {
+      default: '50%'
+    }
+  },
   methods: {
     quit () {
       this.$emit('quit')
@@ -41,7 +46,7 @@ export default {
   align-items: center;
   justify-content: center;
   .box {
-    width: 60%;
+    // width: 60%;
     min-height: 300px;
     background: @base-background;
     border-radius: 20px;

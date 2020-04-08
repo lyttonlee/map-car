@@ -11,3 +11,7 @@ export const queryAlarmConfig = (params) => {
 export const disposeAlarm = (param) => {
   return request.post('/api/alarm/v1.0/alarm/dispose', param)
 }
+
+export const editAlarm = (param) => {
+  return request.post('/api/alarm/v1.0/alarmConfigs', param)
+}

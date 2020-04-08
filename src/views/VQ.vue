@@ -25,7 +25,7 @@
         </div>
       </div>
       <div class="item" id="out-put"></div>
-      <div class="item  unique-item">
+      <div class="item unique-item">
         <div class="total-layout">
           <template v-for="(item, index) in storeData">
             <TotalItem :key="index" :id="'car-store-' + index" :info="item" />
@@ -808,6 +808,9 @@ export default {
         background: @base-background;
         border-radius: 20px;
         box-shadow: @shadow-base;
+        height: 100%;
+        overflow-y: auto;
+        box-sizing: border-box;
         // border: .5px solid #fff;
         .total-layout {
           display: grid;
@@ -815,7 +818,6 @@ export default {
           row-gap: 13px;
         }
         .item-log {
-          // height: 100%;
           // font-size: .8rem;
           padding: 5px;
           .log {

@@ -47,7 +47,7 @@ export default {
         { name: 'XaL', event: '处理了告警', time: '2020-2-13 17：28' },
       ],
       pagination: {
-        pageSize: 3,
+        pageSize: 15,
         total: 0,
         current: 1,
       },
