@@ -268,7 +268,7 @@ export default {
       // console.log(car)
       let bindTime = car.vehicleDeliverStatus.bindTime
       // console.log(bindTime)
-      let iconType = this.formatTime(bindTime) > 8 ? 'overtime' : 'normal'
+      let iconType = this.formatTime(bindTime) > 8 ? 'overtime' : car.vehicle.status === 0 ? 'normal' : 'alarm'
       // console.log(iconType)
       let carPos = [car.locator.y, car.locator.x]
       let icon = this.createPointMarker(iconType)
