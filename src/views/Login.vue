@@ -55,7 +55,8 @@ export default {
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
           // console.log(this.user)
-          this.login(this.user).then((res) => {
+          let param = Object.assign(this.user, { platform: 'WEB' })
+          this.login(param).then((res) => {
             // console.log(res)
             this.isLoading = false
           }).catch((err) => {
