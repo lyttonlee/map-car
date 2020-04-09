@@ -4,10 +4,10 @@
       <!-- <h2>登录系统</h2> -->
       <el-form :model="user" ref="loginForm" :rules="userRules" >
         <el-form-item prop="username">
-          <el-input class="input" v-model="user.username" placeholder="用户名"></el-input>
+          <el-input class="input" @keyup.enter.native="doLogin" v-model="user.username" placeholder="用户名"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input class="input"  type="password" v-model="user.password" placeholder="密码"></el-input>
+          <el-input class="input" @keyup.enter.native="doLogin" type="password" v-model="user.password" placeholder="密码"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button :loading="isLoading" class="input" type="success" @click="doLogin">登录</el-button>
@@ -58,16 +58,20 @@ export default {
           let param = Object.assign(this.user, { platform: 'WEB' })
           this.login(param).then((res) => {
             // console.log(res)
-            this.isLoading = false
+            // this.isLoading = false
           }).catch((err) => {
             console.log(err)
-            this.isLoading = false
+            // this.isLoading = false
             this.$refs['loginForm'].resetFields()
           })
         }
+        this.isLoading = false
       })
       // this.login(user)
     },
+    test (ev) {
+      console.log(ev)
+    }
   }
 }
 </script>

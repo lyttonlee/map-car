@@ -182,6 +182,7 @@ export default {
                 message: desc
               })
               this.visible = false
+              this.isLoading = false
             } else {
               this.$notify.error({
                 message: desc

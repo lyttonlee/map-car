@@ -7,21 +7,22 @@
     :show-close="false"
   >
     <el-form :model="userModel" :rules="rules" ref="editUser" label-width="100px">
-      <el-form-item label="用户名" prop="username">
+      <!-- <el-form-item label="用户名" prop="username">
         <el-input v-model="userModel.username"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="昵称" prop="nickname">
-        <el-input v-model="userModel.nickname"></el-input>
+        <el-input size="small" v-model="userModel.nickname"></el-input>
       </el-form-item>
       <!-- <el-form-item label="头像" prop="avatar">
         <Upload v-model="userModel.imageUrl" />
       </el-form-item> -->
-      <!-- <el-form-item label="密码" prop="password">
-        <el-input type="password" v-model="userModel.password"></el-input>
+      <el-form-item v-if="showResetPassword" label="新密码" prop="password">
+        <el-input size="small" type="password" v-model="userModel.password"></el-input>
       </el-form-item>
-      <el-form-item label="验证密码" prop="confirmPassword">
-        <el-input type="password" v-model="userModel.confirmPassword"></el-input>
-      </el-form-item> -->
+      <el-form-item v-if="showResetPassword" label="验证密码" prop="confirmPassword">
+        <el-input size="small" type="password" v-model="userModel.confirmPassword"></el-input>
+      </el-form-item>
+      <el-button class="btn" type="primary" @click="toggleResetPassword" size="small" round>{{showResetPassword ? '取消重置密码' : '重置密码'}}</el-button>
       <!-- <el-form-item label="角色" prop="roles">
         <el-select style="width: 100%" v-model="userModel.roles" placeholder="请选择角色">
           <el-option
@@ -44,8 +45,8 @@
       </el-form-item> -->
     </el-form>
     <div slot="footer">
-      <el-button type="success" :loading="isLoading" @click="doEditUser">确定</el-button>
-      <el-button @click="closeDialog">取消</el-button>
+      <el-button type="primary" size="small" round :loading="isLoading" @click="doEditUser">确定</el-button>
+      <el-button round size="small" @click="closeDialog">取消</el-button>
     </div>
   </el-dialog>
 </template>
@@ -124,6 +125,7 @@ export default {
         { id: 1, description: '广本产线' },
         { id: 2, description: '其它产线' }
       ],
+      showResetPassword: false
     }
   },
   computed: {
@@ -140,6 +142,9 @@ export default {
   },
   methods: {
     ...mapActions(['requestRoles']),
+    toggleResetPassword () {
+      this.showResetPassword = !this.showResetPassword
+    },
     closeDialog () {
       this.visible = false
     },
@@ -148,10 +153,18 @@ export default {
       let user = {
         id: this.userModel.id,
         master: true,
-        username: this.userModel.username,
+        // username: this.userModel.username,
         nickname: this.userModel.nickname,
-        imageUrl: this.userModel.imageUrl
+        // imageUrl: this.userModel.imageUrl
       }
+      if (this.showResetPassword) {
+        user = Object.assign(user, {
+          password: this.userModel.password
+        })
+      } else {
+        user.password && delete user.password
+      }
+      console.log(user)
       editUser(user).then((res) => {
         console.log(res)
         let { code, desc } = res
@@ -203,5 +216,10 @@ export default {
 <style lang="less" scoped>
 .item {
   margin: 20px;
+}
+.btn {
+  display: block;
+  text-align: left;
+  margin-left: 100px;
 }
 </style>
