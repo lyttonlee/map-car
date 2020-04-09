@@ -13,10 +13,9 @@
       <el-form-item label="昵称" prop="nickname">
         <el-input v-model="addUserModel.nickname"  placeholder="请输入昵称"></el-input>
       </el-form-item>
-      <el-form-item label="头像" prop="avatar">
+      <!-- <el-form-item label="头像" prop="avatar">
         <Upload v-model="addUserModel.avatar" @uploadOk="uploadOk" />
-        <!-- <el-input v-model="addUserModel.avatar"></el-input> -->
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="密码" prop="password">
         <el-input type="password" v-model="addUserModel.password" placeholder="请输入密码"></el-input>
       </el-form-item>
@@ -33,7 +32,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item v-if="isShowSelectProductLine" label="产线" prop="productLine">
+      <!-- <el-form-item v-if="isShowSelectProductLine" label="产线" prop="productLine">
         <el-select style="width: 100%" v-model="addUserModel.productLine" placeholder="请选择产线">
           <el-option
             v-for="item in lines"
@@ -42,11 +41,11 @@
             :value="item.id">
           </el-option>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
     </el-form>
     <div slot="footer">
-      <el-button type="success" :loading="isLoading" @click="doCreateUser">确定</el-button>
-      <el-button  @click="exit">取消</el-button>
+      <el-button type="primary" size="small" round :loading="isLoading" @click="doCreateUser">确定</el-button>
+      <el-button round size="small"  @click="exit">取消</el-button>
     </div>
   </el-dialog>
 </template>
@@ -60,7 +59,7 @@ import {
 } from '../../../api/user'
 export default {
   components: {
-    Upload: () => import('@/components/Upload'),
+    // Upload: () => import('@/components/Upload'),
   },
   data () {
     const validatePassword = (rule, value, callback) => {
@@ -168,7 +167,7 @@ export default {
               name: this.addUserModel.roles
             }],
             username: this.addUserModel.username,
-            productLineId: this.addUserModel.productLine
+            productLineId: 1
           }
           if (!this.isShowSelectProductLine) {
             delete user.productLineId

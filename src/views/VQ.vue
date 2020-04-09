@@ -18,7 +18,7 @@
           <template v-for="(item, index) in percentData">
             <div :key="index" class="percent-item">
               <div class="text">{{item.title}}</div>
-              <el-progress :show-text="false" :stroke-width="8" :percentage="item.percent" :status="item.color"></el-progress>
+              <el-progress :show-text="false" :stroke-width="8" :percentage="item.percent" :color="item.color"></el-progress>
               <div class="number">{{item.percent}}% ({{item.num}}辆)</div>
             </div>
           </template>
@@ -82,6 +82,7 @@ import normalCar from '../assets/img/car-blue.png'
 import {
   mapState,
   mapActions,
+  mapGetters,
 } from 'vuex'
 export default {
   data () {
@@ -107,6 +108,7 @@ export default {
   },
   computed: {
     ...mapState(['carScale']),
+    ...mapGetters(['overtime']),
     percentData () {
       // console.log(this.bindCars)
       if (this.bindCars.length > 0) {
@@ -119,7 +121,7 @@ export default {
         //   return car.vehicle.status === 1
         // })
         // console.log(alarms)
-        let alarmNum = this.bindCars.filter((car) => car.vehicle.status === 1).length
+        let alarmNum = this.bindCars.filter((car) => car.vehicle.status !== 0).length
         // let overtimeNum = this.bindCars.filter((car) => isDelay(car.vehicleDeliverStatus.bindTime)).length
         // console.log(alarmNum)
         let normal = {
@@ -132,7 +134,7 @@ export default {
           title: '告警车辆',
           num: alarmNum,
           percent: Math.floor(alarmNum / allNum * 100) || 0,
-          color: 'exception',
+          color: '#ea2218',
         }
         // let overtime = {
         //   title: '超时车辆',
@@ -216,7 +218,7 @@ export default {
         // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
         // console.log(newPos.content.angle)
         currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
-        currentMarker.setPopupContent(newPos.content.y + ' ' + newPos.content.x)
+        // currentMarker.setPopupContent(newPos.content.y + ' ' + newPos.content.x)
         // currentMarker.moveTo([newPos.content.y, newPos.content.x], 500)
         // setTimeout(() => {
         //   newPos.content.deg && currentMarker.setRotation(newPos.content.deg)
@@ -280,7 +282,7 @@ export default {
       // console.log(duration)
       let hours = this.$moment.duration(duration / 1000, 's').asHours().toFixed(2)
       // console.log(hours)
-      if (hours >= 8) {
+      if (hours * 1 >= this.overtime * 1) {
         return true
       } else {
         return false
@@ -687,11 +689,27 @@ export default {
       })
       return icon
     },
+    computedIconType (car) {
+      let bindTime = car.vehicleDeliverStatus.bindTime
+      // console.log(this.formatTime(bindTime))
+      // console.log(this.overtime)
+      // console.log(this.formatTime(bindTime) > this.overtime)
+      if (this.formatTimeOnly(bindTime) * 1 > this.overtime * 1) {
+        // console.log(true)
+        return 'overtime'
+      } else if (car.vehicle.status !== 0) {
+        return 'alarm'
+      } else {
+        return 'normal'
+      }
+    },
     // 渲染车辆点到地图上
     renderMarker (car) {
-      let bindTime = car.vehicleDeliverStatus.bindTime
+      // console.log(car)
+      // let bindTime = car.vehicleDeliverStatus.bindTime
       // console.log(bindTime)
-      let iconType = this.formatTimeOnly(bindTime) > 8 ? 'overtime' : car.vehicle.status === 0 ? 'normal' : 'alarm'
+      // console.log(this.formatTime(bindTime))
+      let iconType = this.computedIconType(car)
       // console.log(iconType)
       let carPos = [car.locator.y, car.locator.x]
       let icon = this.createPointMarker(iconType)
@@ -704,9 +722,7 @@ export default {
       // 为marker绑上车和定位器的ID
       marker.carId = car.vehicle.id
       marker.locatorId = car.locator.id
-      marker.bindPopup(car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x, {
-        // className: 'marker-popup'
-      })
+      marker.bindPopup(`<div>车 架 号: ${car.vehicle.identification}</div><div>标 签 号: ${car.locator.sn}</div>`)
       this.markers.push({
         marker,
         id: car.vehicle.id,

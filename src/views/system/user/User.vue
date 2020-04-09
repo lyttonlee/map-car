@@ -12,12 +12,11 @@
             {{formatRole(scope.row.roles)}}
           </template>
         </el-table-column>
-        <el-table-column label="头像">
+        <!-- <el-table-column label="头像">
           <template slot-scope="scope">
             <img style="width: 30px" :src="scope.row.imageUrl" alt="">
-            <!-- <img style="width: 30px" :src="avatar" alt=""> -->
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column label="创建时间">
           <template slot-scope="scope">
             <div>{{$moment(scope.row.createTime).format('YYYY-MM-DD HH:mm:ss')}}</div>

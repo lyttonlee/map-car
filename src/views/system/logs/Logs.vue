@@ -40,12 +40,7 @@ export default {
   },
   data () {
     return {
-      logs: [
-        { name: 'XaL', event: '车辆XXXXX绑定标签 3213123', time: '2020-2-12 15：20' },
-        { name: 'XaL', event: '指派车辆XXXXX至XX,XX车间返修', time: '2020-2-12 15：23' },
-        { name: 'XaL', event: '确定车辆XXXXX通过复检', time: '2020-2-13 16：00' },
-        { name: 'XaL', event: '处理了告警', time: '2020-2-13 17：28' },
-      ],
+      logs: [],
       pagination: {
         pageSize: 15,
         total: 0,

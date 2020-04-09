@@ -12,7 +12,7 @@
         <div class="author">操作员- {{log.nickName}}</div>
       </div>
       <div class="right">
-        <div class="date-right">{{$moment.duration(5700 * 1000).asHours().toFixed(2) + 'h'}}</div>
+        <div class="date-right">{{log.param && log.param.stay ? $moment.duration(log.param.stay / 1000, 's').asHours().toFixed(2) + 'h' : ''}}</div>
       </div>
     </div>
   </div>

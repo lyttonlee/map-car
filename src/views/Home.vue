@@ -11,7 +11,7 @@
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
-      <CarList v-if="bindCars.length > 0" @showCarInfo="showCarInfo" :cars="bindCars" />
+      <CarList ref="carlist" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" :cars="bindCars" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
     <!-- <RepairTrack ref="repairTrack" /> -->
@@ -37,14 +37,16 @@ import {
   mapGetters,
 } from 'vuex'
 // import RepairTrack from '../components/RepairTrack'
+import CarInfo from '@/components/CarInfo'
+import CarList from '@/components/CarList'
 export default {
   name: 'home',
   components: {
     // HelloWorld
     // RepairTrack: () => import('../components/RepairTrack')
     // RepairTrack,
-    CarList: () => import('@/components/CarList'),
-    CarInfo: () => import('@/components/CarInfo')
+    CarList,
+    CarInfo,
   },
   data () {
     return {
@@ -130,7 +132,7 @@ export default {
         // currentMarker.openPopup()
         currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
         currentMarker.angle = newPos.content.angle
-        currentMarker.setPopupContent(newPos.content.y + ' ' + newPos.content.x)
+        // currentMarker.setPopupContent(newPos.content.y + ' ' + newPos.content.x)
         // setTimeout(() => {
         //   if (newPos.content.angle) {
         //     if (!currentMarker.deg || currentMarker.deg !== newPos.content.angle) {
@@ -201,7 +203,7 @@ export default {
       // console.log(duration / 1000)
       let hours = this.$moment.duration(duration / 1000, 's').asHours().toFixed(2)
       // console.log(hours)
-      if (hours >= this.overtime) {
+      if (hours * 1 >= this.overtime * 1) {
         return true
       } else {
         return false
@@ -211,7 +213,7 @@ export default {
       this.showSide = !this.showSide
     },
     showCarInfo (car) {
-      console.log(car)
+      // console.log(car)
       let oui = car.vehicle.id
       // 查询这两车的信息
       let param = {
@@ -224,6 +226,7 @@ export default {
         let { code, desc, result } = res
         if (code === 0) {
           this.showingCar = result.resultList[0]
+          this.hignlightMarker(oui, this.showingCar)
           if (this.isShowing === false) {
             this.isShowing = true
           }
@@ -235,8 +238,25 @@ export default {
         }
       })
     },
+    // hignliaght marker
+    hignlightMarker (carId, car) {
+      let markerIndex = this.markers.findIndex((item) => item.id === carId)
+      // console.log(markerIndex)
+      if (markerIndex !== -1) {
+        let currentMarker = this.markers[markerIndex].marker
+        // setPopupContent
+        console.log(car)
+        currentMarker.setPopupContent(`<div>车 架 号: ${car.vehicleIdentification}</div><div>标 签 号: ${car.locatorSn}</div><div>${car.locatorY + ' ' + car.locatorX}</div>`)
+        let isOpenPopup = currentMarker.isPopupOpen()
+        if (!isOpenPopup) {
+          currentMarker.openPopup()
+        }
+      }
+    },
     closeInfo () {
       this.isShowing = false
+      // console.log(this.$refs['carlist'])
+      this.$refs['carlist'].clearListActive()
       this.showingCar = {}
     },
     // 创建点marker
@@ -267,11 +287,11 @@ export default {
     },
     computedIconType (car) {
       let bindTime = car.vehicleDeliverStatus.bindTime
-      console.log(this.formatTime(bindTime))
-      console.log(this.overtime)
-      console.log(this.formatTime(bindTime) > this.overtime)
+      // console.log(this.formatTime(bindTime))
+      // console.log(this.overtime)
+      // console.log(this.formatTime(bindTime) > this.overtime)
       if (this.formatTime(bindTime) * 1 > this.overtime * 1) {
-        console.log(true)
+        // console.log(true)
         return 'overtime'
       } else if (car.vehicle.status !== 0) {
         return 'alarm'
@@ -281,12 +301,12 @@ export default {
     },
     // 渲染车辆点到地图上
     renderMarker (car) {
-      // console.log(car)
+      console.log(car)
       // let bindTime = car.vehicleDeliverStatus.bindTime
       // console.log(bindTime)
       // console.log(this.formatTime(bindTime))
       let iconType = this.computedIconType(car)
-      console.log(iconType)
+      // console.log(iconType)
       let carPos = [car.locator.y, car.locator.x]
       let icon = this.createPointMarker(iconType)
       const marker = L.Marker.movingMarker([carPos], [], {
@@ -298,9 +318,7 @@ export default {
       // 为marker绑上车和定位器的ID
       marker.carId = car.vehicle.id
       marker.locatorId = car.locator.id
-      marker.bindPopup(car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x, {
-        // className: 'marker-popup'
-      })
+      marker.bindPopup(`<div>车 架 号: ${car.vehicle.identification}</div><div>标 签 号: ${car.locator.sn}</div><div>${car.locator.y + ' ' + car.locator.x}</div>`)
       marker.on('click', this.clickMarker)
       this.markers.push({
         marker,
@@ -315,7 +333,7 @@ export default {
     },
     // 点击marker
     clickMarker (ev) {
-      console.log(ev)
+      // console.log(ev)
       let oui = ev.target.carId
       // 查询这两车的信息
       let param = {
@@ -324,10 +342,11 @@ export default {
         vehicleId: oui
       }
       queryCars(param).then((res) => {
-        console.log(res)
+        // console.log(res)
         let { code, desc, result } = res
         if (code === 0) {
           this.showingCar = result.resultList[0]
+          this.$refs['carlist'].setListActive(oui)
           if (this.isShowing === false) {
             this.isShowing = true
           }
@@ -382,7 +401,7 @@ export default {
       L.imageOverlay(imgUrl, imgBounds).addTo(map)
       this.map = map
       this.getBindCars(true)
-      // this.carListTime = setInterval(this.getBindCars, 30000)
+      this.carListTime = setInterval(this.getBindCars, 30000)
     }).catch((err) => {
       console.log(err)
       this.$notify.error({

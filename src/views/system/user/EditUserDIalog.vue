@@ -13,10 +13,9 @@
       <el-form-item label="昵称" prop="nickname">
         <el-input v-model="userModel.nickname"></el-input>
       </el-form-item>
-      <el-form-item label="头像" prop="avatar">
-        <!-- <el-input v-model="userModel.avatar"></el-input> -->
+      <!-- <el-form-item label="头像" prop="avatar">
         <Upload v-model="userModel.imageUrl" />
-      </el-form-item>
+      </el-form-item> -->
       <!-- <el-form-item label="密码" prop="password">
         <el-input type="password" v-model="userModel.password"></el-input>
       </el-form-item>
@@ -33,7 +32,7 @@
           </el-option>
         </el-select>
       </el-form-item> -->
-      <el-form-item v-if="isShowSelectProductLine" label="产线" prop="productLine">
+      <!-- <el-form-item v-if="isShowSelectProductLine" label="产线" prop="productLine">
         <el-select style="width: 100%" v-model="userModel.productLineId" placeholder="请选择产线">
           <el-option
             v-for="item in lines"
@@ -42,7 +41,7 @@
             :value="item.id">
           </el-option>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
     </el-form>
     <div slot="footer">
       <el-button type="success" :loading="isLoading" @click="doEditUser">确定</el-button>
@@ -60,7 +59,7 @@ import {
 } from '../../../api/user'
 export default {
   components: {
-    Upload: () => import('@/components/Upload'),
+    // Upload: () => import('@/components/Upload'),
   },
   data () {
     const validatePassword = (rule, value, callback) => {

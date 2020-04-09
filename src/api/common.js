@@ -23,3 +23,7 @@ export const uploadImage = (param) => {
     }
   })
 }
+
+export const getCarNodes = () => {
+  return request.get('/common/v1.0/nodes')
+}

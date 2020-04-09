@@ -8,6 +8,7 @@ import {
   LOCATORSTATUS,
   ALARMCONFIG,
   MAPINFO,
+  CARNODES,
 } from './types'
 import router from '../router'
 import {
@@ -25,7 +26,8 @@ import {
 } from '../api/user'
 import {
   queryCarStatus,
-  queryLocatorStatus
+  queryLocatorStatus,
+  getCarNodes
 } from '../api/common'
 import {
   queryAlarmConfig
@@ -50,7 +52,8 @@ export default new Vuex.Store({
     floorId: 1,
     alarmConfig: '',
     mapInfo: '',
-    carScale: 3.5
+    carScale: 3.5,
+    carNodes: '',
   },
   mutations: {
     [LOGOUT]: (state) => {
@@ -91,6 +94,9 @@ export default new Vuex.Store({
     },
     [MAPINFO]: (state, mapInfo) => {
       state.mapInfo = mapInfo
+    },
+    [CARNODES]: (state, carNodes) => {
+      state.carNodes = carNodes
     },
   },
   actions: {
@@ -165,6 +171,13 @@ export default new Vuex.Store({
           commit(ALARMCONFIG, result)
         }
       })
+      getCarNodes().then((res) => {
+        let { code, result } = res
+        if (code === 0) {
+          console.log(result)
+          commit(CARNODES, result)
+        }
+      })
     },
     // 获取地图数据
     getMapInfo ({ commit, state }) {
@@ -193,7 +206,7 @@ export default new Vuex.Store({
       let time = state.alarmConfig.find((alarm) => alarm.code === 2).thresholdOne
       let hours = time / 1000 / 60 / 60
       return hours.toFixed(2)
-    }
+    },
   },
   modules: {
   }

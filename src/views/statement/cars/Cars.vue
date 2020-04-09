@@ -23,7 +23,7 @@
       <el-table-column min-width="200px" label="问题" prop="flawDetail"></el-table-column>
       <el-table-column label="入荷时间">
         <template slot-scope="scope">
-          {{$moment(scope.row.bindTime).format('YYYY-MM-DD HH:mm:ss')}}
+          {{scope.row.bindTime ? $moment(scope.row.bindTime).format('YYYY-MM-DD HH:mm:ss') : '未知'}}
         </template>
       </el-table-column>
       <el-table-column label="出荷时间">
@@ -51,14 +51,17 @@
         <h3>车辆详情</h3>
         <div class="detail">
           <div class="info">
-            <div class="item-unique">维修时长: {{ showingCar.unbindTime ? $moment.duration(showingCar.unbindTime - showingCar.bindTime).asHours().toFixed(2) : $moment(showingCar.bindTime).toNow(true)}}</div>
+            <div class="item-unique">维修时长: {{ showingCar.unbindTime ? $moment.duration(showingCar.unbindTime - showingCar.bindTime).asHours().toFixed(1) + '小时' : showingCar.bindTime ? $moment(showingCar.bindTime).toNow(true) : '未知'}}</div>
+            <div class="item">当前环节: {{computedCarNode(showingCar.node)}}</div>
             <div class="item">车架号码: {{showingCar.vehicleIdentification}}</div>
-            <div class="item">车辆型号: {{showingCar.vehicleName}}</div>
-            <div class="item">车辆颜色: {{showingCar.vehicleName}}</div>
-            <div class="item">发动机号: {{showingCar.vehicleName}}</div>
-            <div class="item">变 速 箱: {{showingCar.vehicleName}}</div>
+            <div class="item">车辆型号: {{showingCar.vehicleType}}</div>
+            <div class="item">车身颜色: {{showingCar.vehicleOutSideColor}}</div>
+            <div class="item">发动机号: {{showingCar.vehicleEngineType}}</div>
+            <div class="item">变 速 箱: {{showingCar.vehicleGearBox}}</div>
             <div class="item">车辆问题: {{showingCar.flawDetail}}</div>
-            <div class="item">入荷时间: {{$moment(showingCar.bindTime).format('YYYY-MM-DD HH:mm:ss')}}</div>
+            <div class="item">入荷时间: {{showingCar.bindTime ? $moment(showingCar.bindTime).format('YYYY-MM-DD HH:mm:ss') : '未知'}}</div>
+            <div class="item" v-if="showingCar.locatorSn">标签编号: {{showingCar.locatorSn}}</div>
+            <div class="item" v-if="showingCar.power">标签电量: {{showingCar.power + '%'}}</div>
             <div v-if="showingCar.unbindTime" class="item">出荷时间: {{$moment(showingCar.unbindTime).format('YYYY-MM-DD HH:mm:ss')}}</div>
           </div>
           <div class="logs">
@@ -78,6 +81,9 @@
 import {
   queryCars,
 } from '../../../api/vq'
+import {
+  computedCarNode,
+} from '../../../utils/utils'
 import {
   mapState
 } from 'vuex'
@@ -103,6 +109,7 @@ export default {
     ...mapState(['productLineId'])
   },
   methods: {
+    computedCarNode,
     getCarList (param) {
       let queryParam
       if (param) {
@@ -225,7 +232,7 @@ export default {
           border: 1px solid rgba(46, 46, 46, 0.534);
           border-radius: 10px;
           .item {
-            font-size: 1rem;
+            // font-size: 1rem;
             // border-bottom: 1px dashed #666;
             padding: 10px 0 5px 5px;
             text-align: left;

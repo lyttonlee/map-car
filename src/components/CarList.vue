@@ -15,12 +15,12 @@
         <div class="car-time">维修时长</div>
       </div>
       <template v-for="(car, index) in renderedCars">
-        <div class="list-item" @click="showCarInfo(car)" :key="index">
+        <div :class="listActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index)" :key="index">
           <div :class="computeCarClassColorByStatu(car.vehicle.status, car.vehicleDeliverStatus.bindTime)">
             <zx-icon type="zx-car2"></zx-icon>
           </div>
           <div class="car-oui">{{car.vehicle.identification}}</div>
-          <div :class="formatTime(car.vehicleDeliverStatus.bindTime) > 8 ? 'warn' : 'success'">{{formatTime(car.vehicleDeliverStatus.bindTime)}}小时</div>
+          <div :class="formatTime(car.vehicleDeliverStatus.bindTime) * 1 >= overtime * 1 ? 'warn' : 'success'">{{formatTime(car.vehicleDeliverStatus.bindTime)}}小时</div>
         </div>
       </template>
     </div>
@@ -28,6 +28,9 @@
 </template>
 <script>
 import moment from 'moment'
+import {
+  mapGetters,
+} from 'vuex'
 export default {
   props: {
     cars: {
@@ -41,7 +44,11 @@ export default {
       activeIndex: 0,
       renderedCars: [],
       search: '', // 要搜索的车架号 模糊匹配
+      listActiveIndex: '',
     }
+  },
+  computed: {
+    ...mapGetters(['overtime']),
   },
   created () {
     this.initCars()
@@ -104,15 +111,45 @@ export default {
     },
     // 计算车辆应该显示的颜色
     computeCarClassColorByStatu (code) {
-      if (code !== 0) {
-        return 'error'
-      } else {
-        return 'normal'
+      let iconClass
+      console.log(code)
+      switch (code) {
+        case 0:
+          iconClass = 'normal'
+          break
+        case 1:
+          iconClass = 'error'
+          break
+        case 2:
+          iconClass = 'error'
+          break
+        default:
+          iconClass = 'normal'
+          break
       }
+      // if (code !== 0) {
+      //   return 'error'
+      // } else {
+      //   return 'normal'
+      // }
+      return iconClass
     },
     // 点击车辆显示详情
-    showCarInfo (car) {
+    showCarInfo (car, index) {
       this.$emit('showCarInfo', car)
+      this.listActiveIndex = index
+    },
+    clearListActive () {
+      // console.log('clear')
+      this.listActiveIndex = ''
+    },
+    setListActive (carId) {
+      // console.log(this.renderedCars)
+      let index = this.renderedCars.findIndex((car) => car.vehicle.id === carId)
+      // console.log(index)
+      if (index !== -1) {
+        this.listActiveIndex = index
+      }
     }
   }
 }
@@ -150,6 +187,10 @@ export default {
         background: @page-background;
         border-bottom: .5px solid rgba(251, 252, 250, 0.699);
       }
+    }
+    .active {
+      background: @page-background;
+      border-bottom: .5px solid rgba(251, 252, 250, 0.699);
     }
   }
 }
