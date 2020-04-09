@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="search">
-      <el-input v-model="search" @blur="doSearch" placeholder="请输入要查找的设备编号！"></el-input>
+      <el-input v-model="search" @keyup.enter.native="doSearch" @blur="doSearch" placeholder="请输入要查找的设备编号！"></el-input>
     </div>
     <div class="add">
       <!-- <el-button @click="addDevice">添加标签</el-button> -->

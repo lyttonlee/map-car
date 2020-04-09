@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="search">
-      <el-input v-model="search" @blur="doSearch" placeholder="请输入要搜索车辆的车架号"></el-input>
+      <el-input v-model="search" @keyup.enter.native="doSearch" @blur="doSearch" placeholder="请输入要搜索车辆的车架号"></el-input>
     </div>
     <el-table :data="cars" style="width: 100%;background:#fff0" size="mini">
       <!-- <el-table-column label="类型" prop="vehicleName"></el-table-column> -->

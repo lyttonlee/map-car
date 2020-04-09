@@ -8,7 +8,7 @@
       <el-table-column label="事件内容" prop="content"></el-table-column>
       <el-table-column label="时间">
         <template slot-scope="scope">
-          <div>{{$moment(scope.row.timeStamp).format('YYYY-MM-DD HH:mm:ss')}}</div>
+          <div>{{$moment(scope.row.timestamp).format('YYYY-MM-DD HH:mm:ss')}}</div>
         </template>
       </el-table-column>
     </el-table>

@@ -1,9 +1,9 @@
 <template>
   <div class="page">
     <div class="search">
-      <el-input v-model="search" @blur="doSearch" placeholder="搜索筛选框"></el-input>
+      <el-input v-model="search" @keyup.enter.native="doSearch" @blur="doSearch" placeholder="搜索筛选框"></el-input>
     </div>
-    <el-table :data="alarms" style="width: 100%;background:#fff0" size="mini">
+    <el-table :data="alarms" style="width: 100%;background:#fff0" size="small">
       <el-table-column label="类型">
         <template slot-scope="scope">
           <div>{{formatAlarmType(scope.row.alarmCode)}}</div>
@@ -23,7 +23,8 @@
       <el-table-column label="位置" prop="address"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button size="mini" round type="info" :disabled="true" v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation || '系统已自动处理'}}</el-button>
+          <!-- <el-button size="mini" round type="info" :disabled="true" v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation || ''}}</el-button> -->
+          <div v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation || ''}}</div>
           <el-button v-else round size="mini" @click="doDispose(scope.row)" type="primary">处理告警</el-button>
         </template>
       </el-table-column>
