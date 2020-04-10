@@ -10,14 +10,24 @@
           <div>{{scope.row.autoDispose === true ? '是' : '否'}}</div>
         </template>
       </el-table-column>
+      <el-table-column label="是否启用">
+        <template slot-scope="scope">
+          <div>{{scope.row.enabled === true ? '是' : '否'}}</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="是否重复触发">
+        <template slot-scope="scope">
+          <div>{{scope.row.repeatFlag === true ? '可重复触发' : '仅触发一次'}}</div>
+        </template>
+      </el-table-column>
       <el-table-column label="阈值">
         <template slot-scope="scope">
-          <div>{{formatThreshold(scope.row)}}</div>
+          <div>{{formatThreshold(scope.row) || '--'}}</div>
         </template>
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" round :disabled="!scope.row.thresholdOne" @click="editAlarmConfig(scope.row)" >修改</el-button>
+          <el-button type="primary" size="mini" round @click="editAlarmConfig(scope.row)" >修改</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -25,15 +35,25 @@
     <Modal v-if="showModal" @quit="quit" @ok="handleOk">
       <h3>修改告警配置</h3>
       <div class="config-alarm">
-        <div>类型: {{content.name}}</div>
-        <div>信息: {{content.message}}</div>
-        <label>阈值: </label>
-        <el-input size="small" style="width: 200px" v-if="content.code == 1" placeholder="请输入要修改的阈值" v-model="threshold">
-          <template slot="append">{{computedAppend(content.code)}}</template>
-        </el-input>
-        <el-input size="small" style="width: 200px" v-if="content.code == 2" placeholder="请输入要修改的阈值" v-model="overTime">
-          <template slot="append">{{computedAppend(content.code)}}</template>
-        </el-input>
+        <div>告警类型: {{content.name}}</div>
+        <div>告警信息: {{content.message}}</div>
+        <div v-if="content.thresholdOne">
+          <label>告警阈值: </label>
+          <el-input size="small" style="width: 200px" v-if="content.code == 1" placeholder="请输入要修改的阈值" v-model="threshold">
+            <template slot="append">{{computedAppend(content.code)}}</template>
+          </el-input>
+          <el-input size="small" style="width: 200px" v-if="content.code == 2" placeholder="请输入要修改的阈值" v-model="overTime">
+            <template slot="append">{{computedAppend(content.code)}}</template>
+          </el-input>
+        </div>
+        <div>
+          <label>是否启用: </label>
+          <el-switch v-model="content.enabled"></el-switch>
+        </div>
+        <div>
+          <label>是否重复: </label>
+          <el-switch v-model="content.repeatFlag"></el-switch>
+        </div>
       </div>
       <!-- <div class="test">{{content}}</div> -->
     </Modal>
@@ -132,13 +152,16 @@ export default {
           }
           break
         default:
+          valid = true
           break
       }
       if (valid) {
         // if (this)
         let param = {
           id: this.content.id,
-          thresholdOne: this.content.code === 2 ? this.overTime * 60 * 60 * 1000 : this.threshold
+          thresholdOne: this.content.code === 2 ? this.overTime * 60 * 60 * 1000 : this.threshold,
+          repeatFlag: this.content.repeatFlag,
+          enabled: this.content.enabled,
         }
         editAlarm(param).then((res) => {
           console.log(res)
