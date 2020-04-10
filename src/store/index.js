@@ -207,6 +207,10 @@ export default new Vuex.Store({
       let hours = time / 1000 / 60 / 60
       return hours.toFixed(2)
     },
+    lowPower (state) {
+      let value = state.alarmConfig.find((alarm) => alarm.code === 1).thresholdOne
+      return value
+    },
     alarmValues (state) {
       let alarmConfig = state.alarmConfig.map((config) => {
         return {

@@ -15,7 +15,7 @@
       </el-table-column>
       <el-table-column label="电量">
         <template slot-scope="scope">
-          <div :class="scope.row.power && scope.row.power > 20 ? '' : 'error'">{{scope.row.power ? scope.row.power + '%' : '未知(已离线)'}}</div>
+          <div :class="scope.row.power && scope.row.power * 1 > lowPower * 1 ? '' : 'error'">{{scope.row.power ? scope.row.power + '%' : '未知(已离线)'}}</div>
         </template>
       </el-table-column>
       <el-table-column label="位置">
@@ -31,7 +31,7 @@
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button-group>
-            <el-button round type="primary" size="mini" @click="sendVoice(scope.row.name)">发声</el-button>
+            <el-button round type="primary" size="mini" @click="sendVoice(scope.row)">震动</el-button>
             <!-- <el-button round type="danger" size="mini" @click="deleteDevice(scope.row)">删除</el-button> -->
           </el-button-group>
         </template>
@@ -52,10 +52,12 @@
 <script>
 import AddDeviceDialog from './AddDeviceDialog'
 import {
-  queryUWB
+  queryUWB,
+  shakeUWB,
 } from '../../../api/car'
 import {
-  mapState
+  mapState,
+  mapGetters,
 } from 'vuex'
 export default {
   components: {
@@ -73,26 +75,36 @@ export default {
     }
   },
   computed: {
-    ...mapState(['productLineId'])
+    ...mapState(['productLineId']),
+    ...mapGetters(['lowPower']),
   },
   methods: {
     addDevice () {
       this.$refs['addDeviceDialog'].visible = true
     },
-    sendVoice (name) {
-      this.$notify({
-        title: '成功',
-        message: `已成功对标签${name}下发语音命令，请确认设备`,
-        type: 'success'
+    sendVoice (device) {
+      console.log(device)
+      let params = {
+        oui: device.oui,
+        sn: device.sn
+      }
+      shakeUWB(params).then((res) => {
+        let { code, desc } = res
+        if (code === 0) {
+          this.$notify({
+            title: '成功',
+            message: `已成功对标签${device.sn}下发震动命令，请确认设备`,
+            type: 'success'
+          })
+        } else {
+          this.$notify.error({
+            message: desc
+          })
+        }
       })
     },
     deleteDevice (device) {
       console.log(device)
-      this.$notify({
-        title: '成功',
-        message: `已删除设备${device.name}`,
-        type: 'success'
-      })
     },
     // 获取标签列表
     getDeviceList (param) {
