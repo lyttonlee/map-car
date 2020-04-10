@@ -1,6 +1,6 @@
 <template>
   <div class="car-list">
-    <el-input class="input" size="small" v-model="search" @blur="doSearch" placeholder="请输入要查询的车辆"></el-input>
+    <el-input class="input" size="small" @keyup.enter.native="doSearch" v-model="search" @blur="doSearch" placeholder="请输入要查询车辆的车架号"></el-input>
     <div class="header">
       <template v-for="(menu, index) in menus">
         <div :class="activeIndex === index ? `menu active` : 'menu'" @click="changeMenu(index)" :key="index">{{menu}}</div>
@@ -66,47 +66,60 @@ export default {
   methods: {
     // 搜索车架号查询
     doSearch () {
-      if (this.search === '') {
-        // ..
-        // this.getBindCars()
-        this.activeIndex = 0
-        this.renderedCars = this.cars
-      } else {
-        this.activeIndex = 0
-        this.renderedCars = this.cars.filter((car) => car.vehicle.identification.includes(this.search))
-        // console.log(this.bindCars)
-      }
+      this.renderedCars = this.computeRenderCars()
     },
     initCars () {
       // console.log(this.cars)
-      this.activeIndex = 0
-      this.renderedCars = this.cars
-      // this.renderedCars = this.changeMenu(this.activeIndex)
+      // this.activeIndex = 0
+      // let cars
+      // this.renderedCars = this.cars
+      // if (this.activeIndex === 0 && this.search === '') {
+      //   this.renderedCars = this.cars
+      // }
+      // if (this.activeIndex !== 0) {
+      //   this.changeMenu(this.activeIndex)
+      // }
+      // if (this.search) {
+      //   this.doSearch()
+      // }
+      this.renderedCars = this.computeRenderCars()
     },
     formatTime (s) {
       let repairTime = moment().valueOf() - s
       return moment.duration(repairTime / 1000, 's').asHours().toFixed(2)
     },
     changeMenu (index) {
-      if (this.activeIndex !== index) {
-        this.activeIndex = index
-        switch (index) {
-          case 0:
-            this.renderedCars = this.cars
-            break
-          case 1:
-            this.renderedCars = this.cars.filter((car) => car.vehicle.status !== 0)
-            break
-          case 2:
-            this.renderedCars = this.cars.filter((car) => {
-              // car.vehicleDeliverStatus.bindTime
-              return this.formatTime(car.vehicleDeliverStatus.bindTime) >= 8
-            })
-            break
-          default:
-            this.renderedCars = this.cars
-            break
-        }
+      // if (this.activeIndex !== index) {
+      this.activeIndex = index
+      this.renderedCars = this.computeRenderCars()
+      // }
+    },
+    // ？？？
+    computeRenderCars () {
+      let temCars
+      // 先切换menu 再在结果中找出符合搜索条件的car
+      switch (this.activeIndex) {
+        case 0:
+          temCars = this.cars
+          break
+        case 1:
+          temCars = this.cars.filter((car) => car.vehicle.status !== 0)
+          break
+        case 2:
+          temCars = this.cars.filter((car) => {
+            // car.vehicleDeliverStatus.bindTime
+            return this.formatTime(car.vehicleDeliverStatus.bindTime) * 1 >= this.overtime * 1
+          })
+          break
+        default:
+          temCars = this.cars
+          break
+      }
+      // 搜索
+      if (this.search === '') {
+        return temCars
+      } else {
+        return temCars.filter((car) => car.vehicle.identification.includes(this.search) || car.locator.sn.includes(this.search))
       }
     },
     // 计算车辆应该显示的颜色
