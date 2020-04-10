@@ -152,7 +152,7 @@ export default {
   created () {
     this.getBoradData()
     this.getChartData()
-    this.getAlarmData()
+    // this.getAlarmData()
     this.getStoreData()
     this.getImportantSummary()
   },
