@@ -202,10 +202,19 @@ export default new Vuex.Store({
   getters: {
     // .
     overtime (state) {
-      console.log(state)
+      // console.log(state)
       let time = state.alarmConfig.find((alarm) => alarm.code === 2).thresholdOne
       let hours = time / 1000 / 60 / 60
       return hours.toFixed(2)
+    },
+    alarmValues (state) {
+      let alarmConfig = state.alarmConfig.map((config) => {
+        return {
+          code: config.code,
+          name: config.name
+        }
+      })
+      return alarmConfig
     },
   },
   modules: {

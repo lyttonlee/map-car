@@ -3,6 +3,16 @@
     <div class="search">
       <el-input v-model="search" @keyup.enter.native="doSearch" @blur="doSearch" placeholder="搜索筛选框"></el-input>
     </div>
+    <div class="search-box">
+      <!-- <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="checkAllChange">全部告警类型</el-checkbox> -->
+      <el-checkbox-group style="margin-left: 0px" :min="1" v-model="checkedAlarms" @change="checkedAlarmChange">
+        <el-checkbox v-for="alarm in alarmValues" :label="alarm.code" :key="alarm.code">{{alarm.name}}</el-checkbox>
+      </el-checkbox-group>
+      <!-- <el-checkbox :indeterminate="isStatuIndeterminate" v-model="checkAllStatu" @change="checkStatuAllChange">全部状态</el-checkbox> -->
+      <el-checkbox-group style="margin-left: 20px" :min="1" v-model="checkedStatu" @change="checkedStatuChange">
+        <el-checkbox v-for="statu in alarmStatus" :label="statu.code" :key="statu.code">{{statu.name}}</el-checkbox>
+      </el-checkbox-group>
+    </div>
     <el-table :data="alarms" style="width: 100%;background:#fff0" size="small">
       <el-table-column label="类型">
         <template slot-scope="scope">
@@ -58,14 +68,15 @@ import {
   disposeAlarm,
 } from '../../api/alarm'
 import {
-  mapState
+  mapState,
+  mapGetters,
 } from 'vuex'
 export default {
   data () {
     return {
       alarms: [],
       pagination: {
-        pageSize: 15,
+        pageSize: 13,
         total: 0,
         current: 1,
       },
@@ -74,10 +85,20 @@ export default {
       disposeInfo: '',
       loading: false,
       disposeId: '',
+      // 告警类型
+      isIndeterminate: false,
+      checkAll: true,
+      checkedAlarms: [],
+      // 告警状态
+      alarmStatus: [{ code: 1, name: '未处理' }, { code: 2, name: '已处理' }],
+      isStatuIndeterminate: false,
+      checkAllStatu: true,
+      checkedStatu: [1, 2],
     }
   },
   computed: {
-    ...mapState(['productLineId', 'alarmConfig'])
+    ...mapState(['productLineId', 'alarmConfig']),
+    ...mapGetters(['alarmValues']),
   },
   methods: {
     // 解析告警类型
@@ -119,24 +140,26 @@ export default {
         pageSize: this.pagination.pageSize,
         currentPage: ev
       }
-      if (this.search) {
-        param.dimMatch = this.search
+      let param1 = this.computeParam()
+      if (param1) {
+        param = Object.assign(param1, param)
       }
       this.queryAlarmList(param)
     },
     doSearch () {
-      console.log('do')
-      if (this.search) {
-        let param = {
-          productLineId: this.productLineId,
-          pageSize: this.pagination.pageSize,
-          currentPage: 1,
-          dimMatch: this.search
-        }
-        this.queryAlarmList(param)
-      } else {
-        this.queryAlarmList()
-      }
+      // console.log('do')
+      // if (this.search) {
+      //   let param = {
+      //     productLineId: this.productLineId,
+      //     pageSize: this.pagination.pageSize,
+      //     currentPage: 1,
+      //     dimMatch: this.search
+      //   }
+      //   this.queryAlarmList(param)
+      // } else {
+      //   this.queryAlarmList()
+      // }
+      this.queryAlarmList(this.computeParam())
     },
     // 点击处理告警
     doDispose (row) {
@@ -175,10 +198,78 @@ export default {
           })
         }
       })
+    },
+    // 选择的告警类型改变
+    checkedAlarmChange (ev) {
+      // console.log(ev)
+      this.checkAll = ev.length === this.alarmValues.length
+      // console.log(this.checkAll)
+      // console.log(this.checkedAlarms)
+      let param = this.computeParam()
+      if (param) {
+        this.queryAlarmList(param)
+      } else {
+        this.queryAlarmList()
+      }
+    },
+    // 全选告警类型状态改变
+    checkAllChange (ev) {
+      console.log(ev)
+      if (ev) { // true
+        this.isIndeterminate = false
+        this.checkedAlarms = this.alarmValues.map((config) => {
+          return config.code
+        })
+      } else {
+        this.isIndeterminate = true
+        this.checkedAlarms = [1]
+      }
+    },
+    // 全部告警处理状态改变
+    // checkStatuAllChange (ev) {},
+    // 告警处理状态改变
+    checkedStatuChange (ev) {
+      // console.log(ev)
+      this.checkAllStatu = ev.length === this.alarmStatus.length
+      // console.log(this.checkAllStatu)
+      let param = this.computeParam()
+      if (param) {
+        this.queryAlarmList(param)
+      } else {
+        this.queryAlarmList()
+      }
+    },
+    // 计算请求参数
+    computeParam () {
+      if (!this.search && this.checkAll && this.checkAllStatu) return null
+      let param = {
+        productLineId: this.productLineId,
+        pageSize: this.pagination.pageSize,
+        currentPage: 1,
+      }
+      if (this.search) {
+        param.dimMatch = this.search
+      }
+      if (!this.checkAllStatu) {
+        if (this.checkedStatu[0] === 2) {
+          param.dispose = true
+        }
+        if (this.checkedStatu[0] === 1) {
+          param.dispose = false
+        }
+        // param.dispose = this.checkedStatu[0] === 2 ? true : false
+      }
+      if (!this.checkAll) {
+        param.alarmCodes = this.checkedAlarms
+      }
+      return param
     }
   },
   created () {
     this.queryAlarmList()
+    this.checkedAlarms = this.alarmValues.map((config) => {
+      return config.code
+    })
   }
 }
 </script>
