@@ -44,6 +44,16 @@ export default {
       show: true
     }
   },
+  sockets: {
+    login (data) {
+      let loginedUser = JSON.parse(data)
+      console.log(loginedUser)
+      this.$notify.success({
+        message: loginedUser.nickName + '上线了',
+        title: '用户登录'
+      })
+    }
+  },
   components: {
     // TestVoice,
     Side,
