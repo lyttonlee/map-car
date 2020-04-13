@@ -20,9 +20,10 @@
         </template>
       </el-table-column>
       <el-table-column label="车架号" prop="vehicleIdentification"></el-table-column>
+      <el-table-column label="告警信息" width="300px" prop="alarmMessage"></el-table-column>
       <el-table-column label="状态">
         <template slot-scope="scope">
-          <div>{{scope.row.alarmDispose === true ? '已处理' : '未处理'}}</div>
+          <div :class="scope.row.alarmDispose ? '' : 'error'" >{{scope.row.alarmDispose === true ? '已处理' : '未处理'}}</div>
         </template>
       </el-table-column>
       <el-table-column label="时间">
