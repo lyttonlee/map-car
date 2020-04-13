@@ -390,9 +390,20 @@ export default {
       this.markers.forEach((item) => {
         // 符合的marker透明度设置为1，否则设置为0
         if (canRender(item.id)) {
-          item.marker.setOpacity(1)
+          // item.marker.setOpacity(1)
+          if (!item.isAddedToMap) {
+            // console.log(item.marker)
+            // console.log(item.marker.angle)
+            item.marker.addTo(this.map)
+            item.marker.setRotation(item.marker.angle)
+            item.isAddedToMap = true
+          }
         } else {
-          item.marker.setOpacity(0)
+          // item.marker.setOpacity(0)
+          // 移除点击事件
+          // item.marker.off('click', this.clickMarker)
+          item.isAddedToMap = false
+          item.marker.remove()
         }
       })
     },
