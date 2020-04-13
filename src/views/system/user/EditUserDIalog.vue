@@ -6,7 +6,7 @@
     width="60%"
     :show-close="false"
   >
-    <el-form :model="userModel" :rules="rules" ref="editUser" label-width="100px">
+    <el-form :model="userModel" :rules="rules" ref="editUserForm" label-width="100px">
       <!-- <el-form-item label="用户名" prop="username">
         <el-input v-model="userModel.username"></el-input>
       </el-form-item> -->
@@ -146,39 +146,48 @@ export default {
       this.showResetPassword = !this.showResetPassword
     },
     closeDialog () {
+      this.showResetPassword = false
       this.visible = false
     },
     doEditUser () {
       this.isLoading = true
-      let user = {
-        id: this.userModel.id,
-        master: true,
-        // username: this.userModel.username,
-        nickname: this.userModel.nickname,
-        // imageUrl: this.userModel.imageUrl
-      }
-      if (this.showResetPassword) {
-        user = Object.assign(user, {
-          password: this.userModel.password
-        })
-      } else {
-        user.password && delete user.password
-      }
-      console.log(user)
-      editUser(user).then((res) => {
-        console.log(res)
-        let { code, desc } = res
-        if (code === 0) {
-          this.isLoading = false
-          this.$notify.success({
-            message: desc
+      this.$refs['editUserForm'].validate((valid) => {
+        console.log(valid)
+        if (valid) {
+          let user = {
+            id: this.userModel.id,
+            master: true,
+            // username: this.userModel.username,
+            nickname: this.userModel.nickname,
+            // imageUrl: this.userModel.imageUrl
+          }
+          if (this.showResetPassword) {
+            user = Object.assign(user, {
+              password: this.userModel.password
+            })
+          } else {
+            user.password && delete user.password
+          }
+          // console.log(user)
+          editUser(user).then((res) => {
+            // console.log(res)
+            let { code, desc } = res
+            if (code === 0) {
+              this.isLoading = false
+              this.$notify.success({
+                message: desc
+              })
+              this.showResetPassword = false
+              this.visible = false
+            } else {
+              this.isLoading = false
+              this.$notify.error({
+                message: desc
+              })
+            }
           })
-          this.visible = false
         } else {
           this.isLoading = false
-          this.$notify.error({
-            message: desc
-          })
         }
       })
     },
