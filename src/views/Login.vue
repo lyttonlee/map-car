@@ -2,6 +2,7 @@
   <div class="page">
     <div class="login">
       <!-- <h2>登录系统</h2> -->
+      <img src="../assets/img/logo-login.png" alt="">
       <el-form :model="user" ref="loginForm" :rules="userRules" >
         <el-form-item prop="username">
           <el-input class="input" @keyup.enter.native="doLogin" v-model="user.username" placeholder="用户名"></el-input>
@@ -10,7 +11,7 @@
           <el-input class="input" @keyup.enter.native="doLogin" type="password" v-model="user.password" placeholder="密码"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button :loading="isLoading" class="input" type="success" @click="doLogin">登录</el-button>
+          <el-button :loading="isLoading" class="input" type="primary" @click="doLogin">登录</el-button>
         </el-form-item>
       </el-form>
       <SelectLine ref="selectLine" />
@@ -90,9 +91,13 @@ export default {
     border-radius: 20px;
     position: fixed;
     right: 30%;
-    top: 50%;
+    top: 40%;
+    text-align: center;
     // background: rgba(248, 248, 248, 0.1);
     // box-shadow: 1px 0 2px rgb(34, 33, 33);
+    img {
+      margin-bottom: 15px;
+    }
     .input {
       width: 80%;
       margin: 10px 0;
