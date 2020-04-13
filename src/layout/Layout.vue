@@ -49,7 +49,8 @@ export default {
       let loginedUser = JSON.parse(data)
       console.log(loginedUser)
       this.$notify.success({
-        message: loginedUser.nickName + '上线了',
+        dangerouslyUseHTMLString: true,
+        message: `<div>${loginedUser.content.nickname}</div><div>登录平台: ${loginedUser.content.platform}</div>`,
         title: '用户登录'
       })
     }
