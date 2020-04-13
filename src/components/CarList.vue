@@ -90,12 +90,15 @@ export default {
     },
     changeMenu (index) {
       // if (this.activeIndex !== index) {
+      // console.log('change-0')
       this.activeIndex = index
       this.renderedCars = this.computeRenderCars()
+      // console.log('change')
       // }
     },
     // ？？？
     computeRenderCars () {
+      // console.log('do this')
       let temCars
       // 先切换menu 再在结果中找出符合搜索条件的car
       switch (this.activeIndex) {
@@ -116,16 +119,22 @@ export default {
           break
       }
       // 搜索
-      if (this.search === '') {
-        return temCars
-      } else {
-        return temCars.filter((car) => car.vehicle.identification.includes(this.search) || car.locator.sn.includes(this.search))
+      if (this.search !== '') {
+        temCars = temCars.filter((car) => car.vehicle.identification.includes(this.search) || car.locator.sn.includes(this.search))
       }
+      // 切换地图上对应的marker显示
+      let carIds = temCars.map((car) => {
+        return car.vehicle.id
+      })
+      // console.log(carIds)
+      // console.log(temCars)
+      this.$emit('changeShowingMarkers', carIds)
+      return temCars
     },
     // 计算车辆应该显示的颜色
     computeCarClassColorByStatu (code) {
       let iconClass
-      console.log(code)
+      // console.log(code)
       switch (code) {
         case 0:
           iconClass = 'normal'

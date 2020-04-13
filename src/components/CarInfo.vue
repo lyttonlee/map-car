@@ -113,7 +113,20 @@ export default {
           // console.log(this.car)
         }
       })
+    },
+    clearAddress () {
+      this.address = ''
     }
+  },
+  watch: {
+    car: {
+      handler: function (newValue) {
+        if (newValue) {
+          this.clearAddress()
+        }
+      },
+      deep: true
+    },
   },
   created () {
     // console.log(this.car)

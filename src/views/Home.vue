@@ -11,7 +11,7 @@
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
-      <CarList ref="carlist" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" :cars="bindCars" />
+      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" :cars="bindCars" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
     <!-- <RepairTrack ref="repairTrack" /> -->
@@ -376,6 +376,23 @@ export default {
               this.renderMarker(car)
             })
           }
+        }
+      })
+    },
+    // 改变地图上要显示的车
+    changeShowingMarkers (carIds) {
+      // console.log(carIds)
+      // console.log(this.markers)
+      // 循环marker
+      const canRender = (carId) => {
+        return carIds.some((id) => id === carId)
+      }
+      this.markers.forEach((item) => {
+        // 符合的marker透明度设置为1，否则设置为0
+        if (canRender(item.id)) {
+          item.marker.setOpacity(1)
+        } else {
+          item.marker.setOpacity(0)
         }
       })
     },
