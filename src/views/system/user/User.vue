@@ -5,12 +5,30 @@
     </div>
     <div class="list">
       <el-table :data="users" style="width: 100%;background:#fff0" size="mini">
-        <el-table-column label="姓名" prop="username"></el-table-column>
+        <el-table-column label="用户名" prop="username"></el-table-column>
         <el-table-column label="昵称" prop="nickname"></el-table-column>
         <el-table-column label="角色">
           <template slot-scope="scope">
             {{formatRole(scope.row.roles)}}
           </template>
+        </el-table-column>
+        <el-table-column label="状态">
+          <template slot-scope="scope">
+            <div :class="isOnline(scope.row.lastOnlineTime) ? 'success' : ''">
+              <zx-icon type="zx-denglu"></zx-icon>
+              <span>{{isOnline(scope.row.lastOnlineTime) ? '在线' : '离线'}}</span>
+              <!-- <span>{{$moment(scope.row.lastOnlineTime).format('YYYY-MM-DD HH:mm:ss')}}</span> -->
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="最后在线时间">
+          <template slot-scope="scope">
+            <div v-if="!isOnline(scope.row.lastOnlineTime)" >
+              <span>{{scope.row.lastOnlineTime ? $moment(scope.row.lastOnlineTime).format('YYYY-MM-DD HH:mm:ss') : '无记录'}}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="上次登录平台" prop="lastOnlinePlatform">
         </el-table-column>
         <!-- <el-table-column label="头像">
           <template slot-scope="scope">
@@ -69,6 +87,16 @@ export default {
         roleText += role.description
       })
       return roleText
+    },
+    isOnline (onlineTime) {
+      let now = new Date()
+      let duration = now.valueOf() - onlineTime
+      console.log(duration)
+      if (duration > 5 * 60 * 1000) {
+        return false
+      } else {
+        return true
+      }
     },
     addUser () {
       console.log('add')
