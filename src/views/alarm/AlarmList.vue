@@ -16,7 +16,7 @@
     <el-table :data="alarms" style="width: 100%;background:#fff0" size="small">
       <el-table-column label="类型">
         <template slot-scope="scope">
-          <div>{{formatAlarmType(scope.row.alarmCode)}}</div>
+          <div><zx-icon class="error" style="font-size: 1.1rem" :type="computeAlarmIcon(scope.row.alarmCode)"></zx-icon> <span> {{formatAlarmType(scope.row.alarmCode)}}</span></div>
         </template>
       </el-table-column>
       <el-table-column label="车架号" prop="vehicleIdentification"></el-table-column>
@@ -72,6 +72,9 @@ import {
   mapState,
   mapGetters,
 } from 'vuex'
+import {
+  computeAlarmIcon,
+} from '../../utils/utils'
 export default {
   data () {
     return {
@@ -102,6 +105,7 @@ export default {
     ...mapGetters(['alarmValues']),
   },
   methods: {
+    computeAlarmIcon,
     // 解析告警类型
     formatAlarmType (code) {
       if (typeof this.alarmConfig !== 'object') return

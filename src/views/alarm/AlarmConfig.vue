@@ -2,7 +2,14 @@
   <div class="page">
     <div class="block"></div>
     <el-table v-if="alarmConfig.length > 0" :data="alarmConfig" style="width: 100%;" size="small">
-      <el-table-column label="类型" prop="name"></el-table-column>
+      <el-table-column label="类型" prop="name">
+        <template slot-scope="scope">
+          <div class="error">
+            <zx-icon style="font-size: 1.1rem" :type="computeAlarmIcon(scope.row.code)"></zx-icon>
+            <span> {{ scope.row.name}}</span>
+          </div>
+        </template>
+      </el-table-column>
       <!-- <el-table-column label="描述" prop="format"></el-table-column> -->
       <el-table-column label="描述" prop="message"></el-table-column>
       <el-table-column label="自动处理">
@@ -35,7 +42,7 @@
     <Modal v-if="showModal" @quit="quit" @ok="handleOk">
       <h3>修改告警配置</h3>
       <div class="config-alarm">
-        <div>告警类型: {{content.name}}</div>
+        <div>告警类型: <zx-icon style="font-size: 1.1rem" class="error" :type="computeAlarmIcon(content.code)"></zx-icon> <span class="error">{{ content.name}}</span></div>
         <div>告警信息: {{content.message}}</div>
         <div v-if="content.thresholdOne">
           <label>告警阈值: </label>
@@ -67,6 +74,9 @@ import {
 import {
   editAlarm
 } from '../../api/alarm'
+import {
+  computeAlarmIcon,
+} from '../../utils/utils'
 export default {
   components: {
     Modal: () => import('../../components/Modal')
@@ -84,13 +94,14 @@ export default {
   },
   methods: {
     ...mapActions(['queryStatus']),
+    computeAlarmIcon,
     formatThreshold (row) {
-      console.log(row)
+      // console.log(row)
       let { code, thresholdOne } = row
       if (code === 1) { // 低电告警
         return thresholdOne + '%'
       } else if (code === 2) { // 超时告警
-        console.log(thresholdOne)
+        // console.log(thresholdOne)
         return this.$moment.duration(thresholdOne).asHours() + '小时'
       } else {
         return ''

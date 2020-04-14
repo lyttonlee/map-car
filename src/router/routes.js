@@ -16,6 +16,16 @@ export const routes = [
     redirect: '/home',
     children: [
       {
+        path: '/vq',
+        name: '系统看板',
+        component: () => import(/* webpackChunkName: "about" */ '../views/VQ.vue'),
+        meta: {
+          auth: true,
+          icon: 'zx-vq',
+          role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA']
+        }
+      },
+      {
         path: '/home',
         name: '车辆列表',
         component: Home,
@@ -23,16 +33,6 @@ export const routes = [
           auth: true,
           icon: 'zx-map',
           role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
-        }
-      },
-      {
-        path: '/vq',
-        name: '系统看板',
-        component: () => import(/* webpackChunkName: "about" */ '../views/VQ.vue'),
-        meta: {
-          auth: true,
-          icon: 'zx-VQ',
-          role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA']
         }
       },
       // {
@@ -135,7 +135,7 @@ export const routes = [
             component: () => import(/* webpackChunkName: "cars" */ '../views/statement/cars/Cars.vue'),
             meta: {
               auth: true,
-              icon: 'zx-tongji1',
+              icon: 'zx-cheliang',
               role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
             }
           },
@@ -158,7 +158,7 @@ export const routes = [
             component: () => import(/* webpackChunkName: "system" */ '../views/system/device/Device.vue'),
             meta: {
               auth: true,
-              icon: 'zx-tongji1',
+              icon: 'zx-biaoqianguanli',
               role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
             }
           },
@@ -168,7 +168,7 @@ export const routes = [
             component: () => import(/* webpackChunkName: "system" */ '../views/system/baseStation/BaseStation.vue'),
             meta: {
               auth: true,
-              icon: 'zx-tongji1',
+              icon: 'zx-jizhanguanli',
               role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
             }
           },
@@ -188,7 +188,7 @@ export const routes = [
             component: () => import(/* webpackChunkName: "system" */ '../views/system/logs/Logs.vue'),
             meta: {
               auth: true,
-              icon: 'zx-tongji1',
+              icon: 'zx-xitongrizhi',
               role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
             }
           },
