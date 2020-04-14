@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="search">
-      <el-input v-model="search" @keyup.enter.native="doSearch" @blur="doSearch" placeholder="搜索筛选框"></el-input>
+      <el-input v-model="search" @keyup.enter.native="doSearch" @blur="doSearch" placeholder="搜输入告警类型或车架号"></el-input>
     </div>
     <div class="search-box">
       <!-- <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="checkAllChange">全部告警类型</el-checkbox> -->
