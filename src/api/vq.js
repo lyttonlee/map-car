@@ -38,3 +38,8 @@ export const queryEfficiency = () => {
 export const querySummary = () => {
   return request.get('/api/monitor/v1.0/important/summary')
 }
+
+// 查询存在性区域围栏
+export const getSpecicalFence = (params) => {
+  return request.get('/api/map/v1.0/exsitDetectZone', { params })
+}

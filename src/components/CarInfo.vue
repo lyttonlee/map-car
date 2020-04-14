@@ -151,7 +151,7 @@ export default {
   z-index: 1001;
   position: fixed;
   right: 400px;
-  top: 80px;
+  top: 30px;
   font-size: .9rem;
   .car-info {
     margin: 10px;

@@ -121,7 +121,7 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const newPos = JSON.parse(data)
-      // console.log(newPos)
+      console.log(newPos)
       // 找到对应的marker
       let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
       // 移动位置
@@ -133,9 +133,26 @@ export default {
         // console.log(currentMarker)
         // currentMarker.setPopupContent(newPos.content.y + ' ' + newPos.content.x)
         // currentMarker.openPopup()
+        // 判断是否在特殊区域
+        if (newPos.content.existenceZone) { // 如果位置点在存在性区域中
+          if (!currentMarker.inSpecialArea) { // 如果这个marker以前不在这个区域
+            // 去除这个marker 更新数据
+            this.changeSpecialAreaNum(newPos.content.existenceZone, true)
+            currentMarker.zone = newPos.content.existenceZone
+            currentMarker.inSpecialArea = true
+            currentMarker.remove()
+          }
+        } else if (newPos.content.existenceZone === null) { // 如果这个marker不在需检测的存在性区域中
+          if (currentMarker.inSpecialArea === true) { // 以前这个marker在存在性区域
+            // 将这个marker显示出来
+            currentMarker.addTo(this.map)
+            currentMarker.inSpecialArea = false
+            // 更新数据
+            this.changeSpecialAreaNum(currentMarker.zone, false)
+          }
+        }
         currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
         currentMarker.angle = newPos.content.angle
-        // 判断是否在特殊区域
       }
     },
     bind (data) {
@@ -319,8 +336,9 @@ export default {
       // const inSpeacalArea = (existenceZone) => {}
       if (car.locator.existenceZone) { // 特殊区域点
         marker.inSpecialArea = true
+        marker.zone = car.locator.existenceZone
         console.log('do change')
-        this.changeSpecialAreaNum(car.locator.existenceZone)
+        this.changeSpecialAreaNum(car.locator.existenceZone, true)
       } else {
         marker.inSpecialArea = false
         this.map && marker.addTo(this.map)
@@ -395,7 +413,7 @@ export default {
         // 符合的marker透明度设置为1，否则设置为0
         if (canRender(item.id)) {
           // item.marker.setOpacity(1)
-          if (!item.isAddedToMap) {
+          if (!item.isAddedToMap && !item.marker.inSpecialArea) {
             // console.log(item.marker)
             // console.log(item.marker.angle)
             item.marker.addTo(this.map)
@@ -412,13 +430,18 @@ export default {
       })
     },
     // 改变特殊区域的数量
-    changeSpecialAreaNum (name) {
+    changeSpecialAreaNum (name, isAdd) {
       console.log(name)
       for (let i = 0; i < this.specalAreas.length; i++) {
         console.log(this.specalAreas[i].name)
+        console.log(typeof name)
         if (name.includes(this.specalAreas[i].name)) {
-          console.log('+1')
-          this.specalAreas[i].sum++
+          console.log('+1 -1')
+          if (isAdd === true) {
+            this.specalAreas[i].sum++
+          } else {
+            this.specalAreas[i].sum--
+          }
           this.specalAreas = [...this.specalAreas]
         }
       }
@@ -438,6 +461,7 @@ export default {
       this.divMarkers.push(divMarker)
       divMarker.addTo(this.map)
       console.log(this.divMarkers)
+      console.log(this.markers)
     },
     // 更新聚合点
     updateDivMarker (area) {
@@ -447,7 +471,7 @@ export default {
       if (currentDivMarker) {
         const myIcon = L.divIcon({
           className: 'marker-circle',
-          html: area.num
+          html: area.sum
         })
         currentDivMarker.setIcon(myIcon)
       }
