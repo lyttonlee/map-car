@@ -109,7 +109,8 @@ export default {
       showingCar: '',
       search: '',
       checkedStatu: [1, 2],
-      unbindStatus: [{ code: 1, name: '未出荷' }, { code: 2, name: '已出荷' }]
+      unbindStatus: [{ code: 1, name: '未出荷' }, { code: 2, name: '已出荷' }],
+      checkAll: true,
     }
   },
   computed: {
@@ -118,8 +119,34 @@ export default {
   methods: {
     computedCarNode,
     checkedStatuChange (ev) {
-      console.log(ev)
-      console.log(this.checkedStatu)
+      // console.log(ev)
+      // console.log(this.checkedStatu)
+      if (this.checkedStatu.length === this.unbindStatus.length) {
+        this.checkAll = true
+      } else {
+        this.checkAll = false
+      }
+      this.getCarList(this.computeParam())
+    },
+    computeParam () {
+      let param = {
+        productLineId: this.productLineId,
+        pageSize: this.pagination.pageSize,
+        currentPage: 1,
+      }
+      if (this.search) {
+        param.dimMatch = this.search
+      }
+      if (!this.checkAll) {
+        if (this.checkedStatu[0] === 1) {
+          param.unfinish = true
+        }
+        if (this.checkedStatu[0] === 2) {
+          param.finish = true
+        }
+      }
+      // console.log(param)
+      return param
     },
     getCarList (param) {
       let queryParam
@@ -132,7 +159,7 @@ export default {
         }
       }
       queryCars(queryParam).then((res) => {
-        console.log(res)
+        // console.log(res)
         let { code, result } = res
         if (code === 0) {
           this.cars = result.resultList
@@ -143,28 +170,28 @@ export default {
     },
     doSearch () {
       // console.log('do')
-      if (this.search) {
-        let param = {
-          productLineId: this.productLineId,
-          pageSize: this.pagination.pageSize,
-          currentPage: 1,
-          dimMatch: this.search
-        }
-        this.getCarList(param)
-      } else {
-        this.getCarList()
-      }
+      // if (this.search) {
+      //   let param = {
+      //     productLineId: this.productLineId,
+      //     pageSize: this.pagination.pageSize,
+      //     currentPage: 1,
+      //     dimMatch: this.search
+      //   }
+      //   this.getCarList(param)
+      // } else {
+      //   this.getCarList()
+      // }
+      this.getCarList(this.computeParam())
     },
     pageChanged (ev) {
-      console.log(ev)
+      // console.log(ev)
       let param = {
         productLineId: this.productLineId,
         pageSize: this.pagination.pageSize,
         currentPage: ev
       }
-      if (this.search) {
-        param.dimMatch = this.search
-      }
+      let param1 = this.computeParam()
+      param = Object.assign(param1, param)
       this.getCarList(param)
     },
     quitModel () {
@@ -173,7 +200,7 @@ export default {
     },
     showDetail (car) {
       this.showingCar = car
-      console.log(this.showingCar)
+      // console.log(this.showingCar)
       this.showDispose = true
     }
   },
