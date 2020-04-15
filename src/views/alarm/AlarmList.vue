@@ -80,7 +80,7 @@ export default {
     return {
       alarms: [],
       pagination: {
-        pageSize: 13,
+        pageSize: 10,
         total: 0,
         current: 1,
       },

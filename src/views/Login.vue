@@ -86,7 +86,7 @@ export default {
   // justify-content: center;
   // align-items: center;
   .login {
-    width: 400px;
+    width: 350px;
     height: 300px;
     border-radius: 20px;
     position: fixed;
@@ -99,7 +99,7 @@ export default {
       margin-bottom: 15px;
     }
     .input {
-      width: 80%;
+      width: 100%;
       margin: 10px 0;
     }
   }

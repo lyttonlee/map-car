@@ -67,7 +67,7 @@ export default {
     return {
       devices: [],
       pagination: {
-        pageSize: 15,
+        pageSize: 10,
         total: 0,
         current: 1,
       },

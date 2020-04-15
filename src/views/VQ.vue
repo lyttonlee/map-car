@@ -832,6 +832,10 @@ export default {
         display: grid;
         grid-template-rows: 1fr 1fr 1fr;
         row-gap: 13px;
+        // row-gap: 8px;
+        @media screen and (max-width: 1800px) {
+          row-gap: 8px;
+        }
       }
       .item-log {
         // font-size: .8rem;
@@ -879,7 +883,7 @@ export default {
     }
     .map {
       display: grid;
-      grid-template-columns: 88% 10%;
+      grid-template-columns: auto 70px;
       grid-gap: 10;
       align-items: center;
     }

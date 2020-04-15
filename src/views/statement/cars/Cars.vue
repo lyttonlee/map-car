@@ -17,6 +17,11 @@
     <div class="search">
       <el-input v-model="search" @keyup.enter.native="doSearch" @blur="doSearch" placeholder="请输入要搜索车辆的车架号"></el-input>
     </div>
+    <div class="search-box">
+      <el-checkbox-group style="margin-left: 20px" :min="1" v-model="checkedStatu" @change="checkedStatuChange">
+        <el-checkbox v-for="statu in unbindStatus" :label="statu.code" :key="statu.code">{{statu.name}}</el-checkbox>
+      </el-checkbox-group>
+    </div>
     <el-table :data="cars" style="width: 100%;background:#fff0" size="mini">
       <!-- <el-table-column label="类型" prop="vehicleName"></el-table-column> -->
       <el-table-column min-width="100px" label="车架号" prop="vehicleIdentification"></el-table-column>
@@ -103,6 +108,8 @@ export default {
       showDispose: false,
       showingCar: '',
       search: '',
+      checkedStatu: [1, 2],
+      unbindStatus: [{ code: 1, name: '未出荷' }, { code: 2, name: '已出荷' }]
     }
   },
   computed: {
@@ -110,6 +117,10 @@ export default {
   },
   methods: {
     computedCarNode,
+    checkedStatuChange (ev) {
+      console.log(ev)
+      console.log(this.checkedStatu)
+    },
     getCarList (param) {
       let queryParam
       if (param) {

@@ -121,7 +121,7 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const newPos = JSON.parse(data)
-      console.log(newPos)
+      // console.log(newPos)
       // 找到对应的marker
       let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
       // 移动位置
@@ -151,7 +151,9 @@ export default {
             this.changeSpecialAreaNum(currentMarker.zone, false)
           }
         }
-        currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
+        if (!newPos.content.existenceZone) {
+          currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
+        }
         currentMarker.angle = newPos.content.angle
       }
     },
@@ -337,7 +339,7 @@ export default {
       if (car.locator.existenceZone) { // 特殊区域点
         marker.inSpecialArea = true
         marker.zone = car.locator.existenceZone
-        console.log('do change')
+        // console.log('do change')
         this.changeSpecialAreaNum(car.locator.existenceZone, true)
       } else {
         marker.inSpecialArea = false
@@ -480,7 +482,7 @@ export default {
   watch: {
     specalAreas: {
       handler: function (newVal) {
-        console.log('new areas')
+        // console.log('new areas')
         console.log(newVal)
         let hasDivMarker = (id) => {
           let hasMarker = false
@@ -498,7 +500,7 @@ export default {
             if (hasDivMarker(newVal[i].id)) { // 创建了这个marker。那就更新这个marker
               this.updateDivMarker(newVal[i])
             } else { // 没有创建那就创建这个marker
-              console.log('create')
+              // console.log('create')
               this.createDivMarker(newVal[i])
             }
           } else if (newVal[i].sum === 0) { // 判断情况是否需要清除这个聚合marker
@@ -545,7 +547,7 @@ export default {
         if (code === 0) {
           this.getBindCars(true)
           // this.carListTime = setInterval(this.getBindCars, 30000)
-          console.log(result)
+          // console.log(result)
           let specalAreas = result.map((area) => {
             let points = area.points.split(';').map((item) => {
               let [x, y] = item.split('_')
@@ -576,7 +578,7 @@ export default {
               name: area.name
             }
           })
-          console.log(specalAreas)
+          // console.log(specalAreas)
           this.specalAreas = specalAreas
         }
       })
