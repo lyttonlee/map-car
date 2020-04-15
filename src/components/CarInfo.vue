@@ -1,39 +1,44 @@
 <template>
   <div class="info">
     <div @click="closeInfo" class="close">
-      <zx-icon type="zx-guanbi1" />
+      <zx-icon type="zx-guanbi" />
     </div>
     <div class="car-info">
-      <div class="item-unique">维修时长: {{ car.bindTime ? $moment(car.bindTime).toNow(true) : '未知'}}</div>
-      <div class="item">当前环节: {{computedCarNode(car.node)}}</div>
-      <div class="item">车架号码: {{car.vehicleIdentification}}</div>
-      <div class="item">车辆型号: {{car.vehicleType}}</div>
-      <div class="item">车辆颜色: {{car.vehicleOutSideColor}}</div>
-      <div class="item">发动机号: {{car.vehicleEngineType}}</div>
-      <div class="item">变 速 箱: {{car.vehicleGearBox}}</div>
-      <div class="item">车辆问题: {{car.flawDetail}}</div>
-      <div class="item">入荷时间: {{car.bindTime ? $moment(car.bindTime).format('YYYY-MM-DD HH:mm:ss') : '未知'}}</div>
-      <div class="item">当前状态: {{computedCarStatu(car.status, car.bindTime)}}</div>
-      <div class="item">标签编号: {{car.locatorSn}}</div>
-      <div class="item">标签电量: {{car.power + '%'}}</div>
-      <div class="item">当前位置: {{address}}</div>
-      <div class="item">当前时间: {{currentTime ? $moment(currentTime).format('YYYY-MM-DD HH:mm:ss') : ''}}</div>
+      <div class="section">
+        <div class="item">车架号码: {{car.vehicleIdentification}}</div>
+        <div class="item">定 位 器: {{car.locatorSn}}<span><zx-icon customClass="icon-power" :type="computePowerIcon(car.power)"></zx-icon>{{car.power + '%'}}</span></div>
+        <div class="item">当前状态: {{computedCarStatu(car.status, car.bindTime)}}<span><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('超时')" type="zx-chaoshigaojing1"></zx-icon><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('告警')" type="zx-alarm"></zx-icon></span></div>
+        <div class="item">指派: <template v-for="(icon, index) in icons">
+          <span class="icon" :key="index">
+            <zx-icon :class="car[icon.name] ? 'success' : ''" :type="icon.icon"></zx-icon>
+          </span>
+          </template></div>
+        <div class="item">当前环节: {{computedCarNode(car.node) + ' -- ' + $moment(car.startTime).toNow(true)}}</div>
+        <div class="item">当前位置: {{address}}</div>
+        <div class="item">入荷时间: {{car.bindTime ? $moment(car.bindTime).format('YYYY-MM-DD HH:mm:ss') : '未知'}}</div>
+      </div>
+      <div class="section">
+        <div class="item">车辆型号: {{car.vehicleType}}</div>
+        <div class="item">车辆颜色: {{car.vehicleOutSideColor}}</div>
+        <div class="item">发动机号: {{car.vehicleEngineType}}</div>
+        <div class="item">变 速 箱: {{car.vehicleGearBox}}</div>
+      </div>
+      <div class="section">
+        <div class="item">车辆问题: {{car.flawDetail}}</div>
+        <div class="action" @click="showDetail">返修详情</div>
+      </div>
     </div>
-    <div class="process">
+    <div v-if="showProcess" class="process">
+      <div @click="closeProcess" class="close">
+        <zx-icon type="zx-guanbi" />
+      </div>
+      <div class="all-time">
+        总时长: {{ car.bindTime ? $moment(car.bindTime).toNow(true) : '未知'}}
+      </div>
       <template v-for="(log, index) in car.logs">
         <Log :key="index" :isLast="index === car.logs.length - 1" :log="log" />
       </template>
-      <!-- <el-timeline>
-        <el-timeline-item
-          v-for="(activity, index) in car.logs"
-          :key="index"
-          :timestamp="$moment(activity.time).format('YYYY-MM-DD HH:mm')">
-          <div>{{activity.detail}}</div>
-          <div>操作员: {{activity.nickName ? activity.nickName : '系统自动生成'}}</div>
-        </el-timeline-item>
-      </el-timeline> -->
     </div>
-    <!-- <div>{{car}}</div> -->
   </div>
 </template>
 <script>
@@ -43,6 +48,7 @@ import {
 } from '../api/common'
 import {
   computedCarNode,
+  computePowerIcon
 } from '../utils/utils'
 import {
   mapGetters,
@@ -61,7 +67,9 @@ export default {
     return {
       address: '',
       currentTime: '',
-      activities: []
+      activities: [],
+      showProcess: true,
+      icons: [{ name: 'pa', icon: 'zx-PA' }, { name: 'we', icon: 'zx-WE' }, { name: 'af', icon: 'zx-AF' }, { name: 'pq', icon: 'zx-PQ' }]
     }
   },
   computed: {
@@ -69,6 +77,13 @@ export default {
   },
   methods: {
     computedCarNode,
+    computePowerIcon,
+    showDetail () {
+      this.showProcess = !this.showProcess
+    },
+    closeProcess () {
+      this.showProcess = false
+    },
     closeInfo () {
       this.$emit('close')
     },
@@ -129,7 +144,7 @@ export default {
     },
   },
   created () {
-    // console.log(this.car)
+    console.log(this.car)
     this.activities = this.car.logs.sort((a, b) => a.time - b.time)
     this.getCurrentAddressByLocatorId()
     this.time = setInterval(this.getCurrentAddressByLocatorId, 5000)
@@ -150,12 +165,38 @@ export default {
   padding: 10px 5px;
   z-index: 1001;
   position: fixed;
-  right: 400px;
-  top: 30px;
+  right: 370px;
+  top: 20px;
   font-size: .9rem;
   .car-info {
     margin: 10px;
     text-align: left;
+    .section:not(:last-child) {
+      padding-bottom: 10px;
+      border-bottom: 2px solid #fff;
+      .item {
+        // margin: 12px 0 6px 0;
+        padding: 5px 0 0 0;
+        .icon {
+          font-size: 1.2rem;
+          padding: 0 5px;
+        }
+        .icon-power {
+          padding-left: 15px;
+          font-size: .9rem;
+          vertical-align: middle;
+        }
+      }
+    }
+    .section:last-child {
+      .action {
+        color: @primary-color;
+        font-size: 1rem;
+        text-align: center;
+        margin-top: 20px;
+        cursor: pointer;
+      }
+    }
     .item {
       margin: 12px 0 6px 0;
     }
@@ -167,13 +208,29 @@ export default {
   }
   .close {
     font-size: .8rem;
-    width: 40px;
-    text-align: left;
+    width: 100%;
+    text-align: right;
     cursor: pointer;
+    // float: right;
   }
   .process {
-    height: 380px;
+    width: 300px;
+    position: fixed;
+    border-radius: 10px;
+    background: @base-background-opacity;
+    padding: 10px 5px;
+    top: 20px;
+    right: 740px;
+    min-height: 300px;
+    max-height: 85vh;
     overflow-y: auto;
+    .all-time {
+      padding-left: 20px;
+      text-align: left;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: @primary-color;
+    }
   }
 }
 </style>

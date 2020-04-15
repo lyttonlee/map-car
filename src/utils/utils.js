@@ -12,7 +12,7 @@ export const computedCarNode = (node) => {
 }
 
 export const computeAlarmIcon = (code) => {
-  console.log(code)
+  // console.log(code)
   let icon
   switch (code) {
     case 5:
@@ -30,6 +30,22 @@ export const computeAlarmIcon = (code) => {
     default:
       icon = 'zx-alarm'
       break
+  }
+  return icon
+}
+
+export const computePowerIcon = (power) => {
+  let icon
+  if (power >= 95) {
+    icon = 'zx-5'
+  } else if (power > 80) {
+    icon = 'zx-4'
+  } else if (power > 60) {
+    icon = 'zx-3'
+  } else if (power > 40) {
+    icon = 'zx-2'
+  } else {
+    icon = 'zx-1'
   }
   return icon
 }
