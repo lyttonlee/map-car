@@ -9,19 +9,19 @@
       <div :class="isLast ? 'point-end' : 'point'"></div>
       <div class="content">
         <div class="info">{{log.detail}}</div>
-        <div v-if="log.subLogs" class="sublog">
+        <div v-if="log.subLogs" >
           <template v-for="(subLog, index) in log.subLogs">
-            <div :key="index">
-              <div @mouseenter="changeShowInfobox(1)" @mouseleave="changeShowInfobox(2)">
+            <div class="sublog" :key="index">
+              <div @mouseenter="changeShowInfobox(1, index)" @mouseleave="changeShowInfobox(2, index)">
                 <zx-icon customClass="process-icon" :type="computeIcon(subLog.name)"></zx-icon>
                 <span class="log-time">{{parseData(subLog.param).duration + 'h'}}</span>
-              </div>
-              <div v-if="showInfobox" class="infobox">
-                <div class="box-info">
-                  <div class="start">开始时间: {{parseData(subLog.param).start}}</div>
-                  <div class="end">结束时间: {{parseData(subLog.param).end}}</div>
+                <div v-if="showInfobox && showIndex === index" class="infobox">
+                  <div class="box-info">
+                    <div class="start">开始时间: {{parseData(subLog.param).start}}</div>
+                    <div class="end">结束时间: {{parseData(subLog.param).end}}</div>
+                  </div>
+                  <div class="box-arrow"></div>
                 </div>
-                <div class="box-arrow"></div>
               </div>
             </div>
           </template>
@@ -51,7 +51,8 @@ export default {
   data () {
     return {
       showInfobox: false,
-      icons: [{ name: 'pa', icon: 'zx-PA' }, { name: 'we', icon: 'zx-WE' }, { name: 'af', icon: 'zx-AF' }, { name: 'pq', icon: 'zx-PQ' }]
+      icons: [{ name: 'pa', icon: 'zx-PA' }, { name: 'we', icon: 'zx-WE' }, { name: 'af', icon: 'zx-AF' }, { name: 'pq', icon: 'zx-PQ' }],
+      showIndex: ''
     }
   },
   methods: {
@@ -60,12 +61,14 @@ export default {
       let icon = this.icons.find((item) => item.name === curType).icon
       return icon
     },
-    changeShowInfobox (type) {
+    changeShowInfobox (type, index) {
       if (type === 1) {
         this.showInfobox = true
+        this.showIndex = index
       }
       if (type === 2) {
         this.showInfobox = false
+        this.showIndex = ''
       }
     },
     parseData (data) {
@@ -141,6 +144,7 @@ export default {
         // margin-bottom: 3px;
       }
       .sublog {
+        position: relative;
         padding-left: 20px;
         box-sizing: border-box;
         // margin-top: 10px;
@@ -149,6 +153,27 @@ export default {
           font-size: 1.3rem;
           font-weight: bold;
           color: @primary-color;
+        }
+        .infobox {
+          position: absolute;
+          // position: relative;
+          left: -65px;
+          top: -50px;
+          .box-info {
+            width: 180px;
+            background: @info;
+            border-radius: 8px;
+            padding: 8px;
+          }
+          .box-arrow {
+            width: 10px;
+            height: 10px;
+            background: @info;
+            margin: 0 auto;
+            transform: rotate(45deg);
+            position: relative;
+            top: -5px;
+          }
         }
       }
       .author {
@@ -161,26 +186,6 @@ export default {
         color: rgb(29, 211, 29);
         cursor: pointer;
         // vertical-align: middle;
-      }
-      .infobox {
-        position: absolute;
-        left: -55px;
-        top: -30px;
-        .box-info {
-          width: 180px;
-          background: @info;
-          border-radius: 8px;
-          padding: 8px;
-        }
-        .box-arrow {
-          width: 10px;
-          height: 10px;
-          background: @info;
-          margin: 0 auto;
-          transform: rotate(45deg);
-          position: relative;
-          top: -5px;
-        }
       }
     }
     .right {
@@ -199,7 +204,12 @@ export default {
     top: 50%;
   }
   .border-end {
-    border: none;
+    // border: none;
+    position: relative;
+    left: 79px;
+    border: 1px solid @info;
+    height: 50%;
+    top: 0;
   }
 }
 
