@@ -534,7 +534,8 @@ export default {
       // const imgUrl = imgMap
       // const imgBounds = [[-0.8, -22.7], [8.0, 1.2]]
       // eslint-disable-next-line no-undef
-      L.imageOverlay(imgUrl, imgBounds).addTo(map)
+      this.imageOverlay = L.imageOverlay(imgUrl, imgBounds)
+      this.imageOverlay.addTo(map)
       this.map = map
       // 获取区域信息
       let params = {
@@ -546,7 +547,7 @@ export default {
         let { code, result } = res
         if (code === 0) {
           this.getBindCars(true)
-          // this.carListTime = setInterval(this.getBindCars, 30000)
+          this.carListTime = setInterval(this.getBindCars, 30000)
           // console.log(result)
           let specalAreas = result.map((area) => {
             let points = area.points.split(';').map((item) => {

@@ -35,7 +35,7 @@
       <div class="all-time">
         总时长: {{ car.bindTime ? $moment(car.bindTime).toNow(true) : '未知'}}
       </div>
-      <template v-for="(log, index) in car.logs">
+      <template v-for="(log, index) in car.filterLog">
         <Log :key="index" :isLast="index === car.logs.length - 1" :log="log" />
       </template>
     </div>

@@ -9,15 +9,35 @@
       <div :class="isLast ? 'point-end' : 'point'"></div>
       <div class="content">
         <div class="info">{{log.detail}}</div>
-        <div class="author">操作员- {{log.nickName}}</div>
+        <div v-if="log.subLogs" class="sublog">
+          <template v-for="(subLog, index) in log.subLogs">
+            <div :key="index">
+              <div @mouseenter="changeShowInfobox(1)" @mouseleave="changeShowInfobox(2)">
+                <zx-icon customClass="process-icon" :type="computeIcon(subLog.name)"></zx-icon>
+                <span class="log-time">{{parseData(subLog.param).duration + 'h'}}</span>
+              </div>
+              <div v-if="showInfobox" class="infobox">
+                <div class="box-info">
+                  <div class="start">开始时间: {{parseData(subLog.param).start}}</div>
+                  <div class="end">结束时间: {{parseData(subLog.param).end}}</div>
+                </div>
+                <div class="box-arrow"></div>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div v-else class="author">操作员- {{log.nickName}}</div>
       </div>
-      <div class="right">
+      <!-- <div class="right">
         <div class="date-right">{{log.param && JSON.parse(log.param).stay ? $moment.duration(JSON.parse(log.param).stay / 1000, 's').asHours().toFixed(2) + 'h' : ''}}</div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
 <script>
+// import {
+//   com
+// } from '../utils/utils'
 export default {
   props: {
     log: {
@@ -29,7 +49,37 @@ export default {
     }
   },
   data () {
-    return {}
+    return {
+      showInfobox: false,
+      icons: [{ name: 'pa', icon: 'zx-PA' }, { name: 'we', icon: 'zx-WE' }, { name: 'af', icon: 'zx-AF' }, { name: 'pq', icon: 'zx-PQ' }]
+    }
+  },
+  methods: {
+    computeIcon (type) {
+      let curType = type.toLowerCase()
+      let icon = this.icons.find((item) => item.name === curType).icon
+      return icon
+    },
+    changeShowInfobox (type) {
+      if (type === 1) {
+        this.showInfobox = true
+      }
+      if (type === 2) {
+        this.showInfobox = false
+      }
+    },
+    parseData (data) {
+      let curData = JSON.parse(data)
+      console.log(curData)
+      let start = this.$moment(curData.in.time).format('YYYY-MM-DD HH:mm')
+      let end = curData.out ? this.$moment(curData.out.time).format('YYYY-MM-DD HH:mm') : '维修中···'
+      let duration = curData.out ? this.$moment.duration(curData.out.time - curData.in.time, 'ms').asHours().toFixed(1) : this.$moment.duration(this.$moment().valueOf() - curData.in.time, 'ms').asHours().toFixed(1)
+      return {
+        start,
+        end,
+        duration
+      }
+    }
   }
 }
 </script>
@@ -38,9 +88,10 @@ export default {
 .item-box {
   display: grid;
   grid-template-columns: 0 auto;
+  text-align: left;
   .log {
     display: grid;
-    grid-template-columns: 70px 10px 55% 15%;
+    grid-template-columns: 70px 10px 55%;
     // column-gap: 10px;
     // margin-top: 15px;
     padding: 10px 5px;
@@ -66,8 +117,10 @@ export default {
     }
     .date {
       // border-right: 1px solid #666;
+      text-align: center;
       .date-time {
         font-size: 1rem;
+        font-weight: bold;
         color: @primary-color;
       }
       .date-md {
@@ -77,6 +130,7 @@ export default {
     }
     .content {
       padding-top: 8px;
+      padding-left: 10px;
       // border-left: 1px solid @info;
       position: relative;
       // left: -5px;
@@ -86,9 +140,47 @@ export default {
         font-size: .8rem;
         // margin-bottom: 3px;
       }
+      .sublog {
+        padding-left: 20px;
+        box-sizing: border-box;
+        // margin-top: 10px;
+        .log-time {
+          padding-left: 15px;
+          font-size: 1.3rem;
+          font-weight: bold;
+          color: @primary-color;
+        }
+      }
       .author {
-        color: darkgray;
+        color: rgb(212, 212, 212);
         font-size: .7rem;
+        padding-top: 10px;
+      }
+      .process-icon {
+        font-size: 1.3rem;
+        color: rgb(29, 211, 29);
+        cursor: pointer;
+        // vertical-align: middle;
+      }
+      .infobox {
+        position: absolute;
+        left: -55px;
+        top: -30px;
+        .box-info {
+          width: 180px;
+          background: @info;
+          border-radius: 8px;
+          padding: 8px;
+        }
+        .box-arrow {
+          width: 10px;
+          height: 10px;
+          background: @info;
+          margin: 0 auto;
+          transform: rotate(45deg);
+          position: relative;
+          top: -5px;
+        }
       }
     }
     .right {
