@@ -10,7 +10,7 @@
         <div class="item">当前状态: {{computedCarStatu(car.status, car.bindTime)}}<span><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('超时')" type="zx-chaoshigaojing1"></zx-icon><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('告警')" type="zx-alarm"></zx-icon></span></div>
         <div class="item">指派: <template v-for="(icon, index) in icons">
           <span class="icon" :key="index">
-            <zx-icon :class="car.dispatchZones.toLowerCase().includes(icon.name) ? 'success' : ''" :type="icon.icon"></zx-icon>
+            <zx-icon :class="car.dispatchZones && car.dispatchZones.toLowerCase().includes(icon.name) ? 'success' : ''" :type="icon.icon"></zx-icon>
           </span>
           </template></div>
         <div class="item">当前环节: {{computedCarNode(car.node) + ' -- ' + $moment(car.startTime).toNow(true)}}</div>

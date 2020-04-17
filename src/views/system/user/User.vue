@@ -45,6 +45,7 @@
       </el-table>
     </div> -->
     <div class="list">
+      <h3 class="title">PC</h3>
       <el-table :data="pc" style="width: 100%;background:#fff0" size="mini">
         <el-table-column label="用户名" prop="username"></el-table-column>
         <el-table-column label="昵称" prop="nickname"></el-table-column>
@@ -57,12 +58,12 @@
           <template slot-scope="scope">
             <div :class="isOnline(scope.row.lastOnlineTime) ? 'success' : ''">
               <zx-icon type="zx-denglu"></zx-icon>
-              <span>{{isOnline(scope.row.lastOnlineTime) ? '在线' : '离线'}}</span>
+              <span>{{isOnline(scope.row.lastOnlineTime) ? '活跃' : '不活跃'}}</span>
               <!-- <span>{{$moment(scope.row.lastOnlineTime).format('YYYY-MM-DD HH:mm:ss')}}</span> -->
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="最后在线时间">
+        <el-table-column label="后操作时间">
           <template slot-scope="scope">
             <div v-if="!isOnline(scope.row.lastOnlineTime)" >
               <span>{{scope.row.lastOnlineTime ? $moment(scope.row.lastOnlineTime).format('YYYY-MM-DD HH:mm:ss') : '无记录'}}</span>
@@ -92,6 +93,7 @@
       </el-table>
     </div>
     <div class="list">
+      <h3 class="title">VQ</h3>
       <el-table :data="vq" style="width: 100%;background:#fff0" size="mini">
         <el-table-column label="用户名" prop="username"></el-table-column>
         <el-table-column label="昵称" prop="nickname"></el-table-column>
@@ -104,12 +106,12 @@
           <template slot-scope="scope">
             <div :class="isOnline(scope.row.lastOnlineTime) ? 'success' : ''">
               <zx-icon type="zx-denglu"></zx-icon>
-              <span>{{isOnline(scope.row.lastOnlineTime) ? '在线' : '离线'}}</span>
+              <span>{{isOnline(scope.row.lastOnlineTime) ? '活跃' : '不活跃'}}</span>
               <!-- <span>{{$moment(scope.row.lastOnlineTime).format('YYYY-MM-DD HH:mm:ss')}}</span> -->
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="最后在线时间">
+        <el-table-column label="最后操作时间">
           <template slot-scope="scope">
             <div v-if="!isOnline(scope.row.lastOnlineTime)" >
               <span>{{scope.row.lastOnlineTime ? $moment(scope.row.lastOnlineTime).format('YYYY-MM-DD HH:mm:ss') : '无记录'}}</span>
@@ -139,6 +141,7 @@
       </el-table>
     </div>
     <div class="list">
+      <h3 class="title">科室</h3>
       <el-table :data="section" style="width: 100%;background:#fff0" size="mini">
         <el-table-column label="用户名" prop="username"></el-table-column>
         <el-table-column label="昵称" prop="nickname"></el-table-column>
@@ -151,12 +154,12 @@
           <template slot-scope="scope">
             <div :class="isOnline(scope.row.lastOnlineTime) ? 'success' : ''">
               <zx-icon type="zx-denglu"></zx-icon>
-              <span>{{isOnline(scope.row.lastOnlineTime) ? '在线' : '离线'}}</span>
+              <span>{{isOnline(scope.row.lastOnlineTime) ? '活跃' : '不活跃'}}</span>
               <!-- <span>{{$moment(scope.row.lastOnlineTime).format('YYYY-MM-DD HH:mm:ss')}}</span> -->
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="最后在线时间">
+        <el-table-column label="后操作时间">
           <template slot-scope="scope">
             <div v-if="!isOnline(scope.row.lastOnlineTime)" >
               <span>{{scope.row.lastOnlineTime ? $moment(scope.row.lastOnlineTime).format('YYYY-MM-DD HH:mm:ss') : '无记录'}}</span>
@@ -286,6 +289,7 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+@import '../../../assets/less/color.less';
 .page {
   .head {
     margin: 20px 0;
@@ -293,6 +297,12 @@ export default {
   }
   .list {
     margin-bottom: 20px;
+    background: @base-background;
+    border-radius: 10px;
+    .title {
+      color: @primary-color;
+      padding-top: 15px;
+    }
   }
 }
 </style>

@@ -1,9 +1,14 @@
 <template>
   <div class="car-list">
-    <el-input class="input" size="small" @keyup.enter.native="doSearch" v-model="search" @blur="doSearch" placeholder="请输入要查询车辆的车架号"></el-input>
+    <el-input class="input" size="small" @keyup.enter.native="doSearch" v-model="search" @blur="doSearch" placeholder="请输入要查询车辆的车架号或定位器SN"></el-input>
+    <div class="header-area">
+      <template v-for="(area, index) in areas">
+        <div :class="activeAreaIndex === index ? `menu active` : 'menu'" @click="changeArea(index)" :key="index">{{area}}</div>
+      </template>
+    </div>
     <div class="header">
       <template v-for="(menu, index) in menus">
-        <div :class="activeIndex === index ? `menu active` : 'menu'" @click="changeMenu(index)" :key="index">{{menu}}</div>
+        <div :class="activeIndex === index ? `menu active` : 'menu'" @click="changeMenu(index)" :key="index">{{menu + ` (${renderedNum[index]})`}}</div>
       </template>
     </div>
     <div class="list">
@@ -41,7 +46,9 @@ export default {
   data () {
     return {
       menus: ['全部', '告警', '超时'],
+      areas: ['全部区域', 'PQ', 'PA', 'AF', 'WE'],
       activeIndex: 0,
+      activeAreaIndex: 0,
       renderedCars: [],
       search: '', // 要搜索的车架号 模糊匹配
       listActiveIndex: '',
@@ -49,6 +56,11 @@ export default {
   },
   computed: {
     ...mapGetters(['overtime']),
+    renderedNum () {
+      let alarmNum = this.renderedCars.filter((car) => car.vehicle.status !== 0).length
+      let overtimeNum = this.cars.filter((car) => this.formatTime(car.vehicleDeliverStatus.bindTime) * 1 >= this.overtime * 1).length
+      return [this.cars.length, alarmNum, overtimeNum]
+    },
   },
   created () {
     this.initCars()
@@ -95,6 +107,10 @@ export default {
       this.renderedCars = this.computeRenderCars()
       // console.log('change')
       // }
+    },
+    changeArea (index) {
+      this.activeAreaIndex = index
+      this.$emit('changeMap', this.activeAreaIndex)
     },
     // ？？？
     computeRenderCars () {
@@ -186,6 +202,19 @@ export default {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     border-bottom: 1px solid #fff;
+    .menu {
+      cursor: pointer;
+    }
+    .active {
+      border-bottom: 1px solid @primary-color;
+      color: @primary-color;
+    }
+  }
+  .header-area {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    border-bottom: 1px solid #fff;
+    margin-bottom: 15px;
     .menu {
       cursor: pointer;
     }

@@ -11,7 +11,7 @@
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
-      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" :cars="bindCars" />
+      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="bindCars" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
     <!-- <RepairTrack ref="repairTrack" /> -->
@@ -477,6 +477,11 @@ export default {
         })
         currentDivMarker.setIcon(myIcon)
       }
+    },
+    // 改变显示的地图
+    changeMap (index) {
+      console.log(index)
+      this.imageOverlay.setUrl('https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3655278253,1939954273&fm=11&gp=0.jpg')
     }
   },
   watch: {
@@ -521,9 +526,9 @@ export default {
       // eslint-disable-next-line no-undef
       const map = L.map('map', {
         center: [4, -10],
-        zoom: 6,
-        minZoom: 6,
-        maxZoom: 6,
+        zoom: 2,
+        // minZoom: 6,
+        // maxZoom: 6,
         zoomControl: false, // 默认不显示缩放按钮
         attributionControl: false // 不显示leaflet 图标logo
 

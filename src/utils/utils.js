@@ -49,3 +49,26 @@ export const computePowerIcon = (power) => {
   }
   return icon
 }
+
+// 经纬度转墨卡托投影坐标
+// 经纬度转墨卡托投影坐标
+export const lnglatTomercator = (lng, lat) => {
+  let mercator = { x: 0, y: 0 }
+  let x = lng * 20037508.34 / 180
+  let y = Math.log(Math.tan((90 + lat) * Math.PI / 360)) / (Math.PI / 180)
+  y = y * 20037508.34 / 180
+  mercator.x = x
+  mercator.y = y
+  return mercator
+}
+
+// 墨卡托转经纬度坐标
+export const mercatorTolnglat = (mercator = { x: 0, y: 0 }) => {
+  let lng = mercator.x / 20037508.34 * 180
+  let lat = mercator.y / 20037508.34 * 180
+  lat = 180 / Math.PI * (2 * Math.atan(Math.exp(lat * Math.PI / 180)) - Math.PI / 2)
+  return {
+    lng,
+    lat
+  }
+}

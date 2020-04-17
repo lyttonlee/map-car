@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="search">
-      <el-input v-model="search" @keyup.enter.native="doSearch" @blur="doSearch" placeholder="搜输入告警类型或车架号"></el-input>
+      <el-input v-model="search" @keyup.enter.native="doSearch" @blur="doSearch" placeholder="请输入车架号"></el-input>
     </div>
     <div class="search-box">
       <!-- <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="checkAllChange">全部告警类型</el-checkbox> -->
@@ -19,6 +19,7 @@
           <div><zx-icon class="error" style="font-size: 1.1rem" :type="computeAlarmIcon(scope.row.alarmCode)"></zx-icon> <span> {{formatAlarmType(scope.row.alarmCode)}}</span></div>
         </template>
       </el-table-column>
+      <el-table-column label="定位器SN" prop="locatorSn"></el-table-column>
       <el-table-column label="车架号" prop="vehicleIdentification"></el-table-column>
       <el-table-column label="告警信息" width="300px" prop="alarmMessage"></el-table-column>
       <el-table-column label="状态">
@@ -42,7 +43,7 @@
     </el-table>
     <el-pagination
       class="pagination"
-      :hide-on-single-page="true"
+      :hide-on-single-page="false"
       :total="pagination.total"
       :page-size="pagination.pageSize"
       :current-page="pagination.current"
@@ -194,7 +195,7 @@ export default {
             position: 'bottom-right'
           })
           this.quitDispose()
-          this.queryAlarmList()
+          this.queryAlarmList(this.computeParam())
         } else {
           this.loading = false
           this.$notify.error({

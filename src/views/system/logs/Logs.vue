@@ -14,10 +14,19 @@
         @change="timeChange"
         align="right">
       </el-date-picker>
+      <el-checkbox-group class="checkbox-search" :min="1" v-model="checkedStatu" @change="checkedStatuChange">
+        <el-checkbox v-for="statu in logCodes" :label="statu.value" :key="statu.value">{{statu.message}}</el-checkbox>
+      </el-checkbox-group>
     </div>
     <el-table :data="logs" style="width: 100%;background:#fff0" size="mini">
       <el-table-column label="人员" prop="nickname"></el-table-column>
+      <el-table-column label="类型">
+        <template slot-scope="scope">
+          <div>{{formatLogCode(scope.row.type)}}</div>
+        </template>
+      </el-table-column>
       <el-table-column label="事件内容" prop="content"></el-table-column>
+      <el-table-column label="操作平台" prop="platform"></el-table-column>
       <el-table-column label="时间">
         <template slot-scope="scope">
           <div>{{$moment(scope.row.timestamp).format('YYYY-MM-DD HH:mm:ss')}}</div>
@@ -27,7 +36,7 @@
     <el-pagination
       class="pagination"
       size="mini"
-      :hide-on-single-page="true"
+      :hide-on-single-page="false"
       :total="pagination.total"
       :page-size="pagination.pageSize"
       :current-page="pagination.current"
@@ -45,7 +54,8 @@ import {
   mapState
 } from 'vuex'
 import {
-  getLogs
+  getLogs,
+  getLogCode,
 } from '../../../api/logs'
 export default {
   components: {
@@ -59,6 +69,9 @@ export default {
         total: 0,
         current: 1,
       },
+      logCodes: [],
+      checkedStatu: [0, 2, 3, 4],
+      checkAll: true,
       search: '',
       times: '',
       pickerOptions: {
@@ -113,7 +126,17 @@ export default {
         param.startTime = start
         param.endTime = end
       }
+      if (!this.checkAll) {
+        param.type = this.checkedStatu
+      }
       return param
+    },
+    checkedStatuChange (ev) {
+      console.log(ev)
+      if (ev.length !== this.logCodes.length) {
+        this.checkAll = false
+      }
+      this.getSystemLogs(this.computeParam())
     },
     timeChange (ev) {
       console.log(ev)
@@ -141,6 +164,17 @@ export default {
           this.pagination.current = result.pageObject.currentPage
         }
       })
+    },
+    getLogCodeList () {
+      getLogCode().then((res) => {
+        let { code, result } = res
+        if (code === 0) {
+          this.logCodes = result
+        }
+      })
+    },
+    formatLogCode (code) {
+      return this.logCodes.find((log) => log.value === code).message
     },
     pageChanged (ev) {
       console.log(ev)
@@ -171,6 +205,7 @@ export default {
   },
   created () {
     this.getSystemLogs()
+    this.getLogCodeList()
   }
 }
 </script>
@@ -179,6 +214,14 @@ export default {
 .page {
   .search {
     margin: 15px 0;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    .checkbox-search {
+      padding-left: 20px;
+      // align-items: center;
+    }
   }
   .pagination {
     width: 100%;

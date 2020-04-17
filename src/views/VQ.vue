@@ -532,7 +532,8 @@ export default {
             label: {
               backgroundColor: '#6a7985'
             }
-          }
+          },
+          // formatter: '{a} {c}%'
         },
         legend: {
           // type: 'scroll',
