@@ -74,6 +74,9 @@ import Car from '../../assets/img/car-blue.png'
 import {
   initCarSize
 } from '../../config/config'
+import {
+  mapState,
+} from 'vuex'
 export default {
   // ..
   data () {
@@ -99,6 +102,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['pointScale']),
     canSubmit () {
       if (this.fenceName && this.fencePoints.length > 2) {
         return true
@@ -161,7 +165,7 @@ export default {
       console.log(fence)
       let formatPoints = points.map((point) => {
         let [x, y] = point.split('_')
-        return [y, x]
+        return [y / this.pointScale, x / this.pointScale]
       })
       // console.log(formatPoints)
       const polygon = L.polygon(formatPoints, { color: this.colors[fence.type] })
@@ -183,7 +187,7 @@ export default {
         // console.log(ev)
         let point = [ ev.latlng.lat, ev.latlng.lng ]
         points.push(point)
-        this.fencePoints.push(`${ev.latlng.lng}_${ev.latlng.lat}_0`)
+        this.fencePoints.push(`${ev.latlng.lng * this.pointScale}_${ev.latlng.lat * this.pointScale}_0`)
         if (points.length === 2) {
           polyline = L.polygon(points, { color: 'red' })
           polyline.addTo(this.map)
@@ -282,10 +286,13 @@ export default {
       this.fenceLayers = []
     },
     createMap () {
+      const centerx = this.mapInfo.coordinateDown / this.pointScale + this.mapInfo.coordinateUpper / this.pointScale
+      const centery = this.mapInfo.coordinateLeft / this.pointScale + this.mapInfo.coordinateRight / this.pointScale
+      const center = [centerx / 2, centery / 2]
       // eslint-disable-next-line no-undef
       const map = L.map('map-fence', {
-        center: [4, -10],
-        zoom: 6,
+        center,
+        zoom: 9,
         // minZoom: 6,
         // maxZoom: 6,
         zoomControl: false, // 默认不显示缩放按钮
@@ -294,7 +301,7 @@ export default {
       })
       // console.log(this.mapInfo)
       const imgUrl = this.mapInfo.twoDFilePath
-      const imgBounds = [[this.mapInfo.coordinateDown, this.mapInfo.coordinateLeft], [this.mapInfo.coordinateUpper, this.mapInfo.coordinateRight]]
+      const imgBounds = [[this.mapInfo.coordinateDown / this.pointScale, this.mapInfo.coordinateLeft / this.pointScale], [this.mapInfo.coordinateUpper / this.pointScale, this.mapInfo.coordinateRight / this.pointScale]]
       // eslint-disable-next-line no-undef
       L.imageOverlay(imgUrl, imgBounds).addTo(map)
       this.map = map
@@ -347,7 +354,7 @@ export default {
         // console.log(ev)
         let point = [ ev.latlng.lat, ev.latlng.lng ]
         points.push(point)
-        this.fencePoints.push(`${ev.latlng.lng}_${ev.latlng.lat}_0`)
+        this.fencePoints.push(`${ev.latlng.lng * this.pointScale}_${ev.latlng.lat * this.pointScale}_0`)
         if (points.length === 2) {
           polyline = L.polygon(points, { color: 'red' })
           polyline.addTo(this.map)
@@ -437,7 +444,7 @@ export default {
         // console.log(ev)
         let point = [ ev.latlng.lat, ev.latlng.lng ]
         points.push(point)
-        this.fencePoints.push(`${ev.latlng.lng}_${ev.latlng.lat}_0`)
+        this.fencePoints.push(`${ev.latlng.lng * this.pointScale}_${ev.latlng.lat * this.pointScale}_0`)
         if (points.length === 2) {
           let newPoints = [points[0], [points[0][0], points[1][1]], points[1], [points[1][0], points[0][1]]]
           polyline = L.polygon(newPoints, { color: 'red' })

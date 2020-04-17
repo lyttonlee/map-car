@@ -21,7 +21,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['productLineId'])
+    ...mapState(['productLineId', 'pointScale'])
   },
   methods: {
     ...mapActions(['getMapInfo']),
@@ -51,19 +51,22 @@ export default {
       })
     },
     createMap () {
+      const centerx = this.mapInfo.coordinateDown / this.pointScale + this.mapInfo.coordinateUpper / this.pointScale
+      const centery = this.mapInfo.coordinateLeft / this.pointScale + this.mapInfo.coordinateRight / this.pointScale
+      const center = [centerx / 2, centery / 2]
       // eslint-disable-next-line no-undef
       const map = L.map('map-base-station', {
-        center: [4, -10],
-        zoom: 6,
-        minZoom: 6,
-        maxZoom: 6,
+        center,
+        zoom: 9,
+        minZoom: 9,
+        maxZoom: 9,
         zoomControl: false, // 默认不显示缩放按钮
         attributionControl: false // 不显示leaflet 图标logo
 
       })
       // console.log(this.mapInfo)
       const imgUrl = this.mapInfo.twoDFilePath
-      const imgBounds = [[this.mapInfo.coordinateDown, this.mapInfo.coordinateLeft], [this.mapInfo.coordinateUpper, this.mapInfo.coordinateRight]]
+      const imgBounds = [[this.mapInfo.coordinateDown / this.pointScale, this.mapInfo.coordinateLeft / this.pointScale], [this.mapInfo.coordinateUpper / this.pointScale, this.mapInfo.coordinateRight / this.pointScale]]
       // eslint-disable-next-line no-undef
       L.imageOverlay(imgUrl, imgBounds).addTo(map)
       this.map = map
@@ -75,7 +78,7 @@ export default {
         // iconSize: [30, 20]
         iconAnchor: [0, 30]
       })
-      let stationMarker = L.marker([station.y, station.x], {
+      let stationMarker = L.marker([station.y / this.pointScale, station.x / this.pointScale], {
         icon,
         title: station.sn,
       })

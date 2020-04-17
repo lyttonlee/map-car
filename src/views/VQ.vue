@@ -111,7 +111,7 @@ export default {
     TotalItem: () => import('../components/TotalItem'),
   },
   computed: {
-    ...mapState(['carScale', 'productLineId']),
+    ...mapState(['carScale', 'productLineId', 'pointScale']),
     ...mapGetters(['overtime']),
     percentData () {
       // console.log(this.bindCars)
@@ -237,7 +237,7 @@ export default {
           }
         }
         if (!newPos.content.existenceZone) {
-          currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
+          currentMarker.moveTo([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], 500, newPos.content.angle)
         }
         currentMarker.angle = newPos.content.angle
       }
@@ -736,7 +736,7 @@ export default {
       // console.log(this.formatTime(bindTime))
       let iconType = this.computedIconType(car)
       // console.log(iconType)
-      let carPos = [car.locator.y, car.locator.x]
+      let carPos = [car.locator.y / this.pointScale, car.locator.x / this.pointScale]
       let icon = this.createPointMarker(iconType)
       const marker = L.Marker.movingMarker([carPos], [], {
         rotate: true,
@@ -886,19 +886,22 @@ export default {
   },
   mounted () {
     this.getMapInfo().then((mapInfo) => {
+      const centerx = mapInfo.coordinateDown / this.pointScale + mapInfo.coordinateUpper / this.pointScale
+      const centery = mapInfo.coordinateLeft / this.pointScale + mapInfo.coordinateRight / this.pointScale
+      const center = [centerx / 2, centery / 2]
       // eslint-disable-next-line no-undef
       const map = L.map('map-small', {
-        center: [4, -10],
-        zoom: 6,
-        minZoom: 6,
-        maxZoom: 6,
+        center,
+        zoom: 8,
+        minZoom: 8,
+        maxZoom: 8,
         zoomControl: false, // 默认不显示缩放按钮
         attributionControl: false // 不显示leaflet 图标logo
 
       })
       // console.log(mapInfo)
       const imgUrl = mapInfo.twoDFilePath
-      const imgBounds = [[mapInfo.coordinateDown, mapInfo.coordinateLeft], [mapInfo.coordinateUpper, mapInfo.coordinateRight]]
+      const imgBounds = [[mapInfo.coordinateDown / this.pointScale, mapInfo.coordinateLeft / this.pointScale], [mapInfo.coordinateUpper / this.pointScale, mapInfo.coordinateRight / this.pointScale]]
       // const imgUrl = imgMap
       // const imgBounds = [[-0.8, -22.7], [8.0, 1.2]]
       // eslint-disable-next-line no-undef

@@ -37,6 +37,10 @@ import {
   mapActions,
   mapGetters,
 } from 'vuex'
+// import {
+//   mercatorTolnglat,
+//   lnglatTomercator,
+// } from '../utils/utils'
 // import RepairTrack from '../components/RepairTrack'
 import CarInfo from '@/components/CarInfo'
 import CarList from '@/components/CarList'
@@ -64,7 +68,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['mapInfo', 'carScale', 'productLineId']),
+    ...mapState(['mapInfo', 'carScale', 'productLineId', 'pointScale']),
     ...mapGetters(['overtime']),
   },
   sockets: {
@@ -121,7 +125,7 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const newPos = JSON.parse(data)
-      // console.log(newPos)
+      console.log(newPos)
       // 找到对应的marker
       let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
       // 移动位置
@@ -152,7 +156,7 @@ export default {
           }
         }
         if (!newPos.content.existenceZone) {
-          currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
+          currentMarker.moveTo([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], 500, newPos.content.angle)
         }
         currentMarker.angle = newPos.content.angle
       }
@@ -321,8 +325,14 @@ export default {
       // console.log(this.formatTime(bindTime))
       let iconType = this.computedIconType(car)
       // console.log(iconType)
-      let carPos = [car.locator.y, car.locator.x]
+      let carPos = [car.locator.y / this.pointScale, car.locator.x / this.pointScale]
+      // let mercatorPoint = {
+      //   x: car.locator.x,
+      //   y: car.locator.y
+      // }
+      // let carPos = mercatorTolnglat(mercatorPoint)
       let icon = this.createPointMarker(iconType)
+      // const marker = L.Marker.movingMarker([carPos.lat, carPos.lng], [], {
       const marker = L.Marker.movingMarker([carPos], [], {
         rotate: true,
         icon,
@@ -523,19 +533,35 @@ export default {
   },
   mounted () {
     this.getMapInfo().then((mapInfo) => {
+      const centerx = mapInfo.coordinateDown / this.pointScale + mapInfo.coordinateUpper / this.pointScale
+      const centery = mapInfo.coordinateLeft / this.pointScale + mapInfo.coordinateRight / this.pointScale
+      const center = [centerx / 2, centery / 2]
       // eslint-disable-next-line no-undef
       const map = L.map('map', {
-        center: [4, -10],
-        zoom: 2,
+        // center: [0, 0],
+        center,
+        zoom: 9,
         // minZoom: 6,
         // maxZoom: 6,
         zoomControl: false, // 默认不显示缩放按钮
         attributionControl: false // 不显示leaflet 图标logo
-
       })
       // console.log(mapInfo)
       const imgUrl = mapInfo.twoDFilePath
-      const imgBounds = [[mapInfo.coordinateDown, mapInfo.coordinateLeft], [mapInfo.coordinateUpper, mapInfo.coordinateRight]]
+      // let mercatorLD = {
+      //   x: mapInfo.coordinateLeft,
+      //   y: mapInfo.coordinateDown,
+      // }
+      // let mercatorRU = {
+      //   x: mapInfo.coordinateRight,
+      //   y: mapInfo.coordinateUpper
+      // }
+      // const lnglat1 = mercatorTolnglat(mercatorLD)
+      // const lngLat2 = mercatorTolnglat(mercatorRU)
+      const imgBounds = [[mapInfo.coordinateDown / this.pointScale, mapInfo.coordinateLeft / this.pointScale], [mapInfo.coordinateUpper / this.pointScale, mapInfo.coordinateRight / this.pointScale]]
+      // console.log(lnglat1)
+      // console.log(lngLat2)
+      // const imgBounds = [[lnglat1.lat, lnglat1.lng], [lngLat2.lat, lngLat2.lng]]
       // const imgUrl = imgMap
       // const imgBounds = [[-0.8, -22.7], [8.0, 1.2]]
       // eslint-disable-next-line no-undef
