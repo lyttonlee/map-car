@@ -153,12 +153,14 @@ export default {
           font-size: 1.3rem;
           font-weight: bold;
           color: @primary-color;
+          cursor: pointer;
         }
         .infobox {
           position: absolute;
           // position: relative;
           left: -65px;
           top: -50px;
+          z-index: 3;
           .box-info {
             width: 180px;
             background: @info;
