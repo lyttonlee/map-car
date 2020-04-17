@@ -172,7 +172,7 @@ export default {
     unbind (data) {
       const removeCar = JSON.parse(data)
       console.log('删除了car')
-      console.log(removeCar)
+      // console.log(removeCar)
       // 找到是否有这辆车
       let carIndex = this.bindCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
       // 移除数据
@@ -385,7 +385,7 @@ export default {
     // 获取绑定的车辆信息
     getBindCars (isInit) {
       let params = {
-        productLineId: 1
+        productLineId: this.productLineId
       }
       getBindList(params).then((res) => {
         console.log(res)

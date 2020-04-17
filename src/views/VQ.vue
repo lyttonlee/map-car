@@ -35,7 +35,7 @@
       <div class="item">
         <!-- <h4>超八小时未出荷车辆列表</h4> -->
         <el-carousel :autoplay="true" indicator-position="none" arrow="never" :interval="5000" >
-          <el-carousel-item v-show="bindCars.length > 0" v-for="(item, index) in importantLogs" :key="index">
+          <el-carousel-item  v-for="(item, index) in importantLogs" :key="index">
             <div class="item-log">
               <template v-for="(log, index) in item">
                 <div class="log" :key="index">
@@ -46,6 +46,7 @@
               </template>
             </div>
           </el-carousel-item>
+          <div class="no-data" v-if="importantLogs.length === 0">没有数据</div>
         </el-carousel>
       </div>
       <div class="item item-col-1-3" id="repaired-percent-chart"></div>
@@ -75,6 +76,7 @@ import {
   queryStore,
   queryEfficiency,
   querySummary,
+  getSpecicalFence,
 } from '../api/vq'
 import alarmCar from '../assets/img/car-red.png'
 import overtimeCar from '../assets/img/car-yellow.png'
@@ -97,7 +99,9 @@ export default {
       markers: [],
       // percentData: ''
       storeData: '',
-      importantLogs: []
+      importantLogs: [],
+      specalAreas: [],
+      divMarkers: [],
     }
   },
   components: {
@@ -107,7 +111,7 @@ export default {
     TotalItem: () => import('../components/TotalItem'),
   },
   computed: {
-    ...mapState(['carScale']),
+    ...mapState(['carScale', 'productLineId']),
     ...mapGetters(['overtime']),
     percentData () {
       // console.log(this.bindCars)
@@ -214,21 +218,34 @@ export default {
       // 移动位置
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker
-        // console.log('move')
-        // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
-        // console.log(newPos.content.angle)
-        currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
-        // currentMarker.setPopupContent(newPos.content.y + ' ' + newPos.content.x)
-        // currentMarker.moveTo([newPos.content.y, newPos.content.x], 500)
-        // setTimeout(() => {
-        //   newPos.content.deg && currentMarker.setRotation(newPos.content.deg)
-        // }, 600)
+        // 判断是否在特殊区域
+        if (newPos.content.existenceZone) { // 如果位置点在存在性区域中
+          if (!currentMarker.inSpecialArea) { // 如果这个marker以前不在这个区域
+            // 去除这个marker 更新数据
+            this.changeSpecialAreaNum(newPos.content.existenceZone, true)
+            currentMarker.zone = newPos.content.existenceZone
+            currentMarker.inSpecialArea = true
+            currentMarker.remove()
+          }
+        } else if (newPos.content.existenceZone === null) { // 如果这个marker不在需检测的存在性区域中
+          if (currentMarker.inSpecialArea === true) { // 以前这个marker在存在性区域
+            // 将这个marker显示出来
+            currentMarker.addTo(this.map)
+            currentMarker.inSpecialArea = false
+            // 更新数据
+            this.changeSpecialAreaNum(currentMarker.zone, false)
+          }
+        }
+        if (!newPos.content.existenceZone) {
+          currentMarker.moveTo([newPos.content.y, newPos.content.x], 500, newPos.content.angle)
+        }
+        currentMarker.angle = newPos.content.angle
       }
     },
     bind (data) {
       // console.log(data)
       const newCar = JSON.parse(data)
-      // console.log(newCar)
+      console.log(newCar)
       // 验证这辆车是否已存在与列表中，若存在则无视，若不存在则在车辆列表中添加这辆车并创建一个新的marker
       const carId = newCar.vehicle.id
       let hasThisCar = this.bindCars.find((car) => car.vehicle.id === carId)
@@ -240,19 +257,22 @@ export default {
     unBind (data) {
       const removeCar = JSON.parse(data)
       console.log('删除了car')
-      console.log(removeCar)
+      // console.log(removeCar)
       // 找到是否有这辆车
-      let carIndex = this.bindCars.findIndex((car) => car.vehicle.id === removeCar.id)
+      let carIndex = this.bindCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
       // 移除数据
       if (carIndex !== -1) { // 存在这辆车
-        this.bindCars.split(carIndex, 1)
+        this.bindCars.splice(carIndex, 1)
         // 找出这个marker
         // 找到对应的marker
-        let markerIndex = this.markers.findIndex((item) => item.id === removeCar.id)
+        let markerIndex = this.markers.findIndex((item) => item.id === removeCar.vehicle.id)
         if (markerIndex !== -1) {
           let currentMarker = this.markers[markerIndex].marker
+          console.log(currentMarker)
           // 删除marker
           currentMarker.remove()
+          this.markers.splice(markerIndex, 1)
+          console.log(this.markers)
         }
       }
     },
@@ -361,15 +381,19 @@ export default {
       })
     },
     // 获取绑定的车辆信息
-    getBindCars () {
+    getBindCars (isInit) {
       let params = {
-        productLineId: 1
+        productLineId: this.productLineId
       }
       getBindList(params).then((res) => {
         console.log(res)
         if (res.code === 0) {
           this.bindCars = res.result
-          if (this.bindCars.length > 0) {
+          if (!isInit) {
+            console.log('fresh')
+            this.bindCars = [...this.bindCars]
+          }
+          if (this.bindCars.length > 0 && isInit === true) {
             this.bindCars.forEach((car) => {
               this.renderMarker(car)
             })
@@ -723,12 +747,23 @@ export default {
       marker.carId = car.vehicle.id
       marker.locatorId = car.locator.id
       marker.bindPopup(`<div>车 架 号: ${car.vehicle.identification}</div><div>标 签 号: ${car.locator.sn}</div>`)
+      // 判断是否是特殊区域点
+      // const inSpeacalArea = (existenceZone) => {}
+      if (car.locator.existenceZone) { // 特殊区域点
+        marker.inSpecialArea = true
+        marker.zone = car.locator.existenceZone
+        // console.log('do change')
+        this.changeSpecialAreaNum(car.locator.existenceZone, true)
+      } else {
+        marker.inSpecialArea = false
+        this.map && marker.addTo(this.map)
+      }
       this.markers.push({
         marker,
         id: car.vehicle.id,
         locatorId: car.locator.id
       })
-      this.map && marker.addTo(this.map)
+      // this.map && marker.addTo(this.map)
     },
     // moment,
     formatTimeOnly (s) {
@@ -751,11 +786,59 @@ export default {
       this.summaryTime = setInterval(() => {
         this.getImportantSummary()
       }, 30000)
-    }
+    },
     // // 转变进度条的内容显示
     // format (percent) {
     //   return `正常车辆 ${percent}%`
     // },
+    // 改变特殊区域的数量
+    changeSpecialAreaNum (name, isAdd) {
+      // console.log(name)
+      for (let i = 0; i < this.specalAreas.length; i++) {
+        // console.log(this.specalAreas[i].name)
+        // console.log(typeof name)
+        if (name.includes(this.specalAreas[i].name)) {
+          // console.log('+1 -1')
+          if (isAdd === true) {
+            this.specalAreas[i].sum++
+          } else {
+            this.specalAreas[i].sum--
+          }
+          this.specalAreas = [...this.specalAreas]
+        }
+      }
+    },
+    // 创建聚合点
+    createDivMarker (specalArea) {
+      // 测试功能信息 - 聚合
+      const myIcon = L.divIcon({
+        className: 'marker-circle',
+        html: specalArea.sum
+      })
+      let center = [specalArea.center.y, specalArea.center.x]
+      let divMarker = L.marker(center, { icon: myIcon })
+      divMarker.name = specalArea.name
+      divMarker.id = specalArea.id
+      // console.log(divMarker)
+      this.divMarkers.push(divMarker)
+      divMarker.addTo(this.map)
+      // console.log(this.divMarkers)
+      // console.log(this.markers)
+    },
+    // 更新聚合点
+    updateDivMarker (area) {
+      // 找到这个聚合点
+      let currentDivMarker = this.divMarkers.find((marker) => marker.id === area.id)
+      // 更新数据
+      console.log(area)
+      if (currentDivMarker) {
+        const myIcon = L.divIcon({
+          className: 'marker-circle',
+          html: area.sum
+        })
+        currentDivMarker.setIcon(myIcon)
+      }
+    }
   },
   watch: {
     // 当异步chart数据获取完成后
@@ -763,6 +846,41 @@ export default {
       if (newVal) {
         this.renderCharts()
       }
+    },
+    specalAreas: {
+      handler: function (newVal) {
+        // console.log('new areas')
+        console.log(newVal)
+        let hasDivMarker = (id) => {
+          let hasMarker = false
+          this.divMarkers.forEach((marker) => {
+            if (marker.id === id) {
+              hasMarker = true
+            }
+          })
+          return hasMarker
+        }
+        // 判断数量是否大于0
+        for (let i = 0; i < newVal.length; i++) {
+          if (newVal[i].sum > 0) {
+            // 判断是否创建了这个聚合点
+            if (hasDivMarker(newVal[i].id)) { // 创建了这个marker。那就更新这个marker
+              this.updateDivMarker(newVal[i])
+            } else { // 没有创建那就创建这个marker
+              // console.log('create')
+              this.createDivMarker(newVal[i])
+            }
+          } else if (newVal[i].sum === 0) { // 判断情况是否需要清除这个聚合marker
+            // todo
+            if (hasDivMarker(newVal[i].id)) { // 存在这个marker 移除
+              let index = this.divMarkers.findIndex((marker) => marker.id === newVal[i].id)
+              this.divMarkers[index].remove()
+              this.divMarkers.splice(index, 1)
+            }
+          }
+        }
+      },
+      deep: true
     }
   },
   mounted () {
@@ -785,8 +903,52 @@ export default {
       // eslint-disable-next-line no-undef
       L.imageOverlay(imgUrl, imgBounds).addTo(map)
       this.map = map
-      this.getBindCars(true)
-      // this.carListTime = setInterval(this.getBindCars, 30000)
+      // 获取区域信息
+      let params = {
+        productLineId: this.productLineId,
+        id: mapInfo.id
+      }
+      getSpecicalFence(params).then((res) => {
+        // console.log(res)
+        let { code, result } = res
+        if (code === 0) {
+          this.getBindCars(true)
+          this.carListTime = setInterval(this.getBindCars, 30000)
+          // console.log(result)
+          let specalAreas = result.map((area) => {
+            let points = area.points.split(';').map((item) => {
+              let [x, y] = item.split('_')
+              return {
+                x,
+                y
+              }
+            })
+            // 因为是闭合图形所以去除最后一个点
+            points.pop()
+            let sumX = 0
+            let sumY = 0
+            points.forEach((point) => {
+              sumX += point.x * 1
+              sumY += point.y * 1
+            })
+            // console.log(points)
+            // console.log(sumY)
+            let center = {
+              x: sumX / points.length,
+              y: sumY / points.length
+            }
+            return {
+              id: area.id,
+              points,
+              center,
+              sum: 0,
+              name: area.name
+            }
+          })
+          // console.log(specalAreas)
+          this.specalAreas = specalAreas
+        }
+      })
     }).catch((err) => {
       console.log(err)
       this.$notify.error({
@@ -828,6 +990,9 @@ export default {
       overflow-y: auto;
       box-sizing: border-box;
       // border: .5px solid #fff;
+      .no-data {
+        padding-top: 15px;
+      }
       .total-layout {
         display: grid;
         grid-template-rows: 1fr 1fr 1fr;
