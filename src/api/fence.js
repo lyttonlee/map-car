@@ -50,3 +50,13 @@ export const uploadParksFile = (param) => {
 export const deleteParks = (param) => {
   return request.post('/api/superAdmin/v1.0/dele/parks', param)
 }
+
+// 创建地图分块
+export const createSmallMap = (param) => {
+  return request.post('/api/superAdmin/v1.0/new/mapPartition', param)
+}
+
+// 删除地图块
+export const deleteSmallMap = (params) => {
+  return request.delete('/api/superAdmin/v1.0/delete/mapPartition', { params })
+}

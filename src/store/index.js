@@ -9,6 +9,7 @@ import {
   ALARMCONFIG,
   MAPINFO,
   CARNODES,
+  CHILDMAPINFO,
 } from './types'
 import router from '../router'
 import {
@@ -58,6 +59,7 @@ export default new Vuex.Store({
     carScale: 1.5,
     carNodes: '',
     pointScale: initPointScale,
+    childMapInfos: [],
   },
   mutations: {
     [LOGOUT]: (state) => {
@@ -101,6 +103,9 @@ export default new Vuex.Store({
     },
     [CARNODES]: (state, carNodes) => {
       state.carNodes = carNodes
+    },
+    [CHILDMAPINFO]: (state, childMap) => {
+      state.childMapInfos = childMap
     },
   },
   actions: {
@@ -193,8 +198,11 @@ export default new Vuex.Store({
           let { code, result, desc } = res
           if (code === 0) {
             console.log(result)
-            commit(MAPINFO, result[0].buildings[0].floors[0])
-            resolve(result[0].buildings[0].floors[0])
+            let mapInfo = result[0].buildings[0].floors.find((mapInfo) => mapInfo.parentId === null)
+            let childMapInfo = result[0].buildings[0].floors.filter((child) => child.parentId === mapInfo.id)
+            commit(MAPINFO, mapInfo)
+            commit(CHILDMAPINFO, childMapInfo)
+            resolve(mapInfo)
           } else {
             let err = new Error(desc)
             reject(err)

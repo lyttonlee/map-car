@@ -1,7 +1,33 @@
 <template>
   <div class="page">
     <div id="map-fence" class="page"></div>
-    <div class="control">
+    <div class="action">
+      <el-button-group>
+        <el-button round @click="toggleShowFence">关闭/显示围栏设置</el-button>
+        <el-button round @click="toggleShowPickMap">关闭/显示截取地图</el-button>
+      </el-button-group>
+    </div>
+    <div v-show="showPickMap" class="pick-map">
+      <h5>科室地图截取</h5>
+      <el-table :data="childMapInfos" size="mini" >
+        <el-table-column label="地图名称" prop="name"></el-table-column>
+        <el-table-column label="Action">
+          <template slot-scope="scope">
+            <el-button size="mini" round @click="deleteMap(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-input v-model="pickMapInfo.name" placeholder="地图名称"></el-input>
+      <el-input v-model="pickMapInfo.zoom" placeholder="当前缩放等级"></el-input>
+      <el-input v-model="carScale" @change="changeCarScale" placeholder="车辆图标缩放等级"></el-input>
+      <el-button @click="pickMap" :disabled="!canAddPoint" type="primary">选择要截取地图的两个点</el-button>
+      <el-button @click="resetPoints">重置</el-button>
+      <template v-for="(point, index) in pickedMapPoints">
+        <div :key="index">{{`x: ${point.x} y: ${point.y}`}}</div>
+      </template>
+      <el-button type="primary" :disabled="!canSubmitPick" @click="submitPick" >确定截取</el-button>
+    </div>
+    <div class="control"  v-show="showAboutFence">
       <div class="left">
         <!-- 控制区域 -->
         <el-button @click="addFence">ADD Fence</el-button>
@@ -42,6 +68,7 @@
       <div class="content">
         <el-table :data="fences" size="mini" >
           <el-table-column label="围栏名称" prop="name"></el-table-column>
+          <el-table-column label="类型" prop="type"></el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
               <el-button-group>
@@ -57,14 +84,16 @@
 </template>
 <script>
 import {
-  queryMap,
+  // queryMap,
   queryFence,
   createFence,
   deleteFence,
   createCarPort,
   deleteParks,
   // getUploadUrl,
-  uploadParksFile
+  uploadParksFile,
+  createSmallMap,
+  deleteSmallMap,
 } from '../../api/fence'
 // import request from '../../api/axios'
 import {
@@ -76,11 +105,14 @@ import {
 } from '../../config/config'
 import {
   mapState,
+  mapActions,
 } from 'vuex'
 export default {
   // ..
   data () {
     return {
+      showAboutFence: true,
+      showPickMap: true,
       mapInfo: '',
       fences: [],
       fenceName: '', // 要添加的围栏名称
@@ -99,10 +131,16 @@ export default {
       isDeleteParks: false,
       carScale: 1,
       carRotate: '',
+      pickMapInfo: {
+        name: '',
+        zoom: 0,
+      },
+      pickedMapPoints: [],
+      pickedMapPolygon: '',
     }
   },
   computed: {
-    ...mapState(['pointScale']),
+    ...mapState(['pointScale', 'childMapInfos']),
     canSubmit () {
       if (this.fenceName && this.fencePoints.length > 2) {
         return true
@@ -123,21 +161,114 @@ export default {
       } else {
         return false
       }
+    },
+    canAddPoint () {
+      if (this.pickedMapPoints.length < 2) {
+        return true
+      } else {
+        return false
+      }
+    },
+    canSubmitPick () {
+      if (this.pickedMapPoints.length === 2 && this.pickMapInfo.name && this.pickMapInfo.zoom && this.carScale) {
+        return true
+      } else {
+        return false
+      }
     }
   },
   methods: {
-    getMapConfig () {
-      let params = {
-        productLineId: 1
-      }
-      queryMap(params).then((res) => {
-        console.log(res)
-        let { code, result } = res
-        if (code === 0) {
-          this.mapInfo = result[0].buildings[0].floors[0]
-          this.createMap()
+    ...mapActions(['getMapInfo']),
+    resetPoints () {
+      this.pickedMapPoints = []
+      this.pickedMapPolygon.remove()
+      this.map.off('click')
+      this.pickMap()
+    },
+    // 截取地图点
+    pickMap () {
+      let points = []
+      this.map.on('click', (ev) => {
+        console.log(ev)
+        let point = [ ev.latlng.lat, ev.latlng.lng ]
+        this.pickedMapPoints.push({ y: point[0] * this.pointScale, x: point[1] * this.pointScale })
+        points.push(point)
+        console.log(points)
+        console.log(this.pickedMapPoints)
+        if (this.pickedMapPoints.length === 2) {
+          let newPoints = [points[0], [points[0][0], points[1][1]], points[1], [points[1][0], points[0][1]]]
+          let polyline = L.polygon(newPoints, { color: 'green' })
+          polyline.addTo(this.map)
+          // this.smallMapPolygon.push(polyline)
+          this.pickedMapPolygon = polyline
+          this.map.off('click')
         }
       })
+    },
+    // 删除小地图
+    deleteMap (map) {
+      let id = map.id
+      deleteSmallMap(id).then((res) => {
+        console.log(res)
+        let { code, desc } = res
+        if (code === 0) {
+          this.$notify.success({
+            message: desc
+          })
+        } else {
+          this.$notify.error({
+            message: desc
+          })
+        }
+      })
+    },
+    // 提交截取的地图数据
+    submitPick () {
+      let param = {
+        parentId: this.mapInfo.id,
+        name: this.pickMapInfo.name,
+        zoom: this.pickMapInfo.zoom,
+        carScale: this.carScale * 1,
+        leftUp: this.pickedMapPoints[0],
+        rightDown: this.pickedMapPoints[1]
+      }
+      createSmallMap(param).then((res) => {
+        console.log(res)
+        let { code, desc } = res
+        if (code === 0) {
+          this.$notify.success({
+            message: desc
+          })
+        } else {
+          this.$notify.error({
+            message: desc
+          })
+        }
+      })
+    },
+    toggleShowFence () {
+      this.showAboutFence = !this.showAboutFence
+    },
+    toggleShowPickMap () {
+      this.showPickMap = !this.showPickMap
+    },
+    getMapConfig () {
+      this.getMapInfo().then((mapInfo) => {
+        this.mapInfo = mapInfo
+        this.createMap()
+      })
+      // let params = {
+      //   productLineId: 1
+      // }
+      // queryMap(params).then((res) => {
+      //   console.log(res)
+      //   let { code, result } = res
+      //   if (code === 0) {
+      //     // this.mapInfo = result[0].buildings[0].floors[0]
+      //     this.mapInfo = result[0].buildings[0].floors.find((mapInfo) => mapInfo.parentId === null)
+      //     this.createMap()
+      //   }
+      // })
     },
     // 获取已有的地图围栏
     getAllFences () {
@@ -312,7 +443,7 @@ export default {
         iconAnchor: [7.5, 15.5]
       })
       // console.log(icon)
-      const marker = L.Marker.movingMarker([[4, -10]], [], {
+      const marker = L.Marker.movingMarker([center], [], {
         rotate: true,
         icon,
         initialRotationAngle: 0,
@@ -320,6 +451,10 @@ export default {
       })
       this.carMarker = marker
       marker.addTo(map)
+      this.map.on('zoomend', (ev) => {
+        // console.log(ev.target._zoom)
+        this.pickMapInfo.zoom = ev.target._zoom
+      })
     },
     // 解析地址
     transAddress () {
@@ -492,8 +627,8 @@ export default {
         iconSize: size
       })
       console.log(newIcon)
-      let m = this.carMarker.setIcon(newIcon)
-      m.setRotation(45)
+      this.carMarker.setIcon(newIcon)
+      // m.setRotation(45)
       // console.log(icon)
     },
     // 旋转车
@@ -513,6 +648,26 @@ export default {
 <style lang="less" scoped>
 @import '../../assets/less/color.less';
 .page {
+  .action {
+    position: fixed;
+    left: 30%;
+    top: 10px;
+    background: @base-background-opacity;
+    width: 350px;
+    height: 40px;
+    padding: 5px;
+    z-index: 2000;
+  }
+  .pick-map {
+    position: fixed;
+    left: 10px;
+    top: 100px;
+    background: @base-background-opacity;
+    height: 50vh;
+    width: 300px;
+    padding: 5px;
+    z-index: 2000;
+  }
   .control {
     display: grid;
     position: fixed;
