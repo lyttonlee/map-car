@@ -11,9 +11,13 @@
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
-      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="bindCars" />
+      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
+    <SmallMap v-if="allMaps.length > 1" :activeId="activeMapId" :maps="allMaps" @changeShownMap="changeMap" :carMapNum="carMapNum" />
+    <div class="global-map" v-show="showGlobalMap">
+      <img :src="mapInfo.twoDFilePath" @click="changeMap(mapInfo.id)" alt="">
+    </div>
     <!-- <RepairTrack ref="repairTrack" /> -->
   </div>
 </template>
@@ -37,13 +41,13 @@ import {
   mapActions,
   mapGetters,
 } from 'vuex'
-// import {
-//   mercatorTolnglat,
-//   lnglatTomercator,
-// } from '../utils/utils'
+import {
+  isInPolygon
+} from '../utils/utils'
 // import RepairTrack from '../components/RepairTrack'
 import CarInfo from '@/components/CarInfo'
 import CarList from '@/components/CarList'
+import SmallMap from '@/components/SmallMap'
 export default {
   name: 'home',
   components: {
@@ -52,6 +56,7 @@ export default {
     // RepairTrack,
     CarList,
     CarInfo,
+    SmallMap,
   },
   data () {
     return {
@@ -65,11 +70,22 @@ export default {
       showingCar: {},
       specalAreas: [],
       divMarkers: [],
+      currentMapPoints: '',
+      currentMapInfo: '',
+      showGlobalMap: false,
+      carMapNum: new Map(),
+      showingCars: []
     }
   },
   computed: {
-    ...mapState(['mapInfo', 'carScale', 'productLineId', 'pointScale']),
+    ...mapState(['mapInfo', 'carScale', 'productLineId', 'pointScale', 'childMapInfos']),
     ...mapGetters(['overtime']),
+    allMaps () {
+      return [this.mapInfo, ...this.childMapInfos]
+    },
+    activeMapId () {
+      return this.currentMapInfo.id
+    }
   },
   sockets: {
     connect (data) {
@@ -131,7 +147,11 @@ export default {
       // 移动位置
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker
-        // console.log('move')
+        console.log(this.bindCars)
+        let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.locatorId === newPos.content.id)
+        this.bindCars[currentCarIndex].locator.x = newPos.content.x
+        this.bindCars[currentCarIndex].locator.y = newPos.content.y
+        console.log(this.bindCars[currentCarIndex])
         // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
         // console.log(newPos.content.angle)
         // console.log(currentMarker)
@@ -155,7 +175,18 @@ export default {
             this.changeSpecialAreaNum(currentMarker.zone, false)
           }
         }
-        if (!newPos.content.existenceZone) {
+        // 判断是否在地图区域外
+        if (!isInPolygon([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], this.currentMapPoints) && currentMarker.isAddedToMap === true) {
+          console.log('remove marker')
+          currentMarker.remove()
+          currentMarker.isAddedToMap = false
+        } else {
+          if (currentMarker.isAddedToMap === false) {
+            currentMarker.addTo(this.map)
+            currentMarker.isAddedToMap = true
+          }
+        }
+        if (!newPos.content.existenceZone && currentMarker.isAddedToMap === true) {
           currentMarker.moveTo([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], 500, newPos.content.angle)
         }
         currentMarker.angle = newPos.content.angle
@@ -171,6 +202,7 @@ export default {
       if (!hasThisCar) {
         this.bindCars.push(newCar)
         this.renderMarker(newCar)
+        this.computeAreaCarNums()
       }
     },
     unbind (data) {
@@ -184,6 +216,7 @@ export default {
         this.bindCars.splice(carIndex, 1)
         // 找出这个marker
         // 找到对应的marker
+        this.computeAreaCarNums()
         let markerIndex = this.markers.findIndex((item) => item.id === removeCar.vehicle.id)
         if (markerIndex !== -1) {
           let currentMarker = this.markers[markerIndex].marker
@@ -255,6 +288,39 @@ export default {
           })
         }
       })
+    },
+    dbClickToChangeMap (ev) {
+      let point = [ev.latlng.lat, ev.latlng.lng]
+      // console.log(point)
+      let curMapInfo = this.childMapInfos.find((mapInfo) => {
+        let mapPoints = this.computeMapPoints(mapInfo)
+        return isInPolygon(point, mapPoints)
+      })
+      // console.log(curMapInfo)
+      if (curMapInfo) {
+        this.changeMap(curMapInfo.id)
+      }
+    },
+    // 计算各科室有多少辆车
+    computeAreaCarNums () {
+      let carMap = new Map()
+      let mapPoints
+      this.childMapInfos.forEach((mapInfo) => {
+        carMap.set(mapInfo.id, 0)
+        mapPoints = this.computeMapPoints(mapInfo)
+        for (let i = 0; i < this.bindCars.length; i++) {
+          let point = [this.bindCars[i].locator.y / this.pointScale, this.bindCars[i].locator.x / this.pointScale]
+          // console.log(point)
+          // console.log(mapPoints)
+          if (isInPolygon(point, mapPoints)) {
+            // console.log('+1')
+            carMap.set(mapInfo.id, carMap.get(mapInfo.id) + 1)
+          }
+        }
+      })
+      carMap.set(this.mapInfo.id, this.bindCars.length)
+      // console.log(carMap)
+      return carMap
     },
     // hignliaght marker
     hignlightMarker (carId, car) {
@@ -409,7 +475,9 @@ export default {
             this.bindCars.forEach((car) => {
               this.renderMarker(car)
             })
+            this.showingCars = this.bindCars
           }
+          this.carMapNum = this.computeAreaCarNums()
         }
       })
     },
@@ -425,18 +493,18 @@ export default {
         // 符合的marker透明度设置为1，否则设置为0
         if (canRender(item.id)) {
           // item.marker.setOpacity(1)
-          if (!item.isAddedToMap && !item.marker.inSpecialArea) {
+          if (!item.marker.isAddedToMap && !item.marker.inSpecialArea) {
             // console.log(item.marker)
             // console.log(item.marker.angle)
             item.marker.addTo(this.map)
             item.marker.setRotation(item.marker.angle)
-            item.isAddedToMap = true
+            item.marker.isAddedToMap = true
           }
         } else {
           // item.marker.setOpacity(0)
           // 移除点击事件
           // item.marker.off('click', this.clickMarker)
-          item.isAddedToMap = false
+          item.marker.isAddedToMap = false
           item.marker.remove()
         }
       })
@@ -488,10 +556,64 @@ export default {
         currentDivMarker.setIcon(myIcon)
       }
     },
+    computeMapPoints (currentMapInfo) {
+      const mapPoints = [
+        [currentMapInfo.coordinateDown / this.pointScale, currentMapInfo.coordinateLeft / this.pointScale],
+        [currentMapInfo.coordinateUpper / this.pointScale, currentMapInfo.coordinateLeft / this.pointScale],
+        [currentMapInfo.coordinateUpper / this.pointScale, currentMapInfo.coordinateRight / this.pointScale],
+        [currentMapInfo.coordinateDown / this.pointScale, currentMapInfo.coordinateRight / this.pointScale],
+      ]
+      return mapPoints
+    },
     // 改变显示的地图
-    changeMap (index) {
-      console.log(index)
-      this.imageOverlay.setUrl('https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3655278253,1939954273&fm=11&gp=0.jpg')
+    changeMap (id) {
+      console.log(id)
+      // 找到需要改变到的mapInfo
+      let currentMapInfo = this.allMaps.find((map) => map.id === id)
+      if (currentMapInfo) {
+        console.log(currentMapInfo)
+        // 重新设置地图的缩放等级和中心点
+        const centerx = currentMapInfo.coordinateDown / this.pointScale + currentMapInfo.coordinateUpper / this.pointScale
+        const centery = currentMapInfo.coordinateLeft / this.pointScale + currentMapInfo.coordinateRight / this.pointScale
+        const center = [centerx / 2, centery / 2]
+        this.map.setView(center, currentMapInfo.zoom ? currentMapInfo.zoom : 9)
+        // 替换图片边界和url
+        const imgBounds = [[currentMapInfo.coordinateDown / this.pointScale, currentMapInfo.coordinateLeft / this.pointScale], [currentMapInfo.coordinateUpper / this.pointScale, currentMapInfo.coordinateRight / this.pointScale]]
+        this.imageOverlay.setUrl(currentMapInfo.twoDFilePath)
+        this.imageOverlay.setBounds(imgBounds)
+        // console.log(this.markers)
+        // 改变车辆大小和方向 =》 (此处需要先遍历所有车辆bindCars，如果不在该地图范围则需隐藏这辆车)
+        const mapPoints = [
+          [currentMapInfo.coordinateDown / this.pointScale, currentMapInfo.coordinateLeft / this.pointScale],
+          [currentMapInfo.coordinateUpper / this.pointScale, currentMapInfo.coordinateLeft / this.pointScale],
+          [currentMapInfo.coordinateUpper / this.pointScale, currentMapInfo.coordinateRight / this.pointScale],
+          [currentMapInfo.coordinateDown / this.pointScale, currentMapInfo.coordinateRight / this.pointScale],
+        ]
+        // console.log(this.bindCars)
+        this.currentMapInfo = currentMapInfo
+        let canShownCars = this.bindCars.filter((car) => isInPolygon([0, 1], mapPoints))
+        console.log(canShownCars)
+        this.currentMapPoints = mapPoints
+        if (currentMapInfo.id === this.mapInfo.id) {
+          this.showingCars = this.bindCars
+        } else {
+          this.showingCars = this.bindCars.filter((car) => {
+            let point = [car.locator.y / this.pointScale, car.locator.x / this.pointScale]
+            let inArea = isInPolygon(point, this.currentMapPoints)
+            let currentMarker = this.markers.find((item) => item.id === car.vehicle.id).marker
+            if (!inArea) { // 不在区域中的车，找出对应的marker并隐藏
+              currentMarker.remove()
+              currentMarker.isAddedToMap = false
+            } else {
+              if (currentMarker.isAddedToMap === false) {
+                currentMarker.addTo(this.map)
+                currentMarker.isAddedToMap = true
+              }
+            }
+            return inArea
+          })
+        }
+      }
     }
   },
   watch: {
@@ -529,6 +651,22 @@ export default {
         }
       },
       deep: true
+    },
+    currentMapInfo: {
+      handler: function (newVal) {
+        console.log(newVal)
+        if (newVal.parentId === null && !this.map.listens('dblclick')) { // 是原始全局地图
+          // this.map.off
+          this.map.on('dblclick', this.dbClickToChangeMap)
+          this.showGlobalMap = false
+          console.log(this.map)
+        } else if (newVal.parentId && this.map.listens('dblclick')) {
+          this.map.off('dblclick', this.dbClickToChangeMap)
+          this.showGlobalMap = true
+        }
+        console.log(this.map.listens('dblclick'))
+      },
+      deep: true
     }
   },
   mounted () {
@@ -543,6 +681,7 @@ export default {
         zoom: 9,
         // minZoom: 6,
         // maxZoom: 6,
+        doubleClickZoom: false,
         zoomControl: false, // 默认不显示缩放按钮
         attributionControl: false // 不显示leaflet 图标logo
       })
@@ -559,6 +698,13 @@ export default {
       // const lnglat1 = mercatorTolnglat(mercatorLD)
       // const lngLat2 = mercatorTolnglat(mercatorRU)
       const imgBounds = [[mapInfo.coordinateDown / this.pointScale, mapInfo.coordinateLeft / this.pointScale], [mapInfo.coordinateUpper / this.pointScale, mapInfo.coordinateRight / this.pointScale]]
+      const mapPoints = [
+        [mapInfo.coordinateDown / this.pointScale, mapInfo.coordinateLeft / this.pointScale],
+        [mapInfo.coordinateUpper / this.pointScale, mapInfo.coordinateLeft / this.pointScale],
+        [mapInfo.coordinateUpper / this.pointScale, mapInfo.coordinateRight / this.pointScale],
+        [mapInfo.coordinateDown / this.pointScale, mapInfo.coordinateRight / this.pointScale],
+      ]
+      this.currentMapPoints = mapPoints
       // console.log(lnglat1)
       // console.log(lngLat2)
       // const imgBounds = [[lnglat1.lat, lnglat1.lng], [lngLat2.lat, lngLat2.lng]]
@@ -568,6 +714,7 @@ export default {
       this.imageOverlay = L.imageOverlay(imgUrl, imgBounds)
       this.imageOverlay.addTo(map)
       this.map = map
+      this.currentMapInfo = mapInfo
       // 获取区域信息
       let params = {
         productLineId: this.productLineId,
@@ -632,6 +779,16 @@ export default {
 <style lang="less" scoped>
 @import '../assets/less/color.less';
 .home {
+  position: relative;
+  .global-map {
+    position: absolute;
+    left: 25px;
+    bottom: 80px;
+    img {
+      width: 100px;
+      cursor: pointer;
+    }
+  }
   .list {
     position: fixed;
     width: 350px;

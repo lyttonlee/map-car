@@ -112,7 +112,7 @@ export default {
   data () {
     return {
       showAboutFence: true,
-      showPickMap: true,
+      showPickMap: false,
       mapInfo: '',
       fences: [],
       fenceName: '', // 要添加的围栏名称
@@ -274,7 +274,7 @@ export default {
     getAllFences () {
       let params = {
         productLineId: 1,
-        id: 3
+        id: this.mapInfo.id
       }
       queryFence(params).then((res) => {
         console.log(res)

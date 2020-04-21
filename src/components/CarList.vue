@@ -1,11 +1,11 @@
 <template>
   <div class="car-list">
     <el-input class="input" size="small" @keyup.enter.native="doSearch" v-model="search" @blur="doSearch" placeholder="请输入要查询车辆的车架号或定位器SN"></el-input>
-    <div class="header-area">
+    <!-- <div class="header-area">
       <template v-for="(area, index) in areas">
         <div :class="activeAreaIndex === index ? `menu active` : 'menu'" @click="changeArea(index)" :key="index">{{area}}</div>
       </template>
-    </div>
+    </div> -->
     <div class="header">
       <template v-for="(menu, index) in menus">
         <div :class="activeIndex === index ? `menu active` : 'menu'" @click="changeMenu(index)" :key="index">{{menu + ` (${renderedNum[index]})`}}</div>

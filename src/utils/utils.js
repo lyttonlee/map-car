@@ -78,7 +78,14 @@ export const mercatorTolnglat = (mercator = {
     lat
   }
 }
-
+/**
+ *
+ *
+ * @export
+ * @param {Array} checkPoint
+ * @param {Array} polygonPoints
+ * @returns bool
+ */
 export function isInPolygon (checkPoint, polygonPoints) {
   let counter = 0
   let i
