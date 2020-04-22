@@ -176,15 +176,14 @@ export default {
           }
         }
         // 判断是否在地图区域外
-        if (!isInPolygon([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], this.currentMapPoints) && currentMarker.isAddedToMap === true) {
+        if (!isInPolygon([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], this.currentMapPoints) && currentMarker.isAddedToMap === true) { // 不在地图区域内，但这辆车是显示状态 -》从地图上移除这辆车
           console.log('remove marker')
           currentMarker.remove()
           currentMarker.isAddedToMap = false
-        } else {
-          if (currentMarker.isAddedToMap === false) {
-            currentMarker.addTo(this.map)
-            currentMarker.isAddedToMap = true
-          }
+        } else if (currentMarker.isAddedToMap === false && isInPolygon([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], this.currentMapPoints)) { // 在地图区域而且这辆车是隐藏状态(事实上可以理解为从地图外开进来的车) -》显示这辆车
+          console.log('add marker')
+          currentMarker.addTo(this.map)
+          currentMarker.isAddedToMap = true
         }
         if (!newPos.content.existenceZone && currentMarker.isAddedToMap === true) {
           currentMarker.moveTo([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], 500, newPos.content.angle)
@@ -565,6 +564,26 @@ export default {
       ]
       return mapPoints
     },
+    // 缩放车的大小和方向
+    setCarScaleAndRotate (carMarker, scale, rotate) {
+      let icon = carMarker.getIcon()
+      let size = initCarSize.map((pixe) => {
+        return pixe * scale
+      })
+      let anchor = initCarSize.map((pixe) => {
+        return pixe * scale / 2
+      })
+      let newIcon = L.icon({
+        iconUrl: icon.options.iconUrl,
+        iconAnchor: anchor,
+        iconSize: size
+      })
+      console.log(newIcon)
+      carMarker.setIcon(newIcon)
+      carMarker.setRotation(rotate)
+      // m.setRotation(45)
+      // console.log(icon)
+    },
     // 改变显示的地图
     changeMap (id) {
       console.log(id)
@@ -596,6 +615,11 @@ export default {
         this.currentMapPoints = mapPoints
         if (currentMapInfo.id === this.mapInfo.id) {
           this.showingCars = this.bindCars
+          this.markers.forEach((item) => {
+            if (item.marker.isAddedToMap === true) {
+              this.setCarScaleAndRotate(item.marker, this.carScale, item.marker.angle)
+            }
+          })
         } else {
           this.showingCars = this.bindCars.filter((car) => {
             let point = [car.locator.y / this.pointScale, car.locator.x / this.pointScale]
@@ -608,6 +632,8 @@ export default {
               if (currentMarker.isAddedToMap === false) {
                 currentMarker.addTo(this.map)
                 currentMarker.isAddedToMap = true
+                // 改变车的大小和方向
+                this.setCarScaleAndRotate(currentMarker, currentMapInfo.carScale, currentMarker.angle)
               }
             }
             return inArea
