@@ -239,6 +239,11 @@ export default {
           this.$notify.success({
             message: desc
           })
+          this.pickMapInfo.name = ''
+          this.map.off('click')
+          this.pickedMapPoints = []
+          this.pickedMapPolygon.remove()
+          // this.getMapConfig()
         } else {
           this.$notify.error({
             message: desc

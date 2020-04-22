@@ -1,6 +1,7 @@
 <template>
   <div class="item-box">
-    <div :class="isLast ? 'border-end' : 'border'"></div>
+    <!-- <div :class="isLast ? 'border-end' : 'border'"></div> -->
+    <div :class="computeBoderCss()"></div>
     <div class="log">
       <div class="date">
         <div class="date-time">{{$moment(log.time).format('HH:mm')}}</div>
@@ -46,6 +47,9 @@ export default {
     },
     isLast: {
       default: false
+    },
+    uniqueItem: {
+      default: false
     }
   },
   data () {
@@ -56,6 +60,15 @@ export default {
     }
   },
   methods: {
+    computeBoderCss () {
+      if (this.uniqueItem && this.isLast) {
+        return 'border-unique'
+      } else if (this.isLast) {
+        return 'border-end'
+      } else {
+        return 'border'
+      }
+    },
     computeIcon (type) {
       let curType = type.toLowerCase()
       let icon = this.icons.find((item) => item.name === curType).icon
@@ -212,6 +225,9 @@ export default {
     border: 1px solid @info;
     height: 50%;
     top: 0;
+  }
+  .boder-unique {
+    border: none;
   }
 }
 

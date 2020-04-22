@@ -111,7 +111,7 @@ export default {
     TotalItem: () => import('../components/TotalItem'),
   },
   computed: {
-    ...mapState(['carScale', 'productLineId', 'pointScale']),
+    ...mapState(['carScale', 'productLineId', 'pointScale', 'initMapZoom']),
     ...mapGetters(['overtime']),
     percentData () {
       // console.log(this.bindCars)
@@ -892,9 +892,9 @@ export default {
       // eslint-disable-next-line no-undef
       const map = L.map('map-small', {
         center,
-        zoom: 8,
-        minZoom: 8,
-        maxZoom: 8,
+        zoom: this.initMapZoom,
+        minZoom: this.initMapZoom,
+        maxZoom: this.initMapZoom,
         zoomControl: false, // 默认不显示缩放按钮
         attributionControl: false // 不显示leaflet 图标logo
 

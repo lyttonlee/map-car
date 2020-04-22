@@ -13,7 +13,9 @@ import {
 } from './types'
 import router from '../router'
 import {
-  initPointScale
+  initPointScale,
+  initCarScale,
+  initMapZoom,
 } from '../config/config'
 import {
   // asyncRoutes,
@@ -56,10 +58,11 @@ export default new Vuex.Store({
     floorId: 1,
     alarmConfig: '',
     mapInfo: '',
-    carScale: 1.5,
+    carScale: initCarScale || 1,
     carNodes: '',
     pointScale: initPointScale,
     childMapInfos: [],
+    initMapZoom,
   },
   mutations: {
     [LOGOUT]: (state) => {
