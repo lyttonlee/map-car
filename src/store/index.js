@@ -10,6 +10,7 @@ import {
   MAPINFO,
   CARNODES,
   CHILDMAPINFO,
+  OFFICENAME,
 } from './types'
 import router from '../router'
 import {
@@ -56,13 +57,14 @@ export default new Vuex.Store({
     locatorStatus: '',
     productLineId: 1,
     floorId: 1,
-    alarmConfig: '',
+    alarmConfig: [],
     mapInfo: '',
     carScale: initCarScale || 1,
     carNodes: '',
     pointScale: initPointScale,
     childMapInfos: [],
     initMapZoom,
+    officeName: '' || localStorage.getItem('officeName'),
   },
   mutations: {
     [LOGOUT]: (state) => {
@@ -110,6 +112,9 @@ export default new Vuex.Store({
     [CHILDMAPINFO]: (state, childMap) => {
       state.childMapInfos = childMap
     },
+    [OFFICENAME]: (state, name) => {
+      state.officeName = name
+    },
   },
   actions: {
     // 获取用户角色枚举
@@ -143,7 +148,14 @@ export default new Vuex.Store({
             // console.log(router)
             commit(LOGIN, result)
             resolve(result)
-            router.push('/vq')
+            if (result.officeName) {
+              router.push('/workshop')
+              localStorage.setItem('officeName', result.officeName)
+              commit(OFFICENAME, result.officeName)
+            } else {
+              router.push('/vq')
+            }
+            // router.push('/vq')
           } else { // 登录失败
             Notification.error({
               message: desc
