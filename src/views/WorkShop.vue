@@ -1,11 +1,11 @@
 <template>
   <div class="page home">
-    <div id="map" class="page"></div>
+    <div id="map" class="map"></div>
+    <div class="list" v-if="showSide">
+      <CarList ref="carlist" @showCarInfo="showCarInfo" :repair="repairCars" :pending="pendingCars" />
+    </div>
     <div class="switch" @click="toggleShowSide">
       <zx-icon :type="showSide ? 'zx-guanbi1' : 'zx-Group-'" />
-    </div>
-    <div class="list" v-if="showSide">
-      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
     <div class="total">
@@ -25,7 +25,10 @@ import {
   initCarSize
 } from '../config/config'
 import {
-  getBindList,
+  getWorkShopCars,
+} from '../api/workshop'
+import {
+  // getBindList,
   queryCars,
   getSpecicalFence,
 } from '../api/vq'
@@ -38,8 +41,8 @@ import {
   isInPolygon
 } from '../utils/utils'
 // import RepairTrack from '../components/RepairTrack'
-import CarInfo from '@/components/CarInfo'
-import CarList from '@/components/CarList'
+import CarInfo from './WorkInfo'
+import CarList from './WorkList'
 // import SmallMap from '@/components/SmallMap'
 export default {
   name: 'home',
@@ -65,9 +68,9 @@ export default {
       divMarkers: [],
       currentMapPoints: '',
       currentMapInfo: '',
-      showGlobalMap: false,
-      carMapNum: new Map(),
-      showingCars: []
+      showingCars: [],
+      repairCars: [],
+      pendingCars: [],
     }
   },
   computed: {
@@ -453,24 +456,19 @@ export default {
     },
     // 获取绑定的车辆信息
     getBindCars (isInit) {
-      let params = {
-        productLineId: this.productLineId
-      }
-      getBindList(params).then((res) => {
+      getWorkShopCars().then((res) => {
         console.log(res)
         if (res.code === 0) {
-          this.bindCars = res.result
-          if (!isInit) {
-            console.log('fresh')
-            this.bindCars = [...this.bindCars]
-          }
-          if (this.bindCars.length > 0 && isInit === true) {
-            this.bindCars.forEach((car) => {
-              this.renderMarker(car)
-            })
-            this.showingCars = this.bindCars
-          }
-          this.carMapNum = this.computeAreaCarNums()
+          let { node, zone } = res.result
+          this.repairCars = node
+          this.pendingCars = zone
+          // this.bindCars = res.result
+          this.repairCars.forEach((car) => {
+            this.renderMarker(car)
+          })
+          this.pendingCars.forEach((car) => {
+            this.renderMarker(car)
+          })
         }
       })
     },
@@ -829,6 +827,12 @@ export default {
 @import '../assets/less/color.less';
 .home {
   position: relative;
+  display: flex;
+  padding: 0;
+  .map {
+    height: 100%;
+    width: 70%;
+  }
   .total {
     position: absolute;
     top: 30px;
@@ -856,10 +860,10 @@ export default {
     }
   }
   .list {
-    position: fixed;
-    width: 350px;
-    top: 0;
-    right: 0;
+    // position: fixed;
+    width: 30%;
+    // top: 0;
+    // right: 0;
     z-index: 1001;
     height: 100%;
     border-radius: 10px;
