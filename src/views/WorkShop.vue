@@ -8,6 +8,10 @@
       <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
+    <div class="total">
+      <div class="item">asdsa</div>
+      <div class="item">asdsa</div>
+    </div>
   </div>
 </template>
 
@@ -825,6 +829,23 @@ export default {
 @import '../assets/less/color.less';
 .home {
   position: relative;
+  .total {
+    position: absolute;
+    top: 30px;
+    display: flex;
+    width: 70%;
+    justify-content: space-around;
+    z-index: 2001;
+    .item {
+      width: 400px;
+      height: 100px;
+      line-height: 100px;
+      font-size: 3rem;
+      background: @base-background;
+      box-shadow: @shadow-base;
+      border-radius: 15px;
+    }
+  }
   .global-map {
     position: absolute;
     left: 25px;

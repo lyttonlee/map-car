@@ -1,11 +1,8 @@
 <template>
   <div class="page home">
-    <div id="map" class="page"></div>
-    <!-- <div class="search">
-      <el-input size="small" placeholder="请输入要查询的车辆"></el-input>
-    </div> -->
-    <div class="switch" @click="toggleShowSide">
-      <zx-icon :type="showSide ? 'zx-guanbi1' : 'zx-Group-'" />
+    <div id="map" class="map"></div>
+    <div class="chart">
+      <div id="total-chart"></div>
     </div>
     <div class="list" v-if="showSide">
       <!-- <h4>车辆列表可收缩</h4>
@@ -14,6 +11,9 @@
       <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
+    <div class="switch" @click="toggleShowSide">
+      <zx-icon :type="showSide ? 'zx-guanbi1' : 'zx-Group-'" />
+    </div>
     <SmallMap v-if="allMaps.length > 1" :activeId="activeMapId" :maps="allMaps" @changeShownMap="changeMap" :carMapNum="carMapNum" />
     <div class="global-map" v-show="showGlobalMap">
       <img :src="mapInfo.twoDFilePath" @click="changeMap(mapInfo.id)" alt="">
@@ -25,6 +25,7 @@
 <script>
 /* eslint-disable no-undef */
 // import imgMap from '../assets/img/office-map.png'
+import echart from 'echarts'
 import successCar from '../assets/img/car-blue.png'
 import errorCar from '../assets/img/car-red.png'
 import warnCar from '../assets/img/car-yellow.png'
@@ -74,7 +75,8 @@ export default {
       currentMapInfo: '',
       showGlobalMap: false,
       carMapNum: new Map(),
-      showingCars: []
+      showingCars: [],
+      names: ['正常', '告警'],
     }
   },
   computed: {
@@ -85,7 +87,7 @@ export default {
     },
     activeMapId () {
       return this.currentMapInfo.id
-    }
+    },
   },
   sockets: {
     connect (data) {
@@ -260,8 +262,92 @@ export default {
         return false
       }
     },
+    computeChartData () {
+      let data = this.names.map((name, index) => {
+        console.log(this.showingCars)
+        if (index === 0) {
+          return {
+            value: this.showingCars.filter((car) => car.vehicle.status === 0).length,
+            name
+          }
+        } else {
+          return {
+            value: this.showingCars.filter((car) => car.vehicle.status !== 0).length,
+            name
+          }
+        }
+      })
+      console.log(data)
+      return data
+    },
     toggleShowSide () {
       this.showSide = !this.showSide
+    },
+    renderChart () {
+      const pieChart = echart.init(document.getElementById('total-chart'))
+      pieChart.setOption({
+        color: ['#00d2ff', 'red', '#01d2eff', '#fcff00', '#6e7074', '#546570', '#c4ccd3'],
+        title: {
+          text: '车辆状态比例',
+          textStyle: {
+            color: '#fff'
+          },
+          // textAlign: 'center',
+          left: 'center',
+          top: 10,
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b}: {c} ({d}%)',
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985'
+            }
+          }
+        },
+        textStyle: {
+          color: '#fefefe'
+        },
+        legend: {
+          // type: 'scroll',
+          // orient: 'vertical',
+          left: 'center',
+          bottom: '5%',
+          data: this.names,
+          textStyle: {
+            color: '#fefefe'
+          }
+        },
+        grid: {
+          left: '0',
+          right: '6%',
+          bottom: '20%',
+          containLabel: true
+        },
+        series: [
+          {
+            name: '数量',
+            type: 'pie',
+            radius: ['20%', '25%'],
+            // center: ['20%', '50%'],
+            data: this.computeChartData(),
+            label: {
+              formatter: '{b}: {c} ({d}%)',
+            }
+          }
+        ],
+      })
+      this.pieChart = pieChart
+    },
+    setChart () {
+      this.pieChart && this.pieChart.setOption({
+        series: [
+          {
+            data: this.computeChartData(),
+          }
+        ],
+      })
     },
     showCarInfo (car) {
       // console.log(car)
@@ -385,7 +471,7 @@ export default {
     },
     // 渲染车辆点到地图上
     renderMarker (car) {
-      console.log(car)
+      // console.log(car)
       // let bindTime = car.vehicleDeliverStatus.bindTime
       // console.log(bindTime)
       // console.log(this.formatTime(bindTime))
@@ -478,12 +564,13 @@ export default {
             this.showingCars = this.bindCars
           }
           this.carMapNum = this.computeAreaCarNums()
+          this.renderChart()
         }
       })
     },
     // 改变地图上要显示的车
     changeShowingMarkers (carIds) {
-      console.log(carIds)
+      // console.log(carIds)
       // console.log(this.markers)
       // 循环marker
       const canRender = (carId) => {
@@ -514,11 +601,12 @@ export default {
         // debugger
         if (item.marker.isAddedToMap === true) {
           let carScale = this.currentMapInfo.carScale || this.carScale
-          console.log(carScale)
-          console.log(this.currentMapInfo)
+          // console.log(carScale)
+          // console.log(this.currentMapInfo)
           this.setCarScaleAndRotate(item.marker, carScale, item.marker.angle)
         }
       })
+      this.setChart()
     },
     // 改变特殊区域的数量
     changeSpecialAreaNum (name, isAdd) {
@@ -590,22 +678,22 @@ export default {
         iconAnchor: anchor,
         iconSize: size
       })
-      console.log(newIcon)
+      // console.log(newIcon)
       carMarker.setIcon(newIcon)
       carMarker.setRotation(rotate)
-      console.log(carMarker)
+      // console.log(carMarker)
       // m.setRotation(45)
       // console.log(icon)
     },
     // 改变显示的地图
     changeMap (id) {
-      console.log(id)
+      // console.log(id)
       this.map.setMinZoom(1)
       this.map.setMaxZoom(20)
       // 找到需要改变到的mapInfo
       let currentMapInfo = this.allMaps.find((map) => map.id === id)
       if (currentMapInfo) {
-        console.log(currentMapInfo)
+        // console.log(currentMapInfo)
         // 重新设置地图的缩放等级和中心点
         const centerx = currentMapInfo.coordinateDown / this.pointScale + currentMapInfo.coordinateUpper / this.pointScale
         const centery = currentMapInfo.coordinateLeft / this.pointScale + currentMapInfo.coordinateRight / this.pointScale
@@ -704,7 +792,7 @@ export default {
           // this.map.off
           this.map.on('dblclick', this.dbClickToChangeMap)
           this.showGlobalMap = false
-          console.log(this.map)
+          // console.log(this.map)
         } else if (newVal.parentId && this.map.listens('dblclick')) {
           this.map.off('dblclick', this.dbClickToChangeMap)
           this.showGlobalMap = true
@@ -813,6 +901,7 @@ export default {
       })
     })
     // this.getCarInfo()
+    // this.renderChart()
   },
   beforeDestroy () {
     this.carListTime && clearInterval(this.carListTime)
@@ -825,6 +914,25 @@ export default {
 @import '../assets/less/color.less';
 .home {
   position: relative;
+  // display: grid;
+  // grid-template-columns: auto 300px 350px;
+  display: flex;
+  padding: 0;
+  .map {
+    height: 100vh;
+    width: 55%;
+  }
+  .chart {
+    width: 20%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    #total-chart {
+      width: 100%;
+      height: 40vh;
+    }
+  }
   .global-map {
     position: absolute;
     left: 25px;
@@ -835,8 +943,8 @@ export default {
     }
   }
   .list {
-    position: fixed;
-    width: 350px;
+    // position: absolute;
+    width: 25%;
     top: 0;
     right: 0;
     z-index: 1001;

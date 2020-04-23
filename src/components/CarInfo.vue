@@ -5,6 +5,9 @@
     </div>
     <div class="car-info">
       <div class="section">
+        <div class="all-time">
+          总时长: {{ car.bindTime ? $moment(car.bindTime).toNow(true) : '未知'}}
+        </div>
         <div class="item">车架号码: {{car.vehicleIdentification}}</div>
         <div class="item">定 位 器: {{car.locatorSn}}<span><zx-icon customClass="icon-power" :type="computePowerIcon(car.power)"></zx-icon>{{car.power + '%'}}</span></div>
         <div class="item">当前状态: {{computedCarStatu(car.status, car.bindTime)}}<span><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('超时')" type="zx-chaoshigaojing1"></zx-icon><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('告警')" type="zx-alarm"></zx-icon></span></div>
@@ -13,22 +16,30 @@
             <zx-icon :class="car[icon.name] ? 'success' : ''" :type="icon.icon"></zx-icon>
           </span>
           </template></div>
+      </div>
+      <div class="tab">
+        <template v-for="(menu, index) in menus">
+          <div :class="activeIndex === index ? `menu active` : 'menu'" @click="changeMenu(index)" :key="index">{{menu.name}}</div>
+        </template>
+      </div>
+      <div v-if="activeIndex === 1" class="section">
         <div class="item">当前环节: {{computedCarNode(car.node) + ' -- ' + $moment(car.startTime).toNow(true)}}</div>
         <div class="item">当前位置: {{address}}</div>
         <div class="item">入荷时间: {{car.bindTime ? $moment(car.bindTime).format('YYYY-MM-DD HH:mm:ss') : '未知'}}</div>
-      </div>
-      <div class="section">
         <div class="item">车辆型号: {{car.vehicleType}}</div>
         <div class="item">车辆颜色: {{car.vehicleOutSideColor}}</div>
         <div class="item">发动机号: {{car.vehicleEngineType}}</div>
         <div class="item">变 速 箱: {{car.vehicleGearBox}}</div>
-      </div>
-      <div class="section">
         <div class="item">车辆问题: {{car.flawDetail}}</div>
-        <div class="action" @click="showDetail">返修详情</div>
+        <!-- <div class="action" @click="showDetail">返修详情</div> -->
+      </div>
+      <div v-if="activeIndex === 0" class="section">
+        <template v-for="(log, index) in car.filterLog">
+          <Log :key="index" :uniqueItem="car.filterLog.length === 1" :isLast="index === car.filterLog.length - 1" :log="log" />
+        </template>
       </div>
     </div>
-    <div v-if="showProcess" class="process">
+    <!-- <div v-if="showProcess" class="process">
       <div @click="closeProcess" class="close">
         <zx-icon type="zx-guanbi" />
       </div>
@@ -38,7 +49,7 @@
       <template v-for="(log, index) in car.filterLog">
         <Log :key="index" :uniqueItem="car.filterLog.length === 1" :isLast="index === car.filterLog.length - 1" :log="log" />
       </template>
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
@@ -69,7 +80,9 @@ export default {
       currentTime: '',
       activities: [],
       showProcess: true,
-      icons: [{ name: 'pa', icon: 'zx-PA' }, { name: 'we', icon: 'zx-WE' }, { name: 'af', icon: 'zx-AF' }, { name: 'pq', icon: 'zx-PQ' }]
+      icons: [{ name: 'pa', icon: 'zx-PA' }, { name: 'we', icon: 'zx-WE' }, { name: 'af', icon: 'zx-AF' }, { name: 'pq', icon: 'zx-PQ' }],
+      menus: [{ name: '维修过程', value: 'process' }, { name: '车辆详情', value: 'info' }],
+      activeIndex: 0,
     }
   },
   computed: {
@@ -131,6 +144,10 @@ export default {
     },
     clearAddress () {
       this.address = ''
+    },
+    changeMenu (index) {
+      console.log(index)
+      this.activeIndex = index
     }
   },
   watch: {
@@ -157,23 +174,44 @@ export default {
 <style lang="less" scoped>
 @import '../assets/less/color.less';
 .info {
-  width: 350px;
-  height: 85vh;
+  width: 300px;
+  height: 100vh;
   border-radius: 10px;
   background: @base-background-opacity;
   // box-shadow: @shadow-base;
   padding: 10px 5px;
   z-index: 1001;
   position: fixed;
-  right: 370px;
-  top: 20px;
+  right: 23%;
+  top: 0;
   font-size: .9rem;
   .car-info {
     margin: 10px;
     text-align: left;
+    .tab {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      font-weight: bold;
+      .menu {
+        cursor: pointer;
+        padding: 5px 0;
+        border-bottom: .5px solid #fff;
+      }
+      .active {
+        border-bottom: 2px solid @primary-color;
+        color: @primary-color;
+      }
+    }
     .section:not(:last-child) {
       padding-bottom: 10px;
-      border-bottom: 2px solid #fff;
+      // border-bottom: 2px solid #fff;
+      .all-time {
+        // padding-left: 20px;
+        text-align: left;
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: @primary-color;
+      }
       .item {
         // margin: 12px 0 6px 0;
         padding: 5px 0 0 0;

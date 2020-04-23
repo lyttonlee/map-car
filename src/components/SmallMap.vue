@@ -47,13 +47,14 @@ export default {
   // background: @base-background-opacity;
   border-radius: 10px;
   overflow-y: auto;
+  z-index: 2500;
   .list {
     margin: 10px 0;
     .item {
       margin-top: 10px;
       padding: 10px;
       border-radius: 5px;
-      // background: @base-background-opacity;
+      background: @page-background;
       border: .5px solid #222;
       box-sizing: border-box;
       // box-shadow: @shadow-base;
