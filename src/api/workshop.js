@@ -15,9 +15,13 @@ export const confirmWorkShopCar = (param) => {
 /**
  *
  *
- * @param {Object} param {vhicleId: number}
+ * @param {Object} param {vhicleId: number, note: string}
  * @returns Promise
  */
 export const finishWorkShopCar = (param) => {
   return request.post('/api/vehicle/v1.0/office/finish', param)
+}
+
+export const officeStatistic = () => {
+  return request.get('/api/vehicle/v1.0/office/statistic')
 }

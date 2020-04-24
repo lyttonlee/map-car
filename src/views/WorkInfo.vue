@@ -29,7 +29,7 @@
         <!-- <div class="action" @click="showDetail">返修详情</div> -->
       </div>
       <div class="section">
-        <el-button round type="primary">jieshu</el-button>
+        <el-button @click="handleClick(type, car.vehicleId)" round type="primary">{{type === 'repair' ? '结束维修' : '开始维修'}}</el-button>
       </div>
     </div>
   </div>
@@ -39,6 +39,10 @@ import moment from 'moment'
 import {
   queryLocatorAddress
 } from '../api/common'
+import {
+  confirmWorkShopCar,
+  finishWorkShopCar,
+} from '../api/workshop'
 import {
   computedCarNode,
   computePowerIcon
@@ -54,6 +58,9 @@ export default {
     car: {
       required: true,
       type: Object
+    },
+    type: {
+      default: 'repair'
     }
   },
   data () {
@@ -73,6 +80,55 @@ export default {
   methods: {
     computedCarNode,
     computePowerIcon,
+    handleClick (type, id) {
+      console.log(type, id)
+      if (type === 'pending') { // 开始维修
+        this.$confirm('是否开始维修', '请确认').then(() => {
+          // 提交
+          let param = id
+          confirmWorkShopCar(param).then((res) => {
+            let { code, desc } = res
+            if (code === 0) {
+              this.$notify.success({
+                message: desc
+              })
+              this.$emit('refreshList')
+              this.closeInfo()
+            } else {
+              this.$notify.error({
+                message: desc
+              })
+            }
+          })
+        })
+      } else if (type === 'repair') { // 结束维修
+        this.$prompt('请输入备注信息', '提示', {
+          confirmButtonText: '结束维修',
+          cancelButtonText: '取消',
+          // inputPattern: /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
+          // inputErrorMessage: '邮箱格式不正确'
+        }).then(({ value }) => {
+          let param = {
+            vehicleId: id,
+            note: value || ''
+          }
+          finishWorkShopCar(param).then((res) => {
+            let { code, desc } = res
+            if (code === 0) {
+              this.$notify.success({
+                message: desc
+              })
+              this.$emit('refreshList')
+              this.closeInfo()
+            } else {
+              this.$notify.error({
+                message: desc
+              })
+            }
+          })
+        })
+      }
+    },
     showDetail () {
       this.showProcess = !this.showProcess
     },

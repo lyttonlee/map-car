@@ -5,18 +5,18 @@
     <div class="list">
       <div class="list-item">
         <div class="car-oui">车架号</div>
-        <div class="car-oui">位置</div>
+        <!-- <div class="car-oui">位置</div> -->
         <div class="car-oui">当前环节</div>
         <div class="car-time">维修时长</div>
         <div class="car-oui">操作</div>
       </div>
       <template v-for="(car, index) in repair">
-        <div :class="listActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index)" :key="index">
+        <div :class="listActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index, 'repair')" :key="index">
           <div class="car-oui">{{car.vehicle.identification}}</div>
-          <div>{{car.locator.address}}</div>
+          <!-- <div>{{car.locator.address}}</div> -->
           <div>{{computedCarNode(car.vehicleDeliverStatus.node)}}</div>
           <div :class="formatTime(car.vehicleDeliverStatus.startTime) * 1 >= overtime * 1 ? 'warn' : 'success'">{{formatTime(car.vehicleDeliverStatus.startTime)}}小时</div>
-          <div @click="showCarInfo(car, index)" class="action">结束</div>
+          <div class="action">结束</div>
         </div>
       </template>
     </div>
@@ -24,18 +24,18 @@
     <div class="list-pending">
       <div class="list-item">
         <div class="car-oui">车架号</div>
-        <div class="car-oui">位置</div>
+        <!-- <div class="car-oui">位置</div> -->
         <div class="car-oui">当前环节</div>
         <div class="car-time">维修时长</div>
         <div class="car-oui">操作</div>
       </div>
       <template v-for="(car, index) in pending">
-        <div :class="listActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index)" :key="index">
+        <div :class="pendingActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index, 'pending')" :key="index">
           <div class="car-oui">{{car.vehicle.identification}}</div>
-          <div>{{car.locator.address}}</div>
+          <!-- <div>{{car.locator.address}}</div> -->
           <div>{{computedCarNode(car.vehicleDeliverStatus.node)}}</div>
           <div>{{'---'}}</div>
-          <div @click="showCarInfo(car, index)" class="action">开始</div>
+          <div class="action">开始</div>
         </div>
       </template>
     </div>
@@ -65,7 +65,8 @@ export default {
   },
   data () {
     return {
-      listActiveIndex: ''
+      listActiveIndex: '',
+      pendingActiveIndex: ''
     }
   },
   computed: {
@@ -73,8 +74,8 @@ export default {
   },
   created () {
     // this.initCars()
-    console.log(this.repair)
-    console.log(this.getCurrentAddressByLocatorId(526))
+    // console.log(this.repair)
+    // console.log(this.getCurrentAddressByLocatorId(526))
   },
   methods: {
     computedCarNode,
@@ -108,13 +109,23 @@ export default {
       return iconClass
     },
     // 点击车辆显示详情
-    showCarInfo (car, index) {
-      this.$emit('showCarInfo', car)
-      this.listActiveIndex = index
+    showCarInfo (car, index, type) {
+      let info = {
+        car,
+        type
+      }
+      this.$emit('showCarInfo', info)
+      if (type === 'repair') {
+        this.listActiveIndex = index
+        this.pendingActiveIndex = ''
+      } else {
+        this.pendingActiveIndex = index
+        this.listActiveIndex = ''
+      }
     },
     // 查询定位器的实时位置
     getCurrentAddressByLocatorId (locatorId) {
-      // console.log(this.car)
+      console.log(this.car)
       let params = {
         locatorId
       }
@@ -139,6 +150,7 @@ export default {
             car.locator.address = address
           }
         })
+        console.log(this.repair)
       })
     },
     clearListActive () {
@@ -173,7 +185,7 @@ export default {
       padding-top: 10px;
       border-bottom: .5px solid rgba(251, 252, 250, 0.473);
       display: grid;
-      grid-template-columns: 30% 20% 20% 20% 10%;
+      grid-template-columns: 40% 20% 25% 10%;
       &:hover {
         background: @page-background;
         border-bottom: .5px solid rgba(251, 252, 250, 0.699);
@@ -197,7 +209,7 @@ export default {
       padding-top: 10px;
       border-bottom: .5px solid rgba(251, 252, 250, 0.473);
       display: grid;
-      grid-template-columns: 30% 20% 20% 20% 10%;
+      grid-template-columns:  40% 20% 25% 10%;
       &:hover {
         background: @page-background;
         border-bottom: .5px solid rgba(251, 252, 250, 0.699);

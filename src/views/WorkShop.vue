@@ -7,10 +7,26 @@
     <div class="switch" @click="toggleShowSide">
       <zx-icon :type="showSide ? 'zx-guanbi1' : 'zx-Group-'" />
     </div>
-    <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
+    <CarInfo :car="showingCar" :type="showingCarType" @close="closeInfo" @refreshList="refreshList" v-if="isShowing" />
     <div class="total">
-      <div class="item">asdsa</div>
-      <div class="item">asdsa</div>
+      <div class="item">
+        <div class="key">
+          <zx-icon type="zx-xiuli"></zx-icon>
+          <span>今日已修</span>
+        </div>
+        <div class="value">
+          <CountTo :to="repairedCarsNum" uid="today-repaired" className="value" />
+        </div>
+      </div>
+      <div class="item">
+        <div class="key">
+          <zx-icon type="zx-zhouqi"></zx-icon>
+          <span>平均耗时</span>
+        </div>
+        <div class="value">
+          <CountTo :to="averageTime" suffix="h" :decimalPlaces="2" uid="today-average-time" className="value" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -26,6 +42,7 @@ import {
 } from '../config/config'
 import {
   getWorkShopCars,
+  officeStatistic,
 } from '../api/workshop'
 import {
   // getBindList,
@@ -53,6 +70,7 @@ export default {
     CarList,
     CarInfo,
     // SmallMap,
+    CountTo: () => import('../components/CountTo'),
   },
   data () {
     return {
@@ -71,6 +89,9 @@ export default {
       showingCars: [],
       repairCars: [],
       pendingCars: [],
+      showingCarType: '',
+      repairedCarsNum: 0,
+      averageTime: 0,
     }
   },
   computed: {
@@ -240,6 +261,29 @@ export default {
       }
       console.log(this.markers)
       console.log(this.bindCars)
+    },
+    officeIn (data) {
+      const officeInCar = JSON.parse(data)
+      // console.log(officeInCar)
+      let { bindModel: car, officeName } = officeInCar.content
+      if (officeName === this.officeName) {
+        // console.log(car)
+        this.renderMarker(car)
+      }
+    },
+    officeOut (data) {
+      const officeOutCar = JSON.parse(data)
+      // console.log(officeOutCar)
+      let { bindModel: car, officeName } = officeOutCar.content
+      if (officeName === this.officeName) {
+        // console.log(car)
+        // this.renderMarker(car)
+        let item = this.markers.find((item) => item.id === car.vehicle.id)
+        if (item) {
+          item.marker.remove()
+          item.marker.isAddedToMap = false
+        }
+      }
     }
   },
   methods: {
@@ -259,8 +303,25 @@ export default {
     toggleShowSide () {
       this.showSide = !this.showSide
     },
-    showCarInfo (car) {
+    getWorkShopStatistic () {
+      officeStatistic().then((res) => {
+        // console.log(res)
+        let { code, result } = res
+        if (code === 0) {
+          this.repairedCarsNum = result.count
+          // console.log(result.totalTime)
+          let hours = result.totalTime / 1000 / 60 / 60
+          // console.log(hours)
+          this.averageTime = hours / this.repairedCarsNum
+        }
+      })
+    },
+    refreshList () {
+      this.getBindCars()
+    },
+    showCarInfo (info) {
       // console.log(car)
+      let { car, type } = info
       let oui = car.vehicle.id
       // 查询这两车的信息
       let param = {
@@ -273,6 +334,7 @@ export default {
         let { code, desc, result } = res
         if (code === 0) {
           this.showingCar = result.resultList[0]
+          this.showingCarType = type
           this.hignlightMarker(oui, this.showingCar)
           if (this.isShowing === false) {
             this.isShowing = true
@@ -457,18 +519,20 @@ export default {
     // 获取绑定的车辆信息
     getBindCars (isInit) {
       getWorkShopCars().then((res) => {
-        console.log(res)
+        // console.log(res)
         if (res.code === 0) {
           let { node, zone } = res.result
           this.repairCars = node
           this.pendingCars = zone
           // this.bindCars = res.result
-          this.repairCars.forEach((car) => {
-            this.renderMarker(car)
-          })
-          this.pendingCars.forEach((car) => {
-            this.renderMarker(car)
-          })
+          if (isInit) {
+            this.repairCars.forEach((car) => {
+              this.renderMarker(car)
+            })
+            this.pendingCars.forEach((car) => {
+              this.renderMarker(car)
+            })
+          }
         }
       })
     },
@@ -772,7 +836,7 @@ export default {
         let { code, result } = res
         if (code === 0) {
           this.getBindCars(true)
-          this.carListTime = setInterval(this.getBindCars, 30000)
+          this.carListTime = setInterval(this.getBindCars, 10000)
           // console.log(result)
           let specalAreas = result.map((area) => {
             let points = area.points.split(';').map((item) => {
@@ -815,10 +879,14 @@ export default {
       })
     })
     // this.getCarInfo()
+    this.getWorkShopStatistic()
+    this.statisticTime = setInterval(this.getWorkShopStatistic, 5000)
   },
   beforeDestroy () {
     this.carListTime && clearInterval(this.carListTime)
     this.carListTime = null
+    this.statisticTime && clearInterval(this.statisticTime)
+    this.statisticTime = null
   }
 }
 </script>
@@ -844,10 +912,18 @@ export default {
       width: 400px;
       height: 100px;
       line-height: 100px;
-      font-size: 3rem;
+      font-size: 2rem;
       background: @base-background;
       box-shadow: @shadow-base;
       border-radius: 15px;
+      display: flex;
+      // align-items: center;
+      justify-content: center;
+      .value {
+        margin-left: 20px;
+        font-size: 3rem;
+        color: @primary-color;
+      }
     }
   }
   .global-map {
