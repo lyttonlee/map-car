@@ -291,8 +291,10 @@ export default {
 <style lang="less" scoped>
 @import '../../../assets/less/color.less';
 .page {
+  overflow-y: auto;
+  max-height: 90vh;
   .head {
-    margin: 20px 0;
+    // margin: 20px 0;
     text-align: left;
   }
   .list {

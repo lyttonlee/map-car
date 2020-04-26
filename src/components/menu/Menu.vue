@@ -35,6 +35,8 @@ export default {
   border-radius: 10px;
   height: 50px;
   box-sizing: border-box;
+  // z-index: 10;
+  margin-bottom: 10px;
   .menu {
     padding: 10px 20px;
     display: inline-block;
