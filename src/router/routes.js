@@ -162,16 +162,16 @@ export const routes = [
               role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA']
             }
           },
-          // {
-          //   path: '/system/option',
-          //   name: '系统设置',
-          //   component: () => import(/* webpackChunkName: "system" */ '../views/system/option/Option.vue'),
-          //   meta: {
-          //     auth: true,
-          //     icon: 'zx-tongji1',
-          //     role: ['SuperAdmin', 'VQ', 'PC']
-          //   }
-          // },
+          {
+            path: '/system/option',
+            name: '系统设置',
+            component: () => import(/* webpackChunkName: "system" */ '../views/system/option/Option.vue'),
+            meta: {
+              auth: true,
+              icon: 'zx-xitongguanli-',
+              role: ['SuperAdmin', 'VQ', 'PC']
+            }
+          },
         ]
       },
       {
