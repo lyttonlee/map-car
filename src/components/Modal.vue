@@ -6,7 +6,7 @@
       </div>
       <div class="footer">
         <slot name="ok">
-          <el-button type="primary" size="mini" round @click="ok">确定</el-button>
+          <el-button :loading="isLoading" type="primary" size="mini" round @click="ok">确定</el-button>
         </slot>
         <el-button type="info" size="mini" round @click="quit">退出</el-button>
       </div>
@@ -21,12 +21,19 @@ export default {
       default: '50%'
     }
   },
+  data () {
+    return {
+      isLoading: false
+    }
+  },
   methods: {
     quit () {
+      this.isLoading = false
       this.$emit('quit')
     },
     ok () {
       console.log('ok')
+      this.isLoading = true
       this.$emit('ok')
     }
   }
