@@ -59,7 +59,7 @@ export default {
         center,
         zoom: 9,
         minZoom: 9,
-        maxZoom: 9,
+        maxZoom: 20,
         zoomControl: false, // 默认不显示缩放按钮
         attributionControl: false // 不显示leaflet 图标logo
 
@@ -76,7 +76,7 @@ export default {
       let icon = L.icon({
         iconUrl: station.online ? normalStation : alarmStation,
         // iconSize: [30, 20]
-        iconAnchor: [0, 30]
+        iconAnchor: [13.5, 14]
       })
       let stationMarker = L.marker([station.y / this.pointScale, station.x / this.pointScale], {
         icon,
