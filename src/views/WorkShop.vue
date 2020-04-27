@@ -154,11 +154,11 @@ export default {
       }
     },
     position (data) {
-      // console.log('接收到position事件推送')
+      console.log('接收到position事件推送')
       // console.log(data)
       // console.log(this.bindCars)
       const newPos = JSON.parse(data)
-      // console.log(newPos)
+      console.log(newPos)
       // 找到对应的marker
       let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
       // 移动位置
@@ -166,8 +166,10 @@ export default {
         let currentMarker = this.markers[markerIndex].marker
         // console.log(this.bindCars)
         let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.locatorId === newPos.content.id)
-        this.bindCars[currentCarIndex].locator.x = newPos.content.x
-        this.bindCars[currentCarIndex].locator.y = newPos.content.y
+        if (currentCarIndex !== -1) {
+          this.bindCars[currentCarIndex].locator.x = newPos.content.x
+          this.bindCars[currentCarIndex].locator.y = newPos.content.y
+        }
         // console.log(this.bindCars[currentCarIndex])
         // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
         // console.log(newPos.content.angle)
@@ -202,7 +204,9 @@ export default {
           currentMarker.addTo(this.map)
           currentMarker.isAddedToMap = true
         }
+        // console.log(currentMarker)
         if (!newPos.content.existenceZone && currentMarker.isAddedToMap === true) {
+          console.log('move marker')
           currentMarker.moveTo([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], 500, newPos.content.angle)
         }
         currentMarker.angle = newPos.content.angle
@@ -263,17 +267,19 @@ export default {
       console.log(this.bindCars)
     },
     officeIn (data) {
+      console.log('接收到officeIn事件')
       const officeInCar = JSON.parse(data)
       // console.log(officeInCar)
       let { bindModel: car, officeName } = officeInCar.content
       if (officeName === this.officeName) {
         // console.log(car)
         this.renderMarker(car)
+        this.refreshList()
       }
     },
     officeOut (data) {
       const officeOutCar = JSON.parse(data)
-      // console.log(officeOutCar)
+      console.log(`officeOut 事件`)
       let { bindModel: car, officeName } = officeOutCar.content
       if (officeName === this.officeName) {
         // console.log(car)
@@ -282,6 +288,7 @@ export default {
         if (item) {
           item.marker.remove()
           item.marker.isAddedToMap = false
+          this.refreshList()
         }
       }
     }
@@ -420,10 +427,11 @@ export default {
       }
       // eslint-disable-next-line no-undef
       // console.log(carImg)
+      console.log()
       const icon = L.icon({
         iconUrl: carImg,
-        iconAnchor: [initCarSize[0] * this.carScale / 2, initCarSize[1] * this.carScale / 2],
-        iconSize: [initCarSize[0] * this.carScale, initCarSize[1] * this.carScale]
+        iconAnchor: [initCarSize[0] * this.currentMapInfo.carScale / 2, initCarSize[1] * this.currentMapInfo.carScale / 2],
+        iconSize: [initCarSize[0] * this.currentMapInfo.carScale, initCarSize[1] * this.currentMapInfo.carScale]
       })
       return icon
     },
@@ -477,6 +485,7 @@ export default {
         this.changeSpecialAreaNum(car.locator.existenceZone, true)
       } else {
         marker.inSpecialArea = false
+        marker.isAddedToMap = true
         this.map && marker.addTo(this.map)
       }
       this.markers.push({
@@ -520,6 +529,7 @@ export default {
     getBindCars (isInit) {
       getWorkShopCars().then((res) => {
         // console.log(res)
+        console.log('获取bind数据')
         if (res.code === 0) {
           let { node, zone } = res.result
           this.repairCars = node

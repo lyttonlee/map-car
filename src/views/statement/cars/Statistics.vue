@@ -16,7 +16,7 @@
           <el-radio-button :key="item.date" :label="item.date" >{{item.name}}</el-radio-button>
         </template>
       </el-radio-group>
-      <el-button class="btn" round type="primary" size="small">导出</el-button>
+      <el-button @click="downloadFile" class="btn" round type="primary" size="small">导出</el-button>
     </div>
     <div class="body">
       <div class="total-chart">
@@ -38,6 +38,7 @@
 import {
   getStatistic,
   getTimesDuration,
+  downLoadReport
 } from '../../../api/statistic'
 import echarts from 'echarts'
 export default {
@@ -116,16 +117,17 @@ export default {
   },
   methods: {
     changeDate (ev) {
-      console.log(ev)
+      // console.log(ev)
       this.end = this.$moment().subtract('days', 1).startOf('day').valueOf()
       this.start = this.$moment().subtract('days', ev).startOf('day').valueOf()
-      console.log(this.$moment(this.end).format('YYYY-MM-DD HH:mm:ss'))
-      console.log(this.$moment(this.start).format('YYYY-MM-DD HH:mm:ss'))
-      console.log(this.end > this.maxTime)
+      // console.log(this.$moment(this.end).format('YYYY-MM-DD HH:mm:ss'))
+      // console.log(this.$moment(this.start).format('YYYY-MM-DD HH:mm:ss'))
+      // console.log(this.end > this.maxTime)
+      this.selectDates = []
       this.queryPageData()
     },
     selectDateChange (ev) {
-      console.log(ev)
+      // console.log(ev)
       this.dates2 = ''
       let [start, end] = ev
       this.start = start.valueOf()
@@ -138,7 +140,7 @@ export default {
         end: this.end
       }
       getStatistic(params).then((res) => {
-        console.log(res)
+        // console.log(res)
         let { code, result, desc } = res
         if (code === 0) {
           let { average, outNum, inNum, four, eight, other, days } = result
@@ -187,7 +189,7 @@ export default {
             ]
           })
           // line-charts
-          console.log(days)
+          // console.log(days)
           this.dates = []
           let storeSeries = []
           let broadSeries = []
@@ -478,7 +480,32 @@ export default {
         this.broadChart.resize()
         this.storeChart.resize()
       })
-    }
+    },
+    // 下载报表
+    downloadFile () {
+      let params = {
+        start: this.start,
+        end: this.end
+      }
+      downLoadReport(params).then((res) => {
+        console.log(res)
+        // let blob = new Blob([res], {
+        //   type: 'application/vnd.ms-excel'
+        // })
+        let reader = new FileReader()
+        reader.readAsDataURL(res)
+        // reader.readAsArrayBuffer(blob)
+        reader.onloadend = (ev) => {
+          console.log(ev)
+          let a = document.createElement('a')
+          a.href = ev.target.result
+          a.download = `${this.$moment(this.start).format('YYYY-MM-DD')} -- ${this.$moment(this.end).format('YYYY-MM-DD')}.xls`
+          a.click()
+          a.remove()
+          a = null
+        }
+      })
+    },
   },
   created () {
     getTimesDuration().then((res) => {

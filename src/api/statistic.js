@@ -9,5 +9,5 @@ export const getStatistic = (params) => {
 }
 
 export const downLoadReport = (params) => {
-  return request.get('/api/statistic/v1.0/statistic/excel', { params })
+  return request.get('/api/statistic/v1.0/statistic/excel', { params, responseType: 'blob' })
 }
