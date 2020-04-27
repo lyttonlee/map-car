@@ -151,8 +151,12 @@ export default {
         let currentMarker = this.markers[markerIndex].marker
         // console.log(this.bindCars)
         let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.locatorId === newPos.content.id)
-        this.bindCars[currentCarIndex].locator.x = newPos.content.x
-        this.bindCars[currentCarIndex].locator.y = newPos.content.y
+        // console.log(currentCarIndex)
+        // 如果bindCars 有这两车就更新这辆车的位置信息
+        if (currentCarIndex !== -1) {
+          this.bindCars[currentCarIndex].locator.x = newPos.content.x
+          this.bindCars[currentCarIndex].locator.y = newPos.content.y
+        }
         // console.log(this.bindCars[currentCarIndex])
         // currentMarker.setLatLng([newPos.content.y, newPos.content.x])
         // console.log(newPos.content.angle)
@@ -201,8 +205,11 @@ export default {
       // 验证这辆车是否已存在与列表中，若存在则无视，若不存在则在车辆列表中添加这辆车并创建一个新的marker
       const carId = newCar.vehicle.id
       let hasThisCar = this.bindCars.find((car) => car.vehicle.id === carId)
+      // console.log(hasThisCar)
       if (!hasThisCar) {
+        console.log('add car')
         this.bindCars.push(newCar)
+        this.showingCars.push(newCar)
         this.renderMarker(newCar)
         this.carMapNum = this.computeAreaCarNums()
       }
@@ -213,20 +220,22 @@ export default {
       // console.log(removeCar)
       // 找到是否有这辆车
       let carIndex = this.bindCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
+      let shownCarIndex = this.showingCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
       // 移除数据
-      if (carIndex !== -1) { // 存在这辆车
+      if (carIndex !== -1 && shownCarIndex !== -1) { // 存在这辆车
         this.bindCars.splice(carIndex, 1)
+        this.showingCars.splice(shownCarIndex, 1)
         // 找出这个marker
         // 找到对应的marker
         this.carMapNum = this.computeAreaCarNums()
         let markerIndex = this.markers.findIndex((item) => item.id === removeCar.vehicle.id)
         if (markerIndex !== -1) {
           let currentMarker = this.markers[markerIndex].marker
-          console.log(currentMarker)
+          // console.log(currentMarker)
           // 删除marker
           currentMarker.remove()
           this.markers.splice(markerIndex, 1)
-          console.log(this.markers)
+          // console.log(this.markers)
         }
       }
     },
