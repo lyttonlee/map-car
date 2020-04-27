@@ -34,7 +34,7 @@
         <el-button @click="transAddress">Test Address</el-button>
         <el-button @click="drawCarport">Add Car Port</el-button>
         <input type="file" @change="upload">
-        <el-button @click="drawTwoPoints">点2个点画出矩形</el-button>
+        <el-button @click="drawTwoPoints">通过矩形删除围栏</el-button>
         <el-input placeholder="缩放marker 就是车" v-model="carScale" @change="changeCarScale"></el-input>
         <el-input placeholder="旋转marker 就是车" v-model="carRotate" @change="changeCarRotate"></el-input>
         <el-button type="info" @click="quitDraw">重置</el-button>
@@ -120,7 +120,7 @@ export default {
       isCreating: false, // 是否正在创建围栏
       fenceLayers: [], // 地图围栏图形集合
       fenceType: 3,
-      colors: ['#67C23A', '#E6A23C', '#F56C6C', '#909399'],
+      colors: ['#67C23A', '#E6A23C', '#F56C6C', '#369899'],
       angle: 0,
       isCreateCarport: false,
       xOffset: '',
@@ -208,7 +208,10 @@ export default {
     // 删除小地图
     deleteMap (map) {
       let id = map.id
-      deleteSmallMap(id).then((res) => {
+      let params = {
+        id
+      }
+      deleteSmallMap(params).then((res) => {
         console.log(res)
         let { code, desc } = res
         if (code === 0) {
@@ -303,7 +306,7 @@ export default {
         let [x, y] = point.split('_')
         return [y / this.pointScale, x / this.pointScale]
       })
-      // console.log(formatPoints)
+      console.log(formatPoints)
       const polygon = L.polygon(formatPoints, { color: this.colors[fence.type] })
       // 围栏区域添加文字
       // polygon.bindPopup(fence.name)

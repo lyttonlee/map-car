@@ -11,7 +11,7 @@
       <div class="main">
         <CountTo :className="'font ' + computeStoreClass(info.index, info.today, info.yesterday)" :to="info.today" :uid="id" :decimalPlaces="computedPlace()" :suffix="computedSuffix(info.index)"  />
       </div>
-      <div class="history">
+      <div v-if="showSub" class="history">
         <div>昨日: {{type === 'broad' ? info.yesterday.toFixed(2) : info.yesterday}}</div>
         <div>七日: {{type === 'broad' ? info.average.toFixed(2) : info.average}}</div>
       </div>
@@ -36,6 +36,9 @@ export default {
     },
     type: {
       default: 'store'
+    },
+    showSub: {
+      default: true
     }
   },
   methods: {
