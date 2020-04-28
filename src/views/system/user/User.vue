@@ -63,7 +63,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="后操作时间">
+        <el-table-column label="最后操作时间">
           <template slot-scope="scope">
             <div v-if="!isOnline(scope.row.lastOnlineTime)" >
               <span>{{scope.row.lastOnlineTime ? $moment(scope.row.lastOnlineTime).format('YYYY-MM-DD HH:mm:ss') : '无记录'}}</span>
@@ -159,7 +159,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="后操作时间">
+        <el-table-column label="最后操作时间">
           <template slot-scope="scope">
             <div v-if="!isOnline(scope.row.lastOnlineTime)" >
               <span>{{scope.row.lastOnlineTime ? $moment(scope.row.lastOnlineTime).format('YYYY-MM-DD HH:mm:ss') : '无记录'}}</span>

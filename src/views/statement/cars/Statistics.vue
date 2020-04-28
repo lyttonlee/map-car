@@ -78,7 +78,7 @@ export default {
           type: 'store'
         },
       ],
-      pieLegend: ['4小时出荷率', '8小时出荷率', '大于8小时出荷率'],
+      pieLegend: ['4小时出荷率', '4至8小时出荷率', '大于8小时出荷率'],
       storeLegend: ['入荷数', '出荷数'],
       times: [
         {
@@ -273,7 +273,7 @@ export default {
     createCharts () {
       this.pieChart = echarts.init(document.getElementById('statistic-pie-chart'))
       this.pieChart.setOption({
-        color: ['#c4c5ff', '#ffef83', '#92d9e8', '#fcff00', '#6e7074', '#546570', '#c4ccd3'],
+        color: ['#00d2ff', '#00ffde', '#fcff00', '#fcff00', '#fcff00', '#6e7074', '#546570', '#c4ccd3'],
         textStyle: {
           color: '#fefefe'
         },
@@ -398,7 +398,7 @@ export default {
         series: []
       })
       this.broadChart.setOption({
-        color: ['#00d2ff', '#fcff00', '#00ffde', '#6e7074', '#546570', '#c4ccd3'],
+        color: ['#00d2ff', '#00ffde', '#fcff00', '#6e7074', '#546570', '#c4ccd3'],
         title: {
           text: '出荷率',
           textStyle: {
@@ -528,6 +528,15 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+@import '../../../assets/less/color.less';
+.el-input__inner {
+  // background-color: @primary-color;
+  border: 1px solid @primary-color;
+  color: #ffffff !important;
+}
+.el-range-input {
+  background-color: @primary-color !important;
+}
 .page {
   .action {
     height: 10vh;
@@ -549,8 +558,9 @@ export default {
     .list {
       display: grid;
       grid-template-rows: 1fr 1fr 1fr;
-      // justify-content: stretch;
+      justify-content: stretch;
       align-items: center;
+      margin-left: 120px;
       row-gap: 15px;
       width: 100%;
       max-width: 400px;

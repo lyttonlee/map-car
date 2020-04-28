@@ -23,7 +23,7 @@
       <div class="section">
         <div class="item">车辆型号: {{car.vehicleType}}</div>
         <div class="item">车辆颜色: {{car.vehicleOutSideColor}}</div>
-        <div class="item">发动机号: {{car.vehicleEngineType}}</div>
+        <div class="item">发动机型号: {{car.vehicleEngineType}}</div>
         <div class="item">变 速 箱: {{car.vehicleGearBox}}</div>
         <div class="item">车辆问题: {{car.flawDetail}}</div>
         <!-- <div class="action" @click="showDetail">返修详情</div> -->

@@ -5,6 +5,7 @@
     </div>
     <div class="search-box">
       <el-date-picker
+        class="date-picker"
         v-model="times"
         type="datetimerange"
         :picker-options="pickerOptions"
