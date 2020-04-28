@@ -111,7 +111,7 @@ export default {
     TotalItem: () => import('../components/TotalItem'),
   },
   computed: {
-    ...mapState(['carScale', 'productLineId', 'pointScale', 'initMapZoom']),
+    ...mapState(['carScale', 'productLineId', 'pointScale', 'initMapZoom', 'vqMapZoom', 'vqCarScale']),
     ...mapGetters(['overtime']),
     percentData () {
       // console.log(this.bindCars)
@@ -709,8 +709,8 @@ export default {
       // console.log(initCarSize)
       const icon = L.icon({
         iconUrl: carImg,
-        iconAnchor: [initCarSize[0] * this.carScale / 2, initCarSize[1] * this.carScale / 2],
-        iconSize: [initCarSize[0] * this.carScale, initCarSize[1] * this.carScale]
+        iconAnchor: [initCarSize[0] * this.vqCarScale / 2, initCarSize[1] * this.vqCarScale / 2],
+        iconSize: [initCarSize[0] * this.vqCarScale, initCarSize[1] * this.vqCarScale]
       })
       return icon
     },
@@ -892,9 +892,12 @@ export default {
       // eslint-disable-next-line no-undef
       const map = L.map('map-small', {
         center,
-        zoom: this.initMapZoom - 0.5,
-        minZoom: this.initMapZoom - 0.5,
-        maxZoom: this.initMapZoom - 0.5,
+        // zoom: this.initMapZoom - 0.5,
+        // minZoom: this.initMapZoom - 0.5,
+        // maxZoom: this.initMapZoom - 0.5,
+        zoom: this.vqMapZoom,
+        minZoom: this.vqMapZoom,
+        maxZoom: this.vqMapZoom,
         zoomControl: false, // 默认不显示缩放按钮
         attributionControl: false // 不显示leaflet 图标logo
 

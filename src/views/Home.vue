@@ -8,7 +8,7 @@
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
-      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" />
+      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers"  @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
     <div class="switch" @click="toggleShowSide">

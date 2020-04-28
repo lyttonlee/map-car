@@ -67,7 +67,7 @@ export default {
     handleOk () {
       // console.log('todo')
       const isTime = (time) => {
-        if (time * 1 > 0 && time * 1 <= 60) {
+        if (time * 1 >= 1 && time * 1 <= 60) {
           return true
         } else {
           return false

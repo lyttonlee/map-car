@@ -17,6 +17,8 @@ import {
   initPointScale,
   initCarScale,
   initMapZoom,
+  vqCarScale,
+  vqMapZoom,
 } from '../config/config'
 import {
   // asyncRoutes,
@@ -64,6 +66,8 @@ export default new Vuex.Store({
     pointScale: initPointScale,
     childMapInfos: [],
     initMapZoom,
+    vqMapZoom,
+    vqCarScale,
     officeName: '' || localStorage.getItem('officeName'),
   },
   mutations: {

@@ -24,7 +24,12 @@
       <el-table-column label="告警信息" width="300px" prop="alarmMessage"></el-table-column>
       <el-table-column label="状态">
         <template slot-scope="scope">
-          <div :class="scope.row.alarmDispose ? '' : 'error'" >{{scope.row.alarmDispose === true ? '已处理' : '未处理'}}</div>
+          <!-- <div :class="scope.row.alarmDispose ? '' : 'error'" >{{scope.row.alarmDispose === true ? '已处理' : '未处理'}}</div>
+          <div v-if="scope.row.alarmDispose">已处理</div> -->
+          <el-tooltip v-if="scope.row.alarmDispose" class="success" effect="dark" :content="scope.row.alarmAnnotation" placement="top">
+            <el-button type="text" size="small">已处理</el-button>
+          </el-tooltip>
+          <div v-else class="error">未处理</div>
         </template>
       </el-table-column>
       <el-table-column label="时间">
@@ -36,7 +41,8 @@
       <el-table-column label="操作">
         <template slot-scope="scope">
           <!-- <el-button size="mini" round type="info" :disabled="true" v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation || ''}}</el-button> -->
-          <div v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation || ''}}</div>
+          <div v-if="scope.row.alarmDispose === true">{{''}}</div>
+          <el-button v-if="scope.row.alarmDispose === true" round size="mini" :disabled="true"  type="info">处理告警</el-button>
           <el-button v-else round size="mini" @click="doDispose(scope.row)" type="primary">处理告警</el-button>
         </template>
       </el-table-column>

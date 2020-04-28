@@ -18,7 +18,7 @@
         </el-table-column>
       </el-table>
       <el-input v-model="pickMapInfo.name" placeholder="地图名称"></el-input>
-      <el-input v-model="pickMapInfo.zoom" placeholder="当前缩放等级"></el-input>
+      <el-input v-model="pickMapInfo.zoom" @change="changeMapZoom" placeholder="当前缩放等级"></el-input>
       <el-input v-model="carScale" @change="changeCarScale" placeholder="车辆图标缩放等级"></el-input>
       <el-button @click="pickMap" :disabled="!canAddPoint" type="primary">选择要截取地图的两个点</el-button>
       <el-button @click="resetPoints">重置</el-button>
@@ -179,6 +179,10 @@ export default {
   },
   methods: {
     ...mapActions(['getMapInfo']),
+    changeMapZoom (zoom) {
+      console.log(zoom)
+      this.map.setZoom(zoom)
+    },
     resetPoints () {
       this.pickedMapPoints = []
       this.pickedMapPolygon.remove()
