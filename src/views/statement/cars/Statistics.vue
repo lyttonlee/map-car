@@ -541,7 +541,7 @@ export default {
   .action {
     height: 10vh;
     display: grid;
-    grid-template-columns: 35% 35% 20%;
+    grid-template-columns: 30% 40% 10%;
     column-gap: 15px;
     justify-content: center;
     align-items: center;
@@ -560,7 +560,7 @@ export default {
       grid-template-rows: 1fr 1fr 1fr;
       justify-content: stretch;
       align-items: center;
-      margin-left: 120px;
+      margin-left: 180px;
       row-gap: 15px;
       width: 100%;
       max-width: 400px;

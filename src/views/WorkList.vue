@@ -6,15 +6,15 @@
       <div class="list-item">
         <div class="car-oui">车架号</div>
         <!-- <div class="car-oui">位置</div> -->
-        <div class="car-oui">当前环节</div>
+        <div class="car-oui">位置</div>
         <div class="car-time">维修时长</div>
         <div class="car-oui">操作</div>
       </div>
       <template v-for="(car, index) in repair">
         <div :class="listActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index, 'repair')" :key="index">
           <div class="car-oui">{{car.vehicle.identification}}</div>
-          <!-- <div>{{car.locator.address}}</div> -->
-          <div>{{computedCarNode(car.vehicleDeliverStatus.node)}}</div>
+          <div>{{car.locator.address}}</div>
+          <!-- <div>{{computedCarNode(car.vehicleDeliverStatus.node)}}</div> -->
           <div :class="formatTime(car.vehicleDeliverStatus.startTime) * 1 >= overtime * 1 ? 'warn' : 'success'">{{formatTime(car.vehicleDeliverStatus.startTime)}}小时</div>
           <div class="action">结束</div>
         </div>
@@ -25,15 +25,15 @@
       <div class="list-item">
         <div class="car-oui">车架号</div>
         <!-- <div class="car-oui">位置</div> -->
-        <div class="car-oui">当前环节</div>
+        <div class="car-oui">位置</div>
         <div class="car-time">维修时长</div>
         <div class="car-oui">操作</div>
       </div>
       <template v-for="(car, index) in pending">
         <div :class="pendingActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index, 'pending')" :key="index">
           <div class="car-oui">{{car.vehicle.identification}}</div>
-          <!-- <div>{{car.locator.address}}</div> -->
-          <div>{{computedCarNode(car.vehicleDeliverStatus.node)}}</div>
+          <div>{{car.locator.address}}</div>
+          <!-- <div>{{computedCarNode(car.vehicleDeliverStatus.node)}}</div> -->
           <div>{{'---'}}</div>
           <div class="action">开始</div>
         </div>
@@ -159,10 +159,14 @@ export default {
     },
     setListActive (carId) {
       // console.log(this.renderedCars)
-      let index = this.renderedCars.findIndex((car) => car.vehicle.id === carId)
+      let index = this.repair.findIndex((car) => car.vehicle.id === carId)
+      let pendingIndex = this.pending.findIndex((car) => car.vehicle.id === carId)
       // console.log(index)
       if (index !== -1) {
         this.listActiveIndex = index
+      }
+      if (pendingIndex !== -1) {
+        this.pendingActiveIndex = pendingIndex
       }
     }
   }
