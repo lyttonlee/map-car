@@ -3,15 +3,15 @@
     <div class="total">
       <div class="item">
         <h3>累计完成维修车辆数(台)</h3>
-        <CountTo key="total-cars" className="font" :to="pagination.total" uid="total-cars" :duration="5" ></CountTo>
+        <CountTo key="total-cars" className="font" :to="total" uid="total-cars" :duration="5" ></CountTo>
       </div>
       <div class="item">
         <h3>平均出荷时间(小时)</h3>
-        <CountTo key="average-time" className="font" :to="5.15" uid="average-time" :duration="5" decimalPlaces="2" ></CountTo>
+        <CountTo key="average-time" className="font" :to="average" uid="average-time" :duration="5" decimalPlaces="2" ></CountTo>
       </div>
       <div class="item">
         <h3>目前在库车辆(台)</h3>
-        <CountTo key="repair" className="font" :to="235" uid="repair" :duration="5" decimalPlaces="0" ></CountTo>
+        <CountTo key="repair" className="font" :to="unfinish" uid="repair" :duration="5" decimalPlaces="0" ></CountTo>
       </div>
     </div>
     <div class="search">
@@ -71,7 +71,7 @@
           </div>
           <div class="logs">
             <template v-for="(item, index) in showingCar.logs">
-              <Log :log="item" :isLast="index === showingCar.logs.length - 1" :key="index" />
+              <Log :log="item" :uniqueItem="showingCar.logs.length === 1" :isLast="index === showingCar.logs.length - 1" :key="index" />
             </template>
           </div>
         </div>
@@ -86,6 +86,9 @@
 import {
   queryCars,
 } from '../../../api/vq'
+import {
+  getCarStatistic,
+} from '../../../api/statistic'
 import {
   computedCarNode,
 } from '../../../utils/utils'
@@ -111,6 +114,9 @@ export default {
       checkedStatu: [1, 2],
       unbindStatus: [{ code: 1, name: '未出荷' }, { code: 2, name: '已出荷' }],
       checkAll: true,
+      total: 0,
+      average: 0,
+      unfinish: 0
     }
   },
   computed: {
@@ -202,10 +208,23 @@ export default {
       this.showingCar = car
       // console.log(this.showingCar)
       this.showDispose = true
+    },
+    getStatisticAll () {
+      getCarStatistic().then((res) => {
+        let { code, result } = res
+        if (code === 0) {
+          console.log(result)
+          this.total = result.finished
+          let time = result.average / 1000 / 60 / 60
+          this.average = time.toFixed(2) * 1
+          this.unfinish = result.unfinished
+        }
+      })
     }
   },
   created () {
     this.getCarList()
+    this.getStatisticAll()
   }
 }
 </script>
