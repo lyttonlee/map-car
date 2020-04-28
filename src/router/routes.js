@@ -119,7 +119,7 @@ export const routes = [
         meta: {
           auth: true,
           icon: 'zx-xitongguanli-',
-          role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA']
+          role: ['SuperAdmin', 'VQ', 'PC', 'VQ-PDA', 'PA', 'WE', 'AF', 'PQ']
         },
         children: [
           {
@@ -129,7 +129,7 @@ export const routes = [
             meta: {
               auth: true,
               icon: 'zx-renyuanguanli',
-              role: ['SuperAdmin', 'VQ', 'PC']
+              role: ['SuperAdmin', 'VQ', 'PC', 'PA', 'WE', 'AF', 'PQ']
             }
           },
           {

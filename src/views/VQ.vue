@@ -742,7 +742,7 @@ export default {
         rotate: true,
         icon,
         initialRotationAngle: 0,
-        title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
+        // title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
       })
       // 为marker绑上车和定位器的ID
       marker.carId = car.vehicle.id
@@ -892,9 +892,9 @@ export default {
       // eslint-disable-next-line no-undef
       const map = L.map('map-small', {
         center,
-        zoom: this.initMapZoom,
-        minZoom: this.initMapZoom,
-        maxZoom: this.initMapZoom,
+        zoom: this.initMapZoom - 0.5,
+        minZoom: this.initMapZoom - 0.5,
+        maxZoom: this.initMapZoom - 0.5,
         zoomControl: false, // 默认不显示缩放按钮
         attributionControl: false // 不显示leaflet 图标logo
 
@@ -966,6 +966,7 @@ export default {
     bus.$off('menuSizeChanged')
     this.broadTime && clearInterval(this.broadTime)
     this.summaryTime && clearInterval(this.summaryTime)
+    this.carListTime && clearInterval(this.carListTime)
   }
 }
 </script>

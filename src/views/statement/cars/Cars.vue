@@ -28,12 +28,12 @@
       <el-table-column min-width="200px" label="问题" prop="flawDetail"></el-table-column>
       <el-table-column label="入荷时间">
         <template slot-scope="scope">
-          {{scope.row.bindTime ? $moment(scope.row.bindTime).format('YYYY-MM-DD HH:mm:ss') : '未知'}}
+          {{scope.row.bindTime ? $moment(scope.row.bindTime).format('YYYY-MM-DD HH:mm:ss') : '--'}}
         </template>
       </el-table-column>
       <el-table-column label="出荷时间">
         <template slot-scope="scope">
-          {{scope.row.unbindTime ? $moment(scope.row.unbindTime).format('YYYY-MM-DD HH:mm:ss') : '维修中'}}
+          {{scope.row.unbindTime ? $moment(scope.row.unbindTime).format('YYYY-MM-DD HH:mm:ss') :  scope.row.bindTime ? '维修中' : '--'}}
         </template>
       </el-table-column>
       <el-table-column label="操作">

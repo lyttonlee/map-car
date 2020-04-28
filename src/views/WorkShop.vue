@@ -444,12 +444,12 @@ export default {
         rotate: true,
         icon,
         initialRotationAngle: 0,
-        title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
+        // title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
       })
       // 为marker绑上车和定位器的ID
       marker.carId = car.vehicle.id
       marker.locatorId = car.locator.id
-      marker.bindPopup(`<div>车 架 号: ${car.vehicle.identification}</div><div>标 签 号: ${car.locator.sn}</div><div>${car.locator.y + ' ' + car.locator.x}</div>`)
+      marker.bindPopup(`<div>车 架 号: ${car.vehicle.identification}</div><div>标 签 号: ${car.locator.sn}</div><div>位 置 : ${car.locator.address}</div>`)
       marker.on('click', this.clickMarker)
       // 判断是否是特殊区域点
       // const inSpeacalArea = (existenceZone) => {}

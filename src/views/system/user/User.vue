@@ -44,7 +44,7 @@
         </el-table-column>
       </el-table>
     </div> -->
-    <div class="list">
+    <div v-if="!officeName" class="list">
       <h3 class="title">PC</h3>
       <el-table :data="pc" style="width: 100%;background:#fff0" size="mini">
         <el-table-column label="用户名" prop="username"></el-table-column>
@@ -92,7 +92,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <div class="list">
+    <div v-if="!officeName" class="list">
       <h3 class="title">VQ</h3>
       <el-table :data="vq" style="width: 100%;background:#fff0" size="mini">
         <el-table-column label="用户名" prop="username"></el-table-column>
@@ -182,7 +182,7 @@
           <template slot-scope="scope">
             <el-button-group>
               <el-button type="primary" round size="mini" @click="editUser(scope.row)">编辑</el-button>
-              <el-button type="danger" round size="mini" @click="deleteUserById(scope.row.id)">删除</el-button>
+              <el-button v-if="!officeName" type="danger" round size="mini" @click="deleteUserById(scope.row.id)">删除</el-button>
             </el-button-group>
           </template>
         </el-table-column>
@@ -197,7 +197,8 @@ import avatar from '@/assets/img/avatar.jpg'
 import AddUser from './AddUserDialog'
 import EditUser from './EditUserDIalog'
 import {
-  mapActions
+  mapActions,
+  mapState,
 } from 'vuex'
 import {
   queryUsers,
@@ -219,6 +220,9 @@ export default {
       vq: [],
       section: [],
     }
+  },
+  computed: {
+    ...mapState(['officeName'])
   },
   methods: {
     ...mapActions(['requestRoles']),

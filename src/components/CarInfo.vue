@@ -10,6 +10,7 @@
         </div>
         <div class="item">车架号码: {{car.vehicleIdentification}}</div>
         <div class="item">定 位 器: {{car.locatorSn}}<span><zx-icon customClass="icon-power" :type="computePowerIcon(car.power)"></zx-icon>{{car.power + '%'}}</span></div>
+        <div class="item">当前位置: {{address}}</div>
         <div class="item">当前状态: {{computedCarStatu(car.status, car.bindTime)}}<span><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('超时')" type="zx-chaoshigaojing1"></zx-icon><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('告警')" type="zx-alarm"></zx-icon></span></div>
         <div class="item">指派: <template v-for="(icon, index) in icons">
           <span v-if="car.dispatchZones && car.dispatchZones.toLowerCase().includes(icon.name)" class="icon" :key="index">
@@ -24,7 +25,6 @@
       </div>
       <div v-if="activeIndex === 1" class="section">
         <div class="item">当前环节: {{computedCarNode(car.node) + ' -- ' + $moment(car.startTime).toNow(true)}}</div>
-        <div class="item">当前位置: {{address}}</div>
         <div class="item">入荷时间: {{car.bindTime ? $moment(car.bindTime).format('YYYY-MM-DD HH:mm:ss') : '未知'}}</div>
         <div class="item">车辆型号: {{car.vehicleType}}</div>
         <div class="item">车辆颜色: {{car.vehicleOutSideColor}}</div>
@@ -203,6 +203,8 @@ export default {
       }
     }
     .section:not(:last-child) {
+      max-height: 70vh;
+      overflow-y: auto;
       padding-bottom: 10px;
       // border-bottom: 2px solid #fff;
       .all-time {
@@ -227,6 +229,8 @@ export default {
       }
     }
     .section:last-child {
+      max-height: 70vh;
+      overflow-y: auto;
       .action {
         color: @primary-color;
         font-size: 1rem;
