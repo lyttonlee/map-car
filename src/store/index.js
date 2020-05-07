@@ -77,11 +77,13 @@ export default new Vuex.Store({
       localStorage.removeItem('username')
       localStorage.removeItem('nickname')
       localStorage.removeItem('imageUrl')
+      localStorage.removeItem('officeName')
       state.token = ''
       state.username = ''
       state.roles = ''
       state.nickname = ''
       state.imageUrl = ''
+      state.officeName = ''
     },
     [LOGIN]: (state, user) => {
       localStorage.setItem('username', user.username)
@@ -157,6 +159,8 @@ export default new Vuex.Store({
               localStorage.setItem('officeName', result.officeName)
               commit(OFFICENAME, result.officeName)
             } else {
+              localStorage.setItem('officeName', '')
+              commit(OFFICENAME, '')
               router.push('/vq')
             }
             // router.push('/vq')
