@@ -101,7 +101,8 @@ import {
 } from '../../api/common'
 import Car from '../../assets/img/car-blue.png'
 import {
-  initCarSize
+  initCarSize,
+  initCarScale,
 } from '../../config/config'
 import {
   mapState,
@@ -129,7 +130,7 @@ export default {
       carportName: '',
       portAngle: '',
       isDeleteParks: false,
-      carScale: 1,
+      carScale: initCarScale,
       carRotate: '',
       pickMapInfo: {
         name: '',
@@ -141,6 +142,7 @@ export default {
   },
   computed: {
     ...mapState(['pointScale', 'childMapInfos']),
+    // ...mapState({ initCarScale: 'carScale' }),
     canSubmit () {
       if (this.fenceName && this.fencePoints.length > 2) {
         return true
@@ -448,6 +450,10 @@ export default {
       // eslint-disable-next-line no-undef
       L.imageOverlay(imgUrl, imgBounds).addTo(map)
       this.map = map
+      L.control.scale({
+        maxWidth: 100,
+        imperial: false
+      }).addTo(this.map)
       this.getAllFences()
       // 创建一个marker
       const icon = L.icon({
@@ -464,8 +470,18 @@ export default {
       this.carMarker = marker
       marker.addTo(map)
       this.map.on('zoomend', (ev) => {
-        // console.log(ev.target._zoom)
+        console.log(ev.target._zoom)
         this.pickMapInfo.zoom = ev.target._zoom
+        let scale = 2
+        let zoomLv = ev.target._zoom - 9
+        console.log(zoomLv)
+        if (zoomLv === 0) {
+          this.carScale = initCarScale
+        } else {
+          this.carScale = zoomLv > 0 ? initCarScale * Math.pow(scale, zoomLv) : initCarScale / Math.pow(scale, zoomLv * -1)
+        }
+        this.changeCarScale()
+        // console.log(this.map)
       })
     },
     // 解析地址
@@ -640,11 +656,12 @@ export default {
       })
       console.log(newIcon)
       this.carMarker.setIcon(newIcon)
-      // m.setRotation(45)
+      this.carMarker.setRotation(135)
       // console.log(icon)
     },
     // 旋转车
     changeCarRotate () {
+      console.log('change rotate')
       this.carMarker.setRotation(this.carRotate)
     }
   },
