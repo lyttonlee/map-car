@@ -39,7 +39,7 @@
       </el-table-column>
     </el-table>
     <!-- {{alarmConfig}} -->
-    <Modal v-if="showModal" @quit="quit" @ok="handleOk">
+    <Modal ref="modal" v-if="showModal" @quit="quit" @ok="handleOk">
       <h3>修改告警配置</h3>
       <div class="config-alarm">
         <div>告警类型: <zx-icon style="font-size: 1.1rem" class="error" :type="computeAlarmIcon(content.code)"></zx-icon> <span class="error">{{ content.name}}</span></div>
@@ -77,9 +77,11 @@ import {
 import {
   computeAlarmIcon,
 } from '../../utils/utils'
+import Modal from '@/components/Modal'
 export default {
   components: {
-    Modal: () => import('../../components/Modal')
+    // Modal: () => import('../../components/Modal')
+    Modal
   },
   data () {
     return {
@@ -145,7 +147,7 @@ export default {
       this.showModal = false
     },
     handleOk () {
-      console.log('do ok')
+      // console.log('do ok')
       let valid = false
       switch (this.content.code) {
         case 1:
@@ -153,6 +155,7 @@ export default {
             valid = true
           } else {
             this.$message.error('电量阈值需在0-50之间')
+            this.$refs['modal'].isLoading = false
           }
           break
         case 2:
@@ -160,6 +163,7 @@ export default {
             valid = true
           } else {
             this.$message.error('超时告警阈值需在1-24之间')
+            this.$refs['modal'].isLoading = false
           }
           break
         default:
@@ -175,7 +179,7 @@ export default {
           enabled: this.content.enabled,
         }
         editAlarm(param).then((res) => {
-          console.log(res)
+          // console.log(res)
           let { code, desc } = res
           if (code === 0) {
             this.$notify.success({
@@ -187,6 +191,7 @@ export default {
             this.$notify.error({
               message: desc
             })
+            this.$refs['modal'].isLoading = false
           }
         })
       }

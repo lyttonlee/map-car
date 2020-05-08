@@ -14,7 +14,7 @@
       </div>
     </div>
     <!-- <div v-if="showModal" class="modal"></div> -->
-    <Modal v-if="showModal" width="30%" @quit="quit" @ok="handleOk">
+    <Modal ref="modal" v-if="showModal" :loading="loading" width="30%" @quit="quit" @ok="handleOk">
       <!-- {{showingOption}} -->
       <h3>修改科室自动确认时间</h3>
      <el-input size="small"  placeholder="请输入科室自动确认时间" v-model="confirmTime">
@@ -29,9 +29,11 @@ import {
   getSystemOption,
   updateConfirmTime,
 } from '../../../api/option'
+import Modal from '@/components/Modal'
 export default {
   components: {
-    Modal: () => import('../../../components/Modal')
+    // Modal: () => import('../../../components/Modal')
+    Modal
   },
   data () {
     return {
@@ -40,6 +42,7 @@ export default {
       confirmOption: '',
       showingOption: '',
       confirmTime: '',
+      // loading: false
     }
   },
   methods: {
@@ -66,10 +69,13 @@ export default {
     },
     handleOk () {
       // console.log('todo')
+      // this.loading = true
       const isTime = (time) => {
         if (time * 1 >= 1 && time * 1 <= 60) {
           return true
         } else {
+          // this.loading = false
+          this.$refs['modal'].isLoading = false
           return false
         }
       }
@@ -87,6 +93,7 @@ export default {
             this.$notify.error({
               message: desc
             })
+            this.$refs['modal'].isLoading = false
           }
         })
       } else {

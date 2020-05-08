@@ -19,6 +19,9 @@ export default {
   props: {
     width: {
       default: '50%'
+    },
+    loading: {
+      default: false
     }
   },
   data () {
