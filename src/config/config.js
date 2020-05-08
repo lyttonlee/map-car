@@ -4,7 +4,7 @@ export const initPointScale = 100
 
 export const initMapZoom = 9
 
-export const initCarScale = 1
+export const initCarScale = 0.7
 
 export const vqMapZoom = 8.5
 

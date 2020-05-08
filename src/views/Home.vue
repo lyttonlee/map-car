@@ -8,7 +8,7 @@
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
-      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers"  @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" />
+      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" v-if="bindCars.length > 0" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
     <div class="switch" @click="toggleShowSide">
@@ -139,7 +139,7 @@ export default {
       }
     },
     position (data) {
-      // console.log('接收到position事件推送')
+      console.log('接收到position事件推送')
       // console.log(data)
       // console.log(this.bindCars)
       const newPos = JSON.parse(data)
@@ -186,7 +186,7 @@ export default {
           console.log('remove marker')
           currentMarker.remove()
           currentMarker.isAddedToMap = false
-        } else if (currentMarker.isAddedToMap === false && isInPolygon([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], this.currentMapPoints)) { // 在地图区域而且这辆车是隐藏状态(事实上可以理解为从地图外开进来的车) -》显示这辆车
+        } else if (currentMarker.isAddedToMap === false && isInPolygon([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], this.currentMapPoints) && currentMarker.inSpecialArea === false) { // 在地图区域而且这辆车是隐藏状态(事实上可以理解为从地图外开进来的车) -》显示这辆车
           console.log('add marker')
           currentMarker.addTo(this.map)
           currentMarker.isAddedToMap = true
@@ -425,7 +425,7 @@ export default {
         let currentMarker = this.markers[markerIndex].marker
         // setPopupContent
         console.log(car)
-        currentMarker.setPopupContent(`<div>车 架 号: ${car.vehicleIdentification}</div><div>标 签 号: ${car.locatorSn}</div><div>${car.locatorY + ' ' + car.locatorX}</div>`)
+        // currentMarker.setPopupContent(`<div>车 架 号: ${car.vehicleIdentification}</div><div>标 签 号: ${car.locatorSn}</div><div>${car.locatorY + ' ' + car.locatorX}</div>`)
         let isOpenPopup = currentMarker.isPopupOpen()
         if (!isOpenPopup) {
           currentMarker.openPopup()
@@ -641,7 +641,8 @@ export default {
         className: 'marker-circle',
         html: specalArea.sum
       })
-      let center = [specalArea.center.y, specalArea.center.x]
+      let center = [specalArea.center.y / this.pointScale, specalArea.center.x / this.pointScale]
+      console.log(center)
       let divMarker = L.marker(center, { icon: myIcon })
       divMarker.name = specalArea.name
       divMarker.id = specalArea.id
