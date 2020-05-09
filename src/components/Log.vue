@@ -20,6 +20,7 @@
                   <div class="box-info">
                     <div class="start">开始时间: {{parseData(subLog.param).start}}</div>
                     <div class="end">结束时间: {{parseData(subLog.param).end}}</div>
+                    <div v-if="parseData(subLog.param).note">确认信息: {{parseData(subLog.param).note}}</div>
                   </div>
                   <div class="box-arrow"></div>
                 </div>
@@ -86,14 +87,17 @@ export default {
     },
     parseData (data) {
       let curData = JSON.parse(data)
-      console.log(curData)
+      // console.log(curData)
       let start = this.$moment(curData.in.time).format('YYYY-MM-DD HH:mm')
       let end = curData.out ? this.$moment(curData.out.time).format('YYYY-MM-DD HH:mm') : '维修中···'
-      let duration = curData.out ? this.$moment.duration(curData.out.time - curData.in.time, 'ms').asHours().toFixed(1) : this.$moment.duration(this.$moment().valueOf() - curData.in.time, 'ms').asHours().toFixed(1)
+      let duration = curData.out ? this.$moment.duration(curData.out.time - curData.in.time, 'ms').asHours().toFixed(1) : this.$moment.duration(this.$moment().valueOf() - curData.in.time, 'ms').asHours().toFixed(2)
+      let note = curData.out && curData.out.param ? JSON.parse(curData.out.param).note : ''
+      // console.log(note)
       return {
         start,
         end,
-        duration
+        duration,
+        note
       }
     }
   }
@@ -172,13 +176,17 @@ export default {
           position: absolute;
           // position: relative;
           left: -65px;
-          top: -50px;
+          top: -70px;
           z-index: 3;
           .box-info {
             width: 180px;
+            height: 50px;
             background: @info;
             border-radius: 8px;
             padding: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
           }
           .box-arrow {
             width: 10px;
