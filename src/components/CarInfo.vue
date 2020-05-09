@@ -35,7 +35,7 @@
       </div>
       <div v-if="activeIndex === 0" class="section">
         <template v-for="(log, index) in car.filterLog">
-          <Log :key="index" :uniqueItem="car.filterLog.length === 1" :isLast="index === car.filterLog.length - 1" :log="log" />
+          <Log :key="index" :uniqueItem="car.filterLog.length === 1" :isStart="index === 0" :isLast="index === car.filterLog.length - 1" :log="log" />
         </template>
       </div>
     </div>

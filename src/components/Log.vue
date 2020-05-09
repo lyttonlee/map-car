@@ -51,6 +51,9 @@ export default {
     },
     uniqueItem: {
       default: false
+    },
+    isStart: {
+      default: false
     }
   },
   data () {
@@ -66,6 +69,8 @@ export default {
         return 'border-unique'
       } else if (this.isLast) {
         return 'border-end'
+      } else if (this.isStart) {
+        return 'border-start'
       } else {
         return 'border'
       }
@@ -220,6 +225,13 @@ export default {
     }
   }
   .border {
+    position: relative;
+    left: 79px;
+    border: 1px solid @info;
+    height: 100%;
+    // top: 50%;
+  }
+  .border-start {
     position: relative;
     left: 79px;
     border: 1px solid @info;
