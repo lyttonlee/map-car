@@ -99,14 +99,14 @@ export default {
       rules: {
         username: [
           { required: true, message: '用户名是必须的', trigger: 'blur' },
-          { max: 10, min: 5, message: '长度5-10', trigger: 'blur' },
+          { max: 10, min: 3, message: '长度3-10', trigger: 'blur' },
         ],
         roles: [
           { required: true, message: '必须选择用户角色', trigger: 'blur' },
         ],
         nickname: [
           { required: true, message: '昵称是必须的', trigger: 'blur' },
-          { max: 10, min: 5, message: '长度5-10', trigger: 'blur' },
+          { max: 10, min: 1, message: '长度1-10', trigger: 'blur' },
         ],
         productLine: [
           { required: true, message: '必须选择一条产线', trigger: 'blur' },
