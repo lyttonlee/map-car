@@ -8,4 +8,4 @@ export const initCarScale = 0.7
 
 export const vqMapZoom = 8.5
 
-export const vqCarScale = 0.8
+export const vqCarScale = 0.5

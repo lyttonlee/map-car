@@ -55,7 +55,8 @@ import {
   mapGetters,
 } from 'vuex'
 import {
-  isInPolygon
+  isInPolygon,
+  computeCarScale,
 } from '../utils/utils'
 // import RepairTrack from '../components/RepairTrack'
 import CarInfo from './WorkInfo'
@@ -369,8 +370,8 @@ export default {
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker
         // setPopupContent
-        console.log(car)
-        currentMarker.setPopupContent(`<div>车 架 号: ${car.vehicleIdentification}</div><div>标 签 号: ${car.locatorSn}</div><div>${car.locatorY + ' ' + car.locatorX}</div>`)
+        // console.log(car)
+        // currentMarker.setPopupContent(`<div>车 架 号: ${car.vehicleIdentification}</div><div>标 签 号: ${car.locatorSn}</div><div>${car.locatorY + ' ' + car.locatorX}</div>`)
         let isOpenPopup = currentMarker.isPopupOpen()
         if (!isOpenPopup) {
           currentMarker.openPopup()
@@ -402,11 +403,12 @@ export default {
       }
       // eslint-disable-next-line no-undef
       // console.log(carImg)
-      console.log()
+      // console.log()
+      let carScale = computeCarScale(this.currentMapInfo.zoom)
       const icon = L.icon({
         iconUrl: carImg,
-        iconAnchor: [initCarSize[0] * this.currentMapInfo.carScale / 2, initCarSize[1] * this.currentMapInfo.carScale / 2],
-        iconSize: [initCarSize[0] * this.currentMapInfo.carScale, initCarSize[1] * this.currentMapInfo.carScale]
+        iconAnchor: [initCarSize[0] * carScale / 2, initCarSize[1] * carScale / 2],
+        iconSize: [initCarSize[0] * carScale, initCarSize[1] * carScale]
       })
       return icon
     },
@@ -503,8 +505,8 @@ export default {
     // 获取绑定的车辆信息
     getBindCars (isInit) {
       getWorkShopCars().then((res) => {
-        console.log(res)
-        console.log('获取bind数据')
+        // console.log(res)
+        // console.log('获取bind数据')
         if (res.code === 0) {
           let { node, zone } = res.result
           this.repairCars = node
@@ -523,7 +525,7 @@ export default {
     },
     // 改变地图上要显示的车
     changeShowingMarkers (carIds) {
-      console.log(carIds)
+      // console.log(carIds)
       // console.log(this.markers)
       // 循环marker
       const canRender = (carId) => {
@@ -553,7 +555,8 @@ export default {
         // eslint-disable-next-line no-debugger
         // debugger
         if (item.marker.isAddedToMap === true) {
-          let carScale = this.currentMapInfo.carScale || this.carScale
+          // let carScale = this.currentMapInfo.carScale || this.carScale
+          let carScale = this.currentMapInfo.zoom ? computeCarScale(this.currentMapInfo.zoom) : initCarScale
           console.log(carScale)
           console.log(this.currentMapInfo)
           this.setCarScaleAndRotate(item.marker, carScale, item.marker.angle)
@@ -630,22 +633,22 @@ export default {
         iconAnchor: anchor,
         iconSize: size
       })
-      console.log(newIcon)
+      // console.log(newIcon)
       carMarker.setIcon(newIcon)
       carMarker.setRotation(rotate)
-      console.log(carMarker)
+      // console.log(carMarker)
       // m.setRotation(45)
       // console.log(icon)
     },
     // 改变显示的地图
     changeMap (id) {
-      console.log(id)
+      // console.log(id)
       this.map.setMinZoom(1)
       this.map.setMaxZoom(20)
       // 找到需要改变到的mapInfo
       let currentMapInfo = this.allMaps.find((map) => map.id === id)
       if (currentMapInfo) {
-        console.log(currentMapInfo)
+        // console.log(currentMapInfo)
         // 重新设置地图的缩放等级和中心点
         const centerx = currentMapInfo.coordinateDown / this.pointScale + currentMapInfo.coordinateUpper / this.pointScale
         const centery = currentMapInfo.coordinateLeft / this.pointScale + currentMapInfo.coordinateRight / this.pointScale

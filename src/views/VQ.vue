@@ -816,7 +816,7 @@ export default {
         className: 'marker-circle',
         html: specalArea.sum
       })
-      let center = [specalArea.center.y, specalArea.center.x]
+      let center = [specalArea.center.y / this.pointScale, specalArea.center.x / this.pointScale]
       let divMarker = L.marker(center, { icon: myIcon })
       divMarker.name = specalArea.name
       divMarker.id = specalArea.id

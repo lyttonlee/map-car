@@ -1,5 +1,8 @@
 import moment from 'moment'
 import store from '../store'
+import {
+  initCarScale
+} from '../config/config'
 
 export const timeToNow = (time) => {
   return moment(time).toNow(true)
@@ -113,4 +116,17 @@ export function isInPolygon (checkPoint, polygonPoints) {
   } else {
     return true
   }
+}
+
+export function computeCarScale (zoom) {
+  let scale = 2
+  let zoomLv = zoom - 9
+  let carScale
+  // console.log(zoomLv)
+  if (zoomLv === 0) {
+    carScale = initCarScale
+  } else {
+    carScale = zoomLv > 0 ? initCarScale * Math.pow(scale, zoomLv) : initCarScale / Math.pow(scale, zoomLv * -1)
+  }
+  return carScale
 }
