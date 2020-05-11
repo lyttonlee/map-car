@@ -1,6 +1,7 @@
 <template>
-  <div class="no-auth">
-    <h1>很抱歉您没有权利访问该页面！</h1>
+  <div class="not-found">
+    <h1>404 Not Found</h1>
+    <h2>很抱歉您要访问的页面没有找到！</h2>
     <div class="action" @click="goBack">返回浏览!</div>
     <div class="action" @click="goHome">回到主页!</div>
   </div>
@@ -24,7 +25,7 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-.no-auth {
+.not-found {
   width: 100%;
   height: 100vh;
   display: flex;

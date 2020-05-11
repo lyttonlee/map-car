@@ -13,7 +13,7 @@ export const routes = [
     path: '/',
     name: 'pages',
     component: Layout,
-    redirect: '/home',
+    redirect: localStorage.getItem('officeName') ? '/workshop' : '/home', // 如果时科室人员默认让他访问workshop 否则 默认访问 /home
     children: [
       {
         path: '/vq',
@@ -189,7 +189,15 @@ export const routes = [
   {
     path: '/unauth',
     name: '访问权限',
-    component: () => import(/* webpackChunkName: "about" */ '../views/UnAuth.vue'),
+    component: () => import(/* webpackChunkName: "unauth" */ '../views/UnAuth.vue'),
+    meta: {
+      auth: false
+    }
+  },
+  {
+    path: '*',
+    name: '404',
+    component: () => import(/* webpackChunkName: "unauth" */ '../views/404.vue'),
     meta: {
       auth: false
     }

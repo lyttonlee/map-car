@@ -24,7 +24,7 @@ moment.locale('zh-cn')
 Vue.prototype.$moment = moment
 Vue.use(new VueSocketIo({
   debug: false,
-  connection: 'http://192.168.1.205:9099'
+  connection: 'http://192.168.1.247:9099'
 }))
 
 router.beforeEach((to, from, next) => {
@@ -43,6 +43,7 @@ router.beforeEach((to, from, next) => {
     // console.log(to)
     return to.meta.role.includes(roles)
   }
+  // console.log(to)
   if (to.meta.auth) {
     // 再判断是否是登录状态
     if (token) {
