@@ -30,7 +30,7 @@ import successCar from '../assets/img/car-blue.png'
 import errorCar from '../assets/img/car-red.png'
 import warnCar from '../assets/img/car-yellow.png'
 import {
-  initCarSize
+  initCarSize, initCarScale
 } from '../config/config'
 import {
   getBindList,
@@ -43,7 +43,8 @@ import {
   mapGetters,
 } from 'vuex'
 import {
-  isInPolygon
+  isInPolygon,
+  computeCarScale,
 } from '../utils/utils'
 // import RepairTrack from '../components/RepairTrack'
 import CarInfo from '@/components/CarInfo'
@@ -103,10 +104,10 @@ export default {
       console.log('socket 断开连接')
     },
     alarm (data) {
-      // console.log('接收到alarm事件推送')
+      console.log('接收到alarm事件推送')
       // console.log(data)
       let newAlarm = JSON.parse(data)
-      // console.log(newAlarm)
+      console.log(newAlarm)
       // 改变对应marker的状态
       // 找到对应的marker
       let markerIndex = this.markers.findIndex((item) => item.locatorId === newAlarm.locatorId)
@@ -129,9 +130,10 @@ export default {
         // console.log('改变了车的颜色状态')
         let m = currentMarker.setIcon(Icon)
         m.setRotation(currentMarker.angle)
+        let message = newAlarm.vin ? `<div>车辆 ${newAlarm.vin} 发生告警</div><div>内容: '${newAlarm.message}</div><div>时间: ${this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss')}</div><div>地点: ${newAlarm.address ? newAlarm.address : '---'}</div>` : `<div>内容: '${newAlarm.message}</div><div>时间: ${this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss')}</div><div>地点: ${newAlarm.address ? newAlarm.address : '---'}</div>`
         this.$notify.error({
           dangerouslyUseHTMLString: true,
-          message: `<div>${newAlarm.vehicleId}发生告警</div><div>内容: '${newAlarm.message}</div><div>时间: ${this.$moment(newAlarm.timestamp).format('YYYY-MM-DD HH:mm:ss')}</div><div>地点: ${newAlarm.address}</div>`,
+          message,
           position: 'bottom-right',
           duration: 2500
         })
@@ -329,8 +331,8 @@ export default {
           }
         },
         grid: {
-          left: '0',
-          right: '6%',
+          left: '20px',
+          right: '20%',
           bottom: '20%',
           containLabel: true
         },
@@ -338,11 +340,11 @@ export default {
           {
             name: '数量',
             type: 'pie',
-            radius: ['20%', '25%'],
+            radius: ['15%', '20%'],
             // center: ['20%', '50%'],
             data: this.computeChartData(),
             label: {
-              formatter: '{b}: {c} ({d}%)',
+              formatter: '{b} : \n{c} ({d}%)',
             }
           }
         ],
@@ -564,7 +566,16 @@ export default {
           this.bindCars = res.result
           if (!isInit) {
             console.log('fresh')
-            this.bindCars = [...this.bindCars]
+            // this.bindCars = [...this.bindCars]
+            if (this.currentMapInfo.id === this.mapInfo.id) {
+              this.showingCars = this.bindCars
+            } else {
+              this.showingCars = this.bindCars.filter((car) => {
+                let point = [car.locator.y / this.pointScale, car.locator.x / this.pointScale]
+                let inArea = isInPolygon(point, this.currentMapPoints)
+                return inArea
+              })
+            }
           }
           if (this.bindCars.length > 0 && isInit === true) {
             this.bindCars.forEach((car) => {
@@ -609,7 +620,8 @@ export default {
         // eslint-disable-next-line no-debugger
         // debugger
         if (item.marker.isAddedToMap === true) {
-          let carScale = this.currentMapInfo.carScale || this.carScale
+          // let carScale = this.currentMapInfo.carScale || this.carScale
+          let carScale = this.currentMapInfo.zoom ? computeCarScale(this.currentMapInfo.zoom) : initCarScale
           // console.log(carScale)
           // console.log(this.currentMapInfo)
           this.setCarScaleAndRotate(item.marker, carScale, item.marker.angle)
