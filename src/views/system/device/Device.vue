@@ -15,7 +15,7 @@
       </el-table-column>
       <el-table-column label="电量">
         <template slot-scope="scope">
-          <div :class="scope.row.power && scope.row.power * 1 > lowPower * 1 ? '' : 'error'">{{scope.row.power ? scope.row.power + '%' : '未知(已离线)'}}</div>
+          <div :class="scope.row.power && scope.row.power * 1 > lowPower * 1 ? '' : 'error'">{{scope.row.power ? scope.row.power > 100 ? '充电中' : scope.row.power + '%' : '未知(已离线)'}}</div>
         </template>
       </el-table-column>
       <el-table-column label="位置">

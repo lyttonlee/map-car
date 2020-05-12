@@ -24,11 +24,11 @@ export default {
   },
   methods: {
     getRenderRoutes () {
-      console.log(this.$router)
+      // console.log(this.$router)
       let routes = this.$router.options.routes.find((route) => route.path === '/').children
       let alarmRoutes = routes.find((route) => route.path === '/alarm')
       this.renderRoutes = alarmRoutes.children.filter((route) => route.meta.role.includes(this.roles))
-      console.log(this.renderRoutes)
+      // console.log(this.renderRoutes)
     }
   },
   created () {
