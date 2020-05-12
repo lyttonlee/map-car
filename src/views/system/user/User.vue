@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="head">
-      <el-button type="primary" size="mini" round @click="addUser">添加用户</el-button>
+      <el-button v-if="!officeName" type="primary" size="mini" round @click="addUser">添加用户</el-button>
     </div>
     <!-- <div class="list">
       <el-table :data="users" style="width: 100%;background:#fff0" size="mini">
