@@ -94,6 +94,7 @@ export default {
   text-align: center;
   color: @sub-font-color;
   font-size: 14px;
+  // overflow: hidden;
   // background: #eee;
   .select {
     position: fixed;

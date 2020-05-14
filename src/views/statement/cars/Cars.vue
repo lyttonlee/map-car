@@ -71,7 +71,7 @@
           </div>
           <div class="logs">
             <template v-for="(item, index) in showingCar.logs">
-              <Log :log="item" :uniqueItem="showingCar.logs.length === 1" :isLast="index === showingCar.logs.length - 1" :key="index" />
+              <Log :log="item" :uniqueItem="showingCar.logs.length === 1" :isStart="index === 0" :isLast="index === showingCar.logs.length - 1" :key="index" />
             </template>
           </div>
         </div>

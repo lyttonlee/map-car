@@ -1,10 +1,10 @@
 <template>
   <div class="page home">
-    <div id="map" class="map"></div>
+    <div id="map" class="map" v-intro="'this is map'"></div>
     <div class="chart">
-      <div id="total-chart"></div>
+      <div v-intro="'this is components'" v-intro-step="2" id="total-chart"></div>
     </div>
-    <div class="list" v-if="showSide">
+    <div v-intro="'this is components'" v-intro-step="3" class="list" v-if="showSide">
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
@@ -30,7 +30,7 @@ import successCar from '../assets/img/car-blue.png'
 import errorCar from '../assets/img/car-red.png'
 import warnCar from '../assets/img/car-yellow.png'
 import {
-  initCarSize, initCarScale
+  initCarSize, initCarScale, introOption,
 } from '../config/config'
 import {
   getBindList,
@@ -78,7 +78,11 @@ export default {
       carMapNum: new Map(),
       showingCars: [],
       names: ['正常', '告警'],
+      skipIntro: true
     }
+  },
+  created () {
+    this.skipIntro = localStorage.getItem('homeIntro') || false
   },
   computed: {
     ...mapState(['mapInfo', 'carScale', 'productLineId', 'pointScale', 'childMapInfos', 'initMapZoom']),
@@ -272,6 +276,15 @@ export default {
       } else {
         return false
       }
+    },
+    guide () {
+      // console.log(this.$intro)
+      this.$intro().setOptions(introOption).start().oncomplete(() => {
+        console.log('over')
+        localStorage.setItem('homeIntro', true)
+      }).onexit(() => {
+        localStorage.setItem('homeIntro', true)
+      })
     },
     computeChartData () {
       let data = this.names.map((name, index) => {
@@ -924,6 +937,9 @@ export default {
     })
     // this.getCarInfo()
     // this.renderChart()
+    this.$nextTick().then(() => {
+      !this.skipIntro && this.guide()
+    })
   },
   beforeDestroy () {
     this.carListTime && clearInterval(this.carListTime)
@@ -975,6 +991,7 @@ export default {
     background: @base-background-opacity;
     // box-shadow: @shadow-base;
     padding: 40px 5px;
+    // box-sizing: border-box;
     .item {
       cursor: pointer;
       margin: 10px 0;

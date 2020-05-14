@@ -9,7 +9,7 @@
           总时长: {{ car.bindTime ? $moment(car.bindTime).toNow(true) : '未知'}}
         </div>
         <div class="item">车架号码: {{car.vehicleIdentification}}</div>
-        <div class="item">定 位 器: {{car.locatorSn}}<span><zx-icon customClass="icon-power" :type="computePowerIcon(car.power)"></zx-icon>{{car.power + '%'}}</span></div>
+        <div class="item">定 位 器: {{car.locatorSn}}<span><zx-icon customClass="icon-power" :type="computePowerIcon(car.power)"></zx-icon>{{car.power ? car.power > 100 ? '充电中..' : car.power + '%' : '1%'}}</span></div>
         <div class="item">当前位置: {{address}}</div>
         <div class="item">当前状态: {{computedCarStatu(car.status, car.bindTime)}}<span><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('超时')" type="zx-chaoshigaojing1"></zx-icon><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('告警')" type="zx-alarm"></zx-icon></span></div>
         <div class="item">指派: <template v-for="(icon, index) in icons">

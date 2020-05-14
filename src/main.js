@@ -17,10 +17,15 @@ import Icon from '@/components/Icon'
 // socket.io
 import VueSocketIo from 'vue-socket.io'
 
+// intro.js
+import VueIntro from 'vue-introjs'
+import 'intro.js/introjs.css'
+
 // moment
 import moment from 'moment'
 moment.locale('zh-cn')
 
+Vue.use(VueIntro)
 Vue.prototype.$moment = moment
 Vue.use(new VueSocketIo({
   debug: false,

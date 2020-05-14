@@ -1,6 +1,18 @@
+const webpack = require('webpack')
 module.exports = {
   assetsDir: 'static',
   lintOnSave: true,
+  configureWebpack: {
+    // externals: {
+    //   introJs: ['intro.js', 'introJs']
+    // },
+    plugins: [
+      new webpack.ProvidePlugin({
+        // other modules
+        introJs: ['intro.js', 'introJs']
+      })
+    ],
+  },
   devServer: {
     overlay: {
       error: false,
