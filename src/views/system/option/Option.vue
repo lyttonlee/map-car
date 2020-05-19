@@ -5,7 +5,8 @@
         <el-card>
           <div class="title">科室自动确认时间</div>
           <div class="content">
-            {{$moment.duration(confirmOption.param * 1, 'ms').humanize()}}
+            <!-- {{$moment.duration(confirmOption.param * 1, 'ms').humanize()}} -->
+            {{formatTime(confirmOption.param * 1 / 1000)}}
           </div>
           <div class="action">
             <el-button @click="editOption(confirmOption)" style="width: 100%" size="mini" round type="info">修改</el-button>
@@ -18,9 +19,9 @@
       <!-- {{showingOption}} -->
       <h3>修改科室自动确认时间</h3>
      <el-input size="small"  placeholder="请输入科室自动确认时间" v-model="confirmTime">
-      <template slot="append">{{'分钟'}}</template>
-    </el-input>
-    <div></div>
+        <template slot="append">{{'分钟'}}</template>
+      </el-input>
+      <div></div>
     </Modal>
   </div>
 </template>
@@ -30,6 +31,9 @@ import {
   updateConfirmTime,
 } from '../../../api/option'
 import Modal from '@/components/Modal'
+import {
+  formatTime,
+} from '../../../utils/utils'
 export default {
   components: {
     // Modal: () => import('../../../components/Modal')
@@ -46,6 +50,7 @@ export default {
     }
   },
   methods: {
+    formatTime,
     getInitOption () {
       getSystemOption().then((res) => {
         let { code, result } = res
@@ -95,6 +100,9 @@ export default {
             })
             this.$refs['modal'].isLoading = false
           }
+        }).catch((err) => {
+          console.log(err)
+          this.$refs['modal'].isLoading = false
         })
       } else {
         this.$notify.error({

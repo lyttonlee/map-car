@@ -130,3 +130,38 @@ export function computeCarScale (zoom) {
   }
   return carScale
 }
+
+/**
+ *
+ *
+ * @export
+ * @param {number} s 秒
+ */
+export function formatTime (s) {
+  console.log(s)
+  s = Math.floor(s)
+  let d, h, m, sec
+  if (s < 60) {
+    return s + '秒'
+  } else if (s < 60 * 60) {
+    m = Math.floor(s / 60)
+    sec = parseInt(s % 60)
+    return sec ? `${m}分钟${sec}秒` : `${m}分钟`
+  } else if (s < 24 * 60 * 60) {
+    h = Math.floor(s / 60 / 60)
+    let restSec = s % 3600
+    restSec ? m = Math.floor(restSec / 60) : m = 0
+    sec = restSec % 60
+    return `${h}小时${m ? `${m}分钟` : ''}${sec ? `${sec}秒` : ''}`
+  } else if (s < 30 * 24 * 60 * 60) {
+    d = Math.floor(s / 60 / 60 / 24)
+    let restSec = s % (3600 * 24)
+    h = Math.floor(restSec / 60 / 60)
+    let restSec2 = restSec % 3600
+    m = Math.floor(restSec2 / 60)
+    s = restSec2 % 60
+    return `${d}天${h ? `${h}小时` : ''}${m ? `${m}分钟` : ''}${sec ? `${sec}秒` : ''}`
+  } else {
+    return ''
+  }
+}

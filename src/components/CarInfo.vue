@@ -6,7 +6,8 @@
     <div class="car-info">
       <div class="section">
         <div class="all-time">
-          总时长: {{ car.bindTime ? $moment(car.bindTime).toNow(true) : '未知'}}
+          <!-- 总时长: {{ car.bindTime ? $moment(car.bindTime).toNow(true) : '未知'}} -->
+          总时长: {{ car.bindTime ? formatTime($moment().unix() - car.bindTime / 1000) : '未知'}}
         </div>
         <div class="item">车架号码: {{car.vehicleIdentification}}</div>
         <div class="item">定 位 器: {{car.locatorSn}}<span><zx-icon customClass="icon-power" :type="computePowerIcon(car.power)"></zx-icon>{{car.power ? car.power > 100 ? '充电中..' : car.power + '%' : '1%'}}</span></div>
@@ -59,7 +60,8 @@ import {
 } from '../api/common'
 import {
   computedCarNode,
-  computePowerIcon
+  computePowerIcon,
+  formatTime,
 } from '../utils/utils'
 import {
   mapGetters,
@@ -91,6 +93,7 @@ export default {
   methods: {
     computedCarNode,
     computePowerIcon,
+    formatTime,
     showDetail () {
       this.showProcess = !this.showProcess
     },

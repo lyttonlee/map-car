@@ -48,7 +48,7 @@ router.beforeEach((to, from, next) => {
     // console.log(to)
     return to.meta.role.includes(roles)
   }
-  // console.log(to)
+  console.log(to)
   if (to.meta.auth) {
     // 再判断是否是登录状态
     if (token) {
