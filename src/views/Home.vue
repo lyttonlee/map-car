@@ -1,10 +1,10 @@
 <template>
   <div class="page home">
-    <div id="map" class="map" v-intro="'this is map'"></div>
+    <div id="map" class="map" v-intro="'this is map'" v-intro-step="1"></div>
     <div class="chart">
-      <div v-intro="'this is components'" v-intro-step="2" id="total-chart"></div>
+      <div v-intro="'饼形图表会动态的显示当前所有在修车辆正常状态和异常状态(告警、超时)的数量和所占比例'" v-intro-step="3" id="total-chart"></div>
     </div>
-    <div v-intro="'this is components'" v-intro-step="3" class="list" v-if="showSide">
+    <div class="list" v-if="showSide">
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
@@ -14,7 +14,9 @@
     <div class="switch" @click="toggleShowSide">
       <zx-icon :type="showSide ? 'zx-guanbi1' : 'zx-Group-'" />
     </div>
-    <SmallMap v-if="allMaps.length > 1" :activeId="activeMapId" :maps="allMaps" @changeShownMap="changeMap" :carMapNum="carMapNum" />
+    <div v-intro="'点击科室名或者区域按钮可将显示的地图切换到对应(科室或区域)地图'" v-intro-step="2">
+      <SmallMap v-if="allMaps.length > 1" :activeId="activeMapId" :maps="allMaps" @changeShownMap="changeMap" :carMapNum="carMapNum" />
+    </div>
     <div class="global-map" v-show="showGlobalMap">
       <img :src="mapInfo.twoDFilePath" @click="changeMap(mapInfo.id)" alt="">
     </div>
@@ -160,6 +162,7 @@ export default {
         // console.log(currentCarIndex)
         // 如果bindCars 有这两车就更新这辆车的位置信息
         if (currentCarIndex !== -1) {
+          if (this.bindCars[currentCarIndex].locator.x === newPos.content.x && this.bindCars[currentCarIndex].locator.y === newPos.content.y) return
           this.bindCars[currentCarIndex].locator.x = newPos.content.x
           this.bindCars[currentCarIndex].locator.y = newPos.content.y
         }
@@ -282,26 +285,29 @@ export default {
       this.$intro().setOptions(introOption).start().oncomplete(() => {
         console.log('over')
         localStorage.setItem('homeIntro', true)
+        // this.$refs['carlist'].guide()
       }).onexit(() => {
         localStorage.setItem('homeIntro', true)
+        // this.$refs['carlist'].guide()
       })
     },
     computeChartData () {
       let data = this.names.map((name, index) => {
-        console.log(this.showingCars)
+        // console.log(this.showingCars)
+        let normalNums = this.showingCars.filter((car) => car.vehicle.status === 0).length
         if (index === 0) {
           return {
-            value: this.showingCars.filter((car) => car.vehicle.status === 0).length,
+            value: normalNums,
             name
           }
         } else {
           return {
-            value: this.showingCars.filter((car) => car.vehicle.status !== 0).length,
+            value: this.showingCars.length - normalNums,
             name
           }
         }
       })
-      console.log(data)
+      // console.log(data)
       return data
     },
     toggleShowSide () {
@@ -574,11 +580,12 @@ export default {
         productLineId: this.productLineId
       }
       getBindList(params).then((res) => {
-        console.log(res)
+        // console.log(res)
         if (res.code === 0) {
           this.bindCars = res.result
           if (!isInit) {
             console.log('fresh')
+            console.log(this.carListTime)
             // this.bindCars = [...this.bindCars]
             if (this.currentMapInfo.id === this.mapInfo.id) {
               this.showingCars = this.bindCars
@@ -595,9 +602,9 @@ export default {
               this.renderMarker(car)
             })
             this.showingCars = this.bindCars
+            this.renderChart()
           }
           this.carMapNum = this.computeAreaCarNums()
-          this.renderChart()
         }
       })
     },
@@ -893,7 +900,7 @@ export default {
         let { code, result } = res
         if (code === 0) {
           this.getBindCars(true)
-          this.carListTime = setInterval(this.getBindCars, 30000)
+          this.carListTime = setInterval(this.getBindCars, 600000)
           // console.log(result)
           let specalAreas = result.map((area) => {
             let points = area.points.split(';').map((item) => {

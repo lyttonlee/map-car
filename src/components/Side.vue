@@ -16,6 +16,11 @@
         </router-link>
       </template>
     </div>
+    <div class="user-guide">
+      <div>系统操作手册</div>
+      <div>PDA操作手册</div>
+      <div @click="resetGuide">系统操作指引</div>
+    </div>
   </div>
 </template>
 <script>
@@ -23,6 +28,9 @@ import {
   mapState,
   mapActions
 } from 'vuex'
+import {
+  introPages,
+} from '../config/config'
 export default {
   data () {
     return {
@@ -34,6 +42,12 @@ export default {
   },
   methods: {
     ...mapActions(['addExtraRoute']),
+    resetGuide () {
+      introPages.forEach((page) => {
+        localStorage.removeItem(page)
+      })
+      window.location.reload()
+    },
     logout () {
       this.$router.push('/login')
     },
@@ -102,6 +116,20 @@ export default {
       &:hover {
         background: @page-background;
         color: @font-color;
+      }
+    }
+  }
+  .user-guide {
+    width: 100%;
+    margin-top: 50px;
+    text-decoration: none;
+    color: #999;
+    border-top: 1px solid #666;
+    div {
+      padding: 10px 0;
+      cursor: pointer;
+      &:hover {
+        color: @sub-font-color;
       }
     }
   }

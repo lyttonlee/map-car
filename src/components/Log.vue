@@ -95,9 +95,9 @@ export default {
       // console.log(curData)
       let start = this.$moment(curData.in.time).format('YYYY-MM-DD HH:mm')
       let end = curData.out ? this.$moment(curData.out.time).format('YYYY-MM-DD HH:mm') : '维修中···'
-      let duration = curData.out ? this.$moment.duration(curData.out.time - curData.in.time, 'ms').asHours().toFixed(1) : this.$moment.duration(this.$moment().valueOf() - curData.in.time, 'ms').asHours().toFixed(2)
+      let duration = curData.out ? this.$moment.duration(curData.out.time - curData.in.time, 'ms').asHours().toFixed(2) : this.$moment.duration(this.$moment().valueOf() - curData.in.time, 'ms').asHours().toFixed(2)
       let note = curData.out && curData.out.param ? JSON.parse(curData.out.param).note : ''
-      // console.log(note)
+      // console.log(duration)
       return {
         start,
         end,

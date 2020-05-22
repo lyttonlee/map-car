@@ -3,7 +3,7 @@
     <div class="search">
       <el-input v-model="search" @keyup.enter.native="doSearch" @blur="doSearch" placeholder="请输入车架号"></el-input>
     </div>
-    <div class="search-box">
+    <div v-intro="'按类型和状态快速查询告警'" v-intro-step="1" class="search-box">
       <!-- <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="checkAllChange">全部告警类型</el-checkbox> -->
       <el-checkbox-group style="margin-left: 0px" :min="1" v-model="checkedAlarms" @change="checkedAlarmChange">
         <el-checkbox v-for="alarm in alarmValues" :label="alarm.code" :key="alarm.code">{{alarm.name}}</el-checkbox>
@@ -13,40 +13,42 @@
         <el-checkbox v-for="statu in alarmStatus" :label="statu.code" :key="statu.code">{{statu.name}}</el-checkbox>
       </el-checkbox-group>
     </div>
-    <el-table :data="alarms" style="width: 100%;background:#fff0" size="small">
-      <el-table-column label="类型">
-        <template slot-scope="scope">
-          <div><zx-icon class="error" style="font-size: 1.1rem" :type="computeAlarmIcon(scope.row.alarmCode)"></zx-icon> <span> {{formatAlarmType(scope.row.alarmCode)}}</span></div>
-        </template>
-      </el-table-column>
-      <el-table-column label="定位器SN" prop="locatorSn"></el-table-column>
-      <el-table-column label="车架号" prop="vehicleIdentification"></el-table-column>
-      <el-table-column label="告警信息" width="300px" prop="alarmMessage"></el-table-column>
-      <el-table-column label="状态">
-        <template slot-scope="scope">
-          <!-- <div :class="scope.row.alarmDispose ? '' : 'error'" >{{scope.row.alarmDispose === true ? '已处理' : '未处理'}}</div>
-          <div v-if="scope.row.alarmDispose">已处理</div> -->
-          <el-tooltip v-if="scope.row.alarmDispose" class="success" effect="dark" :content="scope.row.alarmAnnotation" placement="top">
-            <el-button type="text" size="small">已处理</el-button>
-          </el-tooltip>
-          <div v-else class="error">未处理</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="时间">
-        <template slot-scope="scope">
-          {{$moment(scope.row.alarmTime).format('YYYY-MM-DD HH:mm:ss')}}
-        </template>
-      </el-table-column>
-      <el-table-column label="位置" prop="address"></el-table-column>
-      <el-table-column label="操作">
-        <template slot-scope="scope">
-          <!-- <el-button size="mini" round type="info" :disabled="true" v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation || ''}}</el-button> -->
-          <div v-if="scope.row.alarmDispose === true">{{''}}</div>
-          <el-button v-if="scope.row.alarmDispose === true" round size="mini" :disabled="true"  type="info">处理告警</el-button>
-          <el-button v-else round size="mini" @click="doDispose(scope.row)" type="primary">处理告警</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div v-intro="'告警列表显示最近发生的告警，可通过 处理告警 按钮对该告警快速处理并标记'" v-intro-step="2">
+      <el-table :data="alarms" style="width: 100%;background:#fff0" size="small">
+        <el-table-column label="类型">
+          <template slot-scope="scope">
+            <div><zx-icon class="error" style="font-size: 1.1rem" :type="computeAlarmIcon(scope.row.alarmCode)"></zx-icon> <span> {{formatAlarmType(scope.row.alarmCode)}}</span></div>
+          </template>
+        </el-table-column>
+        <el-table-column label="定位器SN" prop="locatorSn"></el-table-column>
+        <el-table-column label="车架号" prop="vehicleIdentification"></el-table-column>
+        <el-table-column label="告警信息" width="300px" prop="alarmMessage"></el-table-column>
+        <el-table-column label="状态">
+          <template slot-scope="scope">
+            <!-- <div :class="scope.row.alarmDispose ? '' : 'error'" >{{scope.row.alarmDispose === true ? '已处理' : '未处理'}}</div>
+            <div v-if="scope.row.alarmDispose">已处理</div> -->
+            <el-tooltip v-if="scope.row.alarmDispose" class="success" effect="dark" :content="scope.row.alarmAnnotation" placement="top">
+              <el-button type="text" size="small">已处理</el-button>
+            </el-tooltip>
+            <div v-else class="error">未处理</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="时间">
+          <template slot-scope="scope">
+            {{$moment(scope.row.alarmTime).format('YYYY-MM-DD HH:mm:ss')}}
+          </template>
+        </el-table-column>
+        <el-table-column label="位置" prop="address"></el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <!-- <el-button size="mini" round type="info" :disabled="true" v-if="scope.row.alarmDispose === true">{{scope.row.alarmAnnotation || ''}}</el-button> -->
+            <div v-if="scope.row.alarmDispose === true">{{''}}</div>
+            <el-button v-if="scope.row.alarmDispose === true" round size="mini" :disabled="true"  type="info">处理告警</el-button>
+            <el-button v-else round size="mini" @click="doDispose(scope.row)" type="primary">处理告警</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
     <el-pagination
       class="pagination"
       :hide-on-single-page="false"
@@ -82,6 +84,9 @@ import {
 import {
   computeAlarmIcon,
 } from '../../utils/utils'
+import {
+  introOption
+} from '../../config/config'
 export default {
   data () {
     return {
@@ -105,6 +110,7 @@ export default {
       isStatuIndeterminate: false,
       checkAllStatu: true,
       checkedStatu: [1, 2],
+      skipIntro: true
     }
   },
   computed: {
@@ -113,6 +119,14 @@ export default {
   },
   methods: {
     computeAlarmIcon,
+    guide () {
+      // console.log(this.$intro)
+      this.$intro().setOptions(introOption).start().oncomplete(() => {
+        localStorage.setItem('alarmIntro', true)
+      }).onexit(() => {
+        localStorage.setItem('alarmIntro', true)
+      })
+    },
     // 解析告警类型
     formatAlarmType (code) {
       if (typeof this.alarmConfig !== 'object') return
@@ -226,7 +240,7 @@ export default {
     },
     // 全选告警类型状态改变
     checkAllChange (ev) {
-      console.log(ev)
+      // console.log(ev)
       if (ev) { // true
         this.isIndeterminate = false
         this.checkedAlarms = this.alarmValues.map((config) => {
@@ -279,9 +293,17 @@ export default {
   },
   created () {
     this.queryAlarmList()
+    // console.log(this.alarmValues)
     this.checkedAlarms = this.alarmValues.map((config) => {
       return config.code
     })
+    this.skipIntro = localStorage.getItem('alarmIntro') || false
+  },
+  mounted () {
+    // this.$nextTick().then(() => {
+    //   !this.skipIntro && this.guide()
+    // })
+    !this.skipIntro && this.guide()
   }
 }
 </script>

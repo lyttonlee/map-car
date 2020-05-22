@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <!-- <h2>statistics</h2> -->
-    <div class="action">
+    <div v-intro="'您可以通过选择预设的时间段或通过日历来手动选择时间段来查询统计数据,点击导出按钮可以将查询的时间段数据导出到excel表格'" v-intro-step="1" class="action">
       <el-date-picker
         :picker-options="pickerOption"
         type="daterange"
@@ -29,7 +29,7 @@
       </div>
     </div>
     <div class="chart">
-      <div id="line-broad"></div>
+      <div v-intro="'当选择的统计时间段较长时，可将鼠标指针移动到图标框内，您可以通过鼠标滚轮来控制显示数据的时间长度，也可以拖动下方的时间条来快速定位和控制时间段'" v-intro-step="2" id="line-broad"></div>
       <div id="line-store"></div>
     </div>
   </div>
@@ -41,12 +41,16 @@ import {
   downLoadReport
 } from '../../../api/statistic'
 import echarts from 'echarts'
+import {
+  introOption
+} from '../../../config/config'
 export default {
   components: {
     TotalItem: () => import('../../../components/TotalItem'),
   },
   data () {
     return {
+      skipIntro: true,
       dates: [],
       selectDates: [],
       start: '',
@@ -116,6 +120,14 @@ export default {
     },
   },
   methods: {
+    guide () {
+      // console.log(this.$intro)
+      this.$intro().setOptions(introOption).start().oncomplete(() => {
+        localStorage.setItem('statementIntro', true)
+      }).onexit(() => {
+        localStorage.setItem('statementIntro', true)
+      })
+    },
     changeDate (ev) {
       // console.log(ev)
       this.end = this.$moment().subtract('days', 1).startOf('day').valueOf()
@@ -202,13 +214,13 @@ export default {
               type: 'line',
               data: days.map((day) => {
                 if (index === 0) {
-                  return day.four.toFixed(2)
+                  return day.four.toFixed(2) * 100
                 }
                 if (index === 1) {
-                  return day.eight.toFixed(2)
+                  return day.eight.toFixed(2) * 100
                 }
                 if (index === 2) {
-                  return day.other.toFixed(2)
+                  return day.other.toFixed(2) * 100
                 }
               })
             })
@@ -521,9 +533,13 @@ export default {
         this.queryPageData()
       }
     })
+    this.skipIntro = localStorage.getItem('statementIntro') || false
   },
   mounted () {
     this.createCharts()
+    this.$nextTick().then(() => {
+      !this.skipIntro && this.guide()
+    })
   }
 }
 </script>

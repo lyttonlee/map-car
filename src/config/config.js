@@ -19,3 +19,15 @@ export const introOption = {
   tooltipClass: 'custom-bg',
   highlightClass: 'custom-bg',
 }
+
+export const introPages = [
+  'homeIntro',
+  'homeSideIntro',
+  'homeInfoIntro',
+  'vqIntro',
+  'alarmIntro',
+  'alarmConfigIntro',
+  'statementIntro',
+  'carListIntro',
+  'userIntro',
+]

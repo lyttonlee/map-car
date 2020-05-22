@@ -138,7 +138,7 @@ export function computeCarScale (zoom) {
  * @param {number} s 秒
  */
 export function formatTime (s) {
-  console.log(s)
+  // console.log(s)
   s = Math.floor(s)
   let d, h, m, sec
   if (s < 60) {

@@ -6,12 +6,12 @@
         <div :class="activeAreaIndex === index ? `menu active` : 'menu'" @click="changeArea(index)" :key="index">{{area}}</div>
       </template>
     </div> -->
-    <div class="header">
+    <div v-intro="'点击不同的状态标签可筛选并显示当前不同状态的车辆'" v-intro-step="4" class="header">
       <template v-for="(menu, index) in menus">
         <div :class="activeIndex === index ? `menu active` : 'menu'" @click="changeMenu(index)" :key="index">{{menu + ` (${renderedNum[index]})`}}</div>
       </template>
     </div>
-    <div class="list">
+    <div class="list" v-intro="'点击车辆列表可以显示该车的详细信息及维修流程信息！'" v-intro-step="5">
       <div class="list-item">
         <div>
           车辆状态
@@ -36,6 +36,9 @@ import moment from 'moment'
 import {
   mapGetters,
 } from 'vuex'
+import {
+  introOption
+} from '../config/config'
 export default {
   props: {
     cars: {
@@ -58,8 +61,8 @@ export default {
     ...mapGetters(['overtime']),
     renderedNum () {
       let alarmNum = this.renderedCars.filter((car) => car.vehicle.status !== 0).length
-      let overtimeNum = this.cars.filter((car) => this.formatTime(car.vehicleDeliverStatus.bindTime) * 1 >= this.overtime * 1).length
-      return [this.cars.length, alarmNum, overtimeNum]
+      let overtimeNum = this.renderedCars.filter((car) => this.formatTime(car.vehicleDeliverStatus.bindTime) * 1 >= this.overtime * 1).length
+      return [this.renderedCars.length, alarmNum, overtimeNum]
     },
   },
   created () {
@@ -76,9 +79,22 @@ export default {
     }
   },
   methods: {
+    guide () {
+      // console.log(this.$intro)
+      let homeSideIntro = !localStorage.getItem('homeSideIntro') || true
+      homeSideIntro && this.$intro().setOptions(introOption).start().oncomplete(() => {
+        console.log('over')
+        localStorage.setItem('homeSideIntro', true)
+        // this.$refs['carlist'].guide()
+      }).onexit(() => {
+        localStorage.setItem('homeSideIntro', true)
+        // this.$refs['carlist'].guide()
+      })
+    },
     // 搜索车架号查询
     doSearch () {
       this.renderedCars = this.computeRenderCars()
+      // console.log(this.renderedCars)
     },
     initCars () {
       // console.log(this.cars)
