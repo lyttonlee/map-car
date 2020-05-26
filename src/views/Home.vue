@@ -603,6 +603,10 @@ export default {
             })
             this.showingCars = this.bindCars
             this.renderChart()
+            // 只有在数据加载完成后才开始操作指引
+            this.$nextTick().then(() => {
+              !this.skipIntro && this.guide()
+            })
           }
           this.carMapNum = this.computeAreaCarNums()
         }
@@ -900,7 +904,7 @@ export default {
         let { code, result } = res
         if (code === 0) {
           this.getBindCars(true)
-          this.carListTime = setInterval(this.getBindCars, 600000)
+          this.carListTime = setInterval(this.getBindCars, 1800000)
           // console.log(result)
           let specalAreas = result.map((area) => {
             let points = area.points.split(';').map((item) => {
@@ -944,9 +948,6 @@ export default {
     })
     // this.getCarInfo()
     // this.renderChart()
-    this.$nextTick().then(() => {
-      !this.skipIntro && this.guide()
-    })
   },
   beforeDestroy () {
     this.carListTime && clearInterval(this.carListTime)

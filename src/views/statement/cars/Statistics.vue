@@ -121,7 +121,7 @@ export default {
   },
   methods: {
     guide () {
-      // console.log(this.$intro)
+      // console.log(this)
       this.$intro().setOptions(introOption).start().oncomplete(() => {
         localStorage.setItem('statementIntro', true)
       }).onexit(() => {
@@ -135,6 +135,7 @@ export default {
       // console.log(this.$moment(this.end).format('YYYY-MM-DD HH:mm:ss'))
       // console.log(this.$moment(this.start).format('YYYY-MM-DD HH:mm:ss'))
       // console.log(this.end > this.maxTime)
+      console.log(this.end)
       this.selectDates = []
       this.queryPageData()
     },
@@ -144,6 +145,8 @@ export default {
       let [start, end] = ev
       this.start = start.valueOf()
       this.end = end.valueOf()
+      // this.end = this.$moment(end).endOf('day').valueOf()
+      // console.log(this.end)
       this.queryPageData()
     },
     queryPageData () {
@@ -537,9 +540,15 @@ export default {
   },
   mounted () {
     this.createCharts()
-    this.$nextTick().then(() => {
+    // this.$nextTick().then(() => {
+    //   !this.skipIntro && this.guide()
+    // })
+    // this.$nextTick().then(() => {
+    //   !this.skipIntro && this.guide()
+    // })
+    setTimeout(() => {
       !this.skipIntro && this.guide()
-    })
+    }, 1000)
   }
 }
 </script>

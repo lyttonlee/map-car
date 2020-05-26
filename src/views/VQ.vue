@@ -920,7 +920,7 @@ export default {
         let { code, result } = res
         if (code === 0) {
           this.getBindCars(true)
-          this.carListTime = setInterval(this.getBindCars, 30000)
+          this.carListTime = setInterval(this.getBindCars, 1800000)
           // console.log(result)
           let specalAreas = result.map((area) => {
             let points = area.points.split(';').map((item) => {

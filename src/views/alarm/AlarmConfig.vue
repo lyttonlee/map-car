@@ -1,50 +1,52 @@
 <template>
   <div class="page">
     <div class="block"></div>
-    <el-table v-if="alarmConfig.length > 0" :data="alarmConfig" style="width: 100%;" size="small">
-      <el-table-column label="类型" prop="name">
-        <template slot-scope="scope">
-          <div class="error">
-            <zx-icon style="font-size: 1.1rem" :type="computeAlarmIcon(scope.row.code)"></zx-icon>
-            <span> {{ scope.row.name}}</span>
-          </div>
-        </template>
-      </el-table-column>
-      <!-- <el-table-column label="描述" prop="format"></el-table-column> -->
-      <el-table-column label="描述" prop="message"></el-table-column>
-      <el-table-column label="自动处理">
-        <template slot-scope="scope">
-          <div>{{scope.row.autoDispose === true ? '是' : '否'}}</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="是否启用">
-        <template slot-scope="scope">
-          <div>{{scope.row.enabled === true ? '是' : '否'}}</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="是否重复触发">
-        <template slot-scope="scope">
-          <div>{{scope.row.repeatFlag === true ? '可重复触发' : '仅触发一次'}}</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="阈值">
-        <template slot-scope="scope">
-          <div>{{formatThreshold(scope.row) || '--'}}</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作">
-        <template slot-scope="scope">
-          <el-button type="primary" size="mini" round @click="editAlarmConfig(scope.row)" >修改</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div v-intro="'列表会显示所有告警类型的配置信息，用户可按实际需求通过修改按钮对不同类型告警的阈值等的配置做修改'" v-intro-step="1">
+      <el-table v-if="alarmConfig.length > 0" :data="alarmConfig" style="width: 100%;" size="small">
+        <el-table-column label="类型" prop="name">
+          <template slot-scope="scope">
+            <div class="error">
+              <zx-icon style="font-size: 1.1rem" :type="computeAlarmIcon(scope.row.code)"></zx-icon>
+              <span> {{ scope.row.name}}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="描述" prop="format"></el-table-column> -->
+        <el-table-column label="描述" prop="message"></el-table-column>
+        <el-table-column label="自动处理">
+          <template slot-scope="scope">
+            <div>{{scope.row.autoDispose === true ? '是' : '否'}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="是否启用">
+          <template slot-scope="scope">
+            <div>{{scope.row.enabled === true ? '是' : '否'}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="是否重复触发">
+          <template slot-scope="scope">
+            <div>{{scope.row.repeatFlag === true ? '可重复触发' : '仅触发一次'}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="阈值">
+          <template slot-scope="scope">
+            <div>{{formatThreshold(scope.row) || '--'}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button type="primary" size="mini" round @click="editAlarmConfig(scope.row)" >修改</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
     <!-- {{alarmConfig}} -->
     <Modal ref="modal" v-if="showModal" @quit="quit" @ok="handleOk">
       <h3>修改告警配置</h3>
       <div class="config-alarm">
         <div>告警类型: <zx-icon style="font-size: 1.1rem" class="error" :type="computeAlarmIcon(content.code)"></zx-icon> <span class="error">{{ content.name}}</span></div>
         <div>告警信息: {{content.message}}</div>
-        <div v-if="content.thresholdOne">
+        <div  v-if="content.thresholdOne">
           <label>告警阈值: </label>
           <el-input size="small" style="width: 200px" v-if="content.code == 1" placeholder="请输入要修改的阈值" v-model="threshold">
             <template slot="append">{{computedAppend(content.code)}}</template>
@@ -75,6 +77,9 @@ import {
   editAlarm
 } from '../../api/alarm'
 import {
+  introOption
+} from '../../config/config'
+import {
   computeAlarmIcon,
 } from '../../utils/utils'
 import Modal from '@/components/Modal'
@@ -89,6 +94,7 @@ export default {
       content: '',
       threshold: '',
       overTime: '',
+      skipIntro: false,
     }
   },
   computed: {
@@ -97,6 +103,14 @@ export default {
   methods: {
     ...mapActions(['queryStatus']),
     computeAlarmIcon,
+    guide () {
+      // console.log(this)
+      this.$intro().setOptions(introOption).start().oncomplete(() => {
+        localStorage.setItem('alarmConfigIntro', true)
+      }).onexit(() => {
+        localStorage.setItem('alarmConfigIntro', true)
+      })
+    },
     formatThreshold (row) {
       // console.log(row)
       let { code, thresholdOne } = row
@@ -196,6 +210,14 @@ export default {
         })
       }
     },
+  },
+  created () {
+    this.skipIntro = localStorage.getItem('alarmConfigIntro') || false
+  },
+  mounted () {
+    setTimeout(() => {
+      !this.skipIntro && this.guide()
+    }, 1000)
   }
 }
 </script>

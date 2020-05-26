@@ -1,7 +1,7 @@
 <template>
   <div class="page">
-    <div class="head">
-      <el-button v-if="!officeName" type="primary" size="mini" round @click="addUser">添加用户</el-button>
+    <div v-intro="'当您时PC(管理员)或VQ时，您可以通过添加用户来增加科室用户，同时您也可以删除或修改下级用户'" v-intro-step="1" v-if="!officeName" class="head">
+      <el-button type="primary" size="mini" round @click="addUser">添加用户</el-button>
     </div>
     <!-- <div class="list">
       <el-table :data="users" style="width: 100%;background:#fff0" size="mini">
@@ -201,6 +201,9 @@ import {
   mapState,
 } from 'vuex'
 import {
+  introOption
+} from '../../../config/config'
+import {
   queryUsers,
   deleteUser
 } from '../../../api/user'
@@ -219,6 +222,7 @@ export default {
       pc: [],
       vq: [],
       section: [],
+      skipIntro: false,
     }
   },
   computed: {
@@ -226,6 +230,14 @@ export default {
   },
   methods: {
     ...mapActions(['requestRoles']),
+    guide () {
+      // console.log(this)
+      this.$intro().setOptions(introOption).start().oncomplete(() => {
+        localStorage.setItem('userIntro', true)
+      }).onexit(() => {
+        localStorage.setItem('userIntro', true)
+      })
+    },
     formatRole (roles) {
       let roleText = ''
       roles.forEach((role) => {
@@ -289,7 +301,13 @@ export default {
   created () {
     this.requestRoles()
     this.queryAllUser()
+    this.skipIntro = localStorage.getItem('userIntro') || false
   },
+  mounted () {
+    setTimeout(() => {
+      !this.skipIntro && this.guide()
+    }, 1000)
+  }
 }
 </script>
 <style lang="less" scoped>

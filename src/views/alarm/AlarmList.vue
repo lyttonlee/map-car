@@ -303,7 +303,9 @@ export default {
     // this.$nextTick().then(() => {
     //   !this.skipIntro && this.guide()
     // })
-    !this.skipIntro && this.guide()
+    setTimeout(() => {
+      !this.skipIntro && this.guide()
+    }, 1000)
   }
 }
 </script>
