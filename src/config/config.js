@@ -30,4 +30,5 @@ export const introPages = [
   'statementIntro',
   'carListIntro',
   'userIntro',
+  'officeIntro'
 ]

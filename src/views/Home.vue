@@ -1,6 +1,6 @@
 <template>
   <div class="page home">
-    <div id="map" class="map" v-intro="'this is map'" v-intro-step="1"></div>
+    <div id="map" class="map" v-intro="'当前所有在修车辆的位置和基本信息会以小车辆图标的形式在地图上显示，点击车辆图标会弹出车辆的基本信息和维修详细信息'" v-intro-step="1"></div>
     <div class="chart">
       <div v-intro="'饼形图表会动态的显示当前所有在修车辆正常状态和异常状态(告警、超时)的数量和所占比例'" v-intro-step="3" id="total-chart"></div>
     </div>
@@ -420,20 +420,42 @@ export default {
     // 计算各科室有多少辆车
     computeAreaCarNums () {
       let carMap = new Map()
-      let mapPoints
-      this.childMapInfos.forEach((mapInfo) => {
+      // let mapPoints
+      // this.childMapInfos.forEach((mapInfo) => {
+      //   carMap.set(mapInfo.id, 0)
+      //   mapPoints = this.computeMapPoints(mapInfo)
+      //   for (let i = 0; i < this.bindCars.length; i++) {
+      //     let point = [this.bindCars[i].locator.y / this.pointScale, this.bindCars[i].locator.x / this.pointScale]
+      //     // console.log(point)
+      //     // console.log(mapPoints)
+      //     if (isInPolygon(point, mapPoints)) {
+      //       // console.log('+1')
+      //       carMap.set(mapInfo.id, carMap.get(mapInfo.id) + 1)
+      //     }
+      //   }
+      // })
+      // 优化算法
+      let mapBounds = this.childMapInfos.map((mapInfo) => {
         carMap.set(mapInfo.id, 0)
-        mapPoints = this.computeMapPoints(mapInfo)
-        for (let i = 0; i < this.bindCars.length; i++) {
-          let point = [this.bindCars[i].locator.y / this.pointScale, this.bindCars[i].locator.x / this.pointScale]
-          // console.log(point)
-          // console.log(mapPoints)
-          if (isInPolygon(point, mapPoints)) {
-            // console.log('+1')
-            carMap.set(mapInfo.id, carMap.get(mapInfo.id) + 1)
-          }
+        return {
+          mapId: mapInfo.id,
+          points: this.computeMapPoints(mapInfo)
         }
       })
+      for (let i = 0; i < this.bindCars.length; i++) {
+        let point = [this.bindCars[i].locator.y / this.pointScale, this.bindCars[i].locator.x / this.pointScale]
+        let smallMapIndex = mapBounds.length - 1
+        while (smallMapIndex >= 0) {
+          if (isInPolygon(point, mapBounds[smallMapIndex].points)) {
+            // ..
+            let tem = carMap.get(mapBounds[smallMapIndex].id) || 0
+            carMap.set(mapBounds[smallMapIndex].id, tem + 1)
+            break
+          }
+          smallMapIndex--
+        }
+      }
+      // 优化结束
       carMap.set(this.mapInfo.id, this.bindCars.length)
       // console.log(carMap)
       return carMap

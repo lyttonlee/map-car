@@ -1,14 +1,14 @@
 <template>
   <div class="page home">
-    <div id="map" class="map"></div>
-    <div class="list" v-if="showSide">
+    <div id="map" class="map" v-intro="'当前所有在修车辆的位置和基本信息会以小车辆图标的形式在地图上显示，点击车辆图标会弹出车辆的基本信息和维修详细信息'" v-intro-step="1"></div>
+    <div class="list" v-intro="'车辆列表会显示当前科室的在修车辆和待修车辆列表，点击列表项可以显示该车的详细信息及维修流程信息，同时需要科室人员在完成时做流程确认'" v-intro-step="2" v-if="showSide">
       <CarList ref="carlist" @showCarInfo="showCarInfo" :repair="repairCars" :pending="pendingCars" />
     </div>
     <div class="switch" @click="toggleShowSide">
       <zx-icon :type="showSide ? 'zx-guanbi1' : 'zx-Group-'" />
     </div>
     <CarInfo :car="showingCar" :type="showingCarType" @close="closeInfo" @refreshList="refreshList" v-if="isShowing" />
-    <div class="total">
+    <div class="total" v-intro="'统计区域会显示今日该科室到目前共完成了多少辆车的维修任务，同时也会计算维修每一辆车的平均耗时'" v-intro-step="3">
       <div class="item">
         <div class="key">
           <zx-icon type="zx-xiuli"></zx-icon>
@@ -38,7 +38,8 @@ import successCar from '../assets/img/car-blue.png'
 import errorCar from '../assets/img/car-red.png'
 import warnCar from '../assets/img/car-yellow.png'
 import {
-  initCarSize
+  initCarSize,
+  introOption
 } from '../config/config'
 import {
   getWorkShopCars,
@@ -93,6 +94,7 @@ export default {
       showingCarType: '',
       repairedCarsNum: 0,
       averageTime: 0,
+      skipIntro: true
     }
   },
   computed: {
@@ -282,6 +284,17 @@ export default {
       } else {
         return false
       }
+    },
+    guide () {
+      // console.log(this.$intro)
+      this.$intro().setOptions(introOption).start().oncomplete(() => {
+        // console.log('over')
+        localStorage.setItem('officeIntro', true)
+        // this.$refs['carlist'].guide()
+      }).onexit(() => {
+        localStorage.setItem('officeIntro', true)
+        // this.$refs['carlist'].guide()
+      })
     },
     toggleShowSide () {
       this.showSide = !this.showSide
@@ -519,6 +532,9 @@ export default {
             this.pendingCars.forEach((car) => {
               this.renderMarker(car)
             })
+            this.$nextTick().then(() => {
+              !this.skipIntro && this.guide()
+            })
           }
         }
       })
@@ -747,7 +763,7 @@ export default {
           // this.map.off
           this.map.on('dblclick', this.dbClickToChangeMap)
           this.showGlobalMap = false
-          console.log(this.map)
+          // console.log(this.map)
         } else if (newVal.parentId && this.map.listens('dblclick')) {
           this.map.off('dblclick', this.dbClickToChangeMap)
           this.showGlobalMap = true
@@ -757,10 +773,13 @@ export default {
       deep: true
     }
   },
+  created () {
+    this.skipIntro = localStorage.getItem('officeIntro') || false
+  },
   mounted () {
     this.getMapInfo().then(() => {
-      console.log(this.childMapInfos)
-      console.log(this.officeName)
+      // console.log(this.childMapInfos)
+      // console.log(this.officeName)
       let mapInfo = this.childMapInfos.find((mapInfo) => mapInfo.name === this.officeName)
       if (!mapInfo) {
         this.$notify.error({
@@ -820,11 +839,11 @@ export default {
         id: mapInfo.id
       }
       getSpecicalFence(params).then((res) => {
-        console.log(res)
+        // console.log(res)
         let { code, result } = res
         if (code === 0) {
           this.getBindCars(true)
-          this.carListTime = setInterval(this.getBindCars, 10000)
+          this.carListTime = setInterval(this.getBindCars, 600000)
           // console.log(result)
           let specalAreas = result.map((area) => {
             let points = area.points.split(';').map((item) => {
@@ -868,7 +887,7 @@ export default {
     })
     // this.getCarInfo()
     this.getWorkShopStatistic()
-    this.statisticTime = setInterval(this.getWorkShopStatistic, 5000)
+    this.statisticTime = setInterval(this.getWorkShopStatistic, 60000)
   },
   beforeDestroy () {
     this.carListTime && clearInterval(this.carListTime)

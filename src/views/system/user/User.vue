@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div v-intro="'当您时PC(管理员)或VQ时，您可以通过添加用户来增加科室用户，同时您也可以删除或修改下级用户'" v-intro-step="1" v-if="!officeName" class="head">
+    <div v-intro="'当您是PC(管理员)或VQ时，您可以通过添加用户来增加科室用户，同时您也可以删除或修改下级用户'" v-intro-step="1" v-if="!officeName" class="head">
       <el-button type="primary" size="mini" round @click="addUser">添加用户</el-button>
     </div>
     <!-- <div class="list">
