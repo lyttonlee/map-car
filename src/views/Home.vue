@@ -204,7 +204,18 @@ export default {
           currentMarker.moveTo([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], 500, newPos.content.angle)
         }
         currentMarker.angle = newPos.content.angle
-        this.carMapNum = this.computeAreaCarNums()
+        // 计算区域
+        // this.carMapNum = this.computeAreaCarNums()
+        let point = [newPos.content.y / this.pointScale, newPos.content.x / this.pointScale]
+        let mapId = this.computeWhichArea(point)
+        if (this.bindCars[currentCarIndex].areaId !== mapId) {
+          if (this.bindCars[currentCarIndex].areaId !== -1) {
+            this.carMapNum.set(this.bindCars[currentCarIndex].areaId, this.carMapNum.get(this.bindCars[currentCarIndex].areaId) - 1)
+          }
+          if (mapId !== -1) {
+            this.carMapNum.set(mapId, this.carMapNum.get(mapId) + 1)
+          }
+        }
       }
     },
     bind (data) {
@@ -214,13 +225,24 @@ export default {
       // 验证这辆车是否已存在与列表中，若存在则无视，若不存在则在车辆列表中添加这辆车并创建一个新的marker
       const carId = newCar.vehicle.id
       let hasThisCar = this.bindCars.find((car) => car.vehicle.id === carId)
+      let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.id === carId)
       // console.log(hasThisCar)
       if (!hasThisCar) {
         console.log('add car')
         this.bindCars.push(newCar)
         this.showingCars.push(newCar)
         this.renderMarker(newCar)
-        this.carMapNum = this.computeAreaCarNums()
+        // this.carMapNum = this.computeAreaCarNums()
+        let point = [newCar.locator.y / this.pointScale, newCar.locator.x / this.pointScale]
+        let mapId = this.computeWhichArea(point)
+        if (this.bindCars[currentCarIndex].areaId !== mapId) {
+          if (this.bindCars[currentCarIndex].areaId !== -1) {
+            this.carMapNum.set(this.bindCars[currentCarIndex].areaId, this.carMapNum.get(this.bindCars[currentCarIndex].areaId) - 1)
+          }
+          if (mapId !== -1) {
+            this.carMapNum.set(mapId, this.carMapNum.get(mapId) + 1)
+          }
+        }
       }
     },
     unbind (data) {
@@ -232,11 +254,14 @@ export default {
       let shownCarIndex = this.showingCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
       // 移除数据
       if (carIndex !== -1 && shownCarIndex !== -1) { // 存在这辆车
+        if (this.bindCars[carIndex].areaId !== -1) {
+          this.carMapNum.set(this.bindCars[carIndex].areaId, this.carMapNum.get(this.bindCars[carIndex].areaId) - 1)
+        }
         this.bindCars.splice(carIndex, 1)
         this.showingCars.splice(shownCarIndex, 1)
         // 找出这个marker
         // 找到对应的marker
-        this.carMapNum = this.computeAreaCarNums()
+        // this.carMapNum = this.computeAreaCarNums()
         let markerIndex = this.markers.findIndex((item) => item.id === removeCar.vehicle.id)
         if (markerIndex !== -1) {
           let currentMarker = this.markers[markerIndex].marker
@@ -436,6 +461,7 @@ export default {
       // })
       // 优化算法
       let mapBounds = this.childMapInfos.map((mapInfo) => {
+        // console.log(mapInfo)
         carMap.set(mapInfo.id, 0)
         return {
           mapId: mapInfo.id,
@@ -448,17 +474,41 @@ export default {
         while (smallMapIndex >= 0) {
           if (isInPolygon(point, mapBounds[smallMapIndex].points)) {
             // ..
-            let tem = carMap.get(mapBounds[smallMapIndex].id) || 0
-            carMap.set(mapBounds[smallMapIndex].id, tem + 1)
+            let tem = carMap.get(mapBounds[smallMapIndex].mapId) || 0
+            // ..
+            this.bindCars[i].areaId = mapBounds[smallMapIndex].mapId
+            carMap.set(mapBounds[smallMapIndex].mapId, tem + 1)
+            // console.log(carMap)
             break
           }
           smallMapIndex--
         }
+        this.bindCars[i].areaId = -1
       }
       // 优化结束
       carMap.set(this.mapInfo.id, this.bindCars.length)
       // console.log(carMap)
       return carMap
+    },
+    /*
+    * @return {id}
+    * @param point {point}
+    */
+    computeWhichArea (point) {
+      let mapBounds = this.childMapInfos.map((mapInfo) => {
+        return {
+          mapId: mapInfo.id,
+          points: this.computeMapPoints(mapInfo)
+        }
+      })
+      let smallMapIndex = mapBounds.length - 1
+      while (smallMapIndex >= 0) {
+        if (isInPolygon(point, mapBounds[smallMapIndex].points)) {
+          return mapBounds[smallMapIndex].mapId
+        }
+        smallMapIndex--
+      }
+      return -1
     },
     // hignliaght marker
     hignlightMarker (carId, car) {
