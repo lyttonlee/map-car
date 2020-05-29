@@ -17,7 +17,9 @@
       </template>
     </div>
     <div class="user-guide">
-      <div>系统操作手册</div>
+      <div>
+        <a class="a-link" href="/web-doc.html" target="_blank">WEB操作手册</a>
+      </div>
       <div>PDA操作手册</div>
       <div @click="resetGuide">系统操作指引</div>
     </div>
@@ -130,6 +132,13 @@ export default {
       cursor: pointer;
       &:hover {
         color: @sub-font-color;
+      }
+      .a-link {
+        text-decoration: none;
+        color: #999;
+        &:hover {
+          color: @sub-font-color;
+        }
       }
     }
   }

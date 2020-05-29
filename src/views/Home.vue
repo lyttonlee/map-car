@@ -215,6 +215,7 @@ export default {
           if (mapId !== -1) {
             this.carMapNum.set(mapId, this.carMapNum.get(mapId) + 1)
           }
+          this.carMapNum = new Map([...this.carMapNum])
         }
       }
     },
@@ -235,6 +236,7 @@ export default {
         // this.carMapNum = this.computeAreaCarNums()
         let point = [newCar.locator.y / this.pointScale, newCar.locator.x / this.pointScale]
         let mapId = this.computeWhichArea(point)
+        console.log(this.bindCars)
         if (this.bindCars[currentCarIndex].areaId !== mapId) {
           if (this.bindCars[currentCarIndex].areaId !== -1) {
             this.carMapNum.set(this.bindCars[currentCarIndex].areaId, this.carMapNum.get(this.bindCars[currentCarIndex].areaId) - 1)
@@ -242,6 +244,7 @@ export default {
           if (mapId !== -1) {
             this.carMapNum.set(mapId, this.carMapNum.get(mapId) + 1)
           }
+          this.carMapNum = new Map([...this.carMapNum])
         }
       }
     },
@@ -256,6 +259,7 @@ export default {
       if (carIndex !== -1 && shownCarIndex !== -1) { // 存在这辆车
         if (this.bindCars[carIndex].areaId !== -1) {
           this.carMapNum.set(this.bindCars[carIndex].areaId, this.carMapNum.get(this.bindCars[carIndex].areaId) - 1)
+          this.carMapNum = new Map([...this.carMapNum])
         }
         this.bindCars.splice(carIndex, 1)
         this.showingCars.splice(shownCarIndex, 1)
@@ -976,7 +980,7 @@ export default {
         let { code, result } = res
         if (code === 0) {
           this.getBindCars(true)
-          this.carListTime = setInterval(this.getBindCars, 1800000)
+          // this.carListTime = setInterval(this.getBindCars, 1800000)
           // console.log(result)
           let specalAreas = result.map((area) => {
             let points = area.points.split(';').map((item) => {

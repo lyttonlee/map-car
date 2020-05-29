@@ -5,7 +5,7 @@ import router from '../router'
 // 创建 axios 实例
 const request = axios.create({
   baseURL: '/',
-  timeout: 10000
+  timeout: 160000
 })
 
 const err = (error) => {

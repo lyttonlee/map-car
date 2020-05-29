@@ -747,7 +747,7 @@ export default {
       // 为marker绑上车和定位器的ID
       marker.carId = car.vehicle.id
       marker.locatorId = car.locator.id
-      marker.bindPopup(`<div>车 架 号: ${car.vehicle.identification}</div><div>标 签 号: ${car.locator.sn}</div>`)
+      marker.bindPopup(`<div>车 架 号: ${car.vehicle.identification}</div><div>标 签 号: ${car.locator.sn}</div><div>位 置 : ${car.locator.address}</div>`)
       // 判断是否是特殊区域点
       // const inSpeacalArea = (existenceZone) => {}
       if (car.locator.existenceZone) { // 特殊区域点
