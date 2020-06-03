@@ -78,6 +78,15 @@ export default {
       deep: true
     }
   },
+  mounted () {
+    this.freshTime = setInterval(() => {
+      this.renderedCars = [...this.renderedCars]
+    }, 60000)
+  },
+  beforeDestroy () {
+    this.freshTime && clearInterval(this.freshTime)
+    this.freshTime = null
+  },
   methods: {
     guide () {
       // console.log(this.$intro)

@@ -982,6 +982,9 @@ export default {
           this.getBindCars(true)
           // this.carListTime = setInterval(this.getBindCars, 1800000)
           // console.log(result)
+          // this.carListTime = setInterval(() => {
+          //   this.bindCars = [...this.bindCars]
+          // }, 60000)
           let specalAreas = result.map((area) => {
             let points = area.points.split(';').map((item) => {
               let [x, y] = item.split('_')
