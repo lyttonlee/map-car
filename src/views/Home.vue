@@ -81,7 +81,7 @@ export default {
       showingCars: [],
       names: ['正常', '告警'],
       skipIntro: true,
-      carMap: {}
+      carMarkerMap: {}
     }
   },
   created () {
@@ -154,12 +154,15 @@ export default {
       const newPos = JSON.parse(data)
       // console.log(newPos)
       // 找到对应的marker
-      let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
+      // let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
+      let index = this.carMarkerMap[newPos.content.id]
+      let markerIndex = index
       // 移动位置
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker
         // console.log(this.bindCars)
-        let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.locatorId === newPos.content.id)
+        // let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.locatorId === newPos.content.id)
+        let currentCarIndex = index
         // console.log(currentCarIndex)
         // 如果bindCars 有这两车就更新这辆车的位置信息
         if (currentCarIndex !== -1) {
@@ -233,7 +236,7 @@ export default {
         // console.log('add car')
         this.bindCars.push(newCar)
         this.showingCars.push(newCar)
-        this.renderMarker(newCar)
+        this.renderMarker(newCar, this.bindCars.length)
         // this.carMapNum = this.computeAreaCarNums()
         let point = [newCar.locator.y / this.pointScale, newCar.locator.x / this.pointScale]
         let mapId = this.computeWhichArea(point)
@@ -582,7 +585,7 @@ export default {
       }
     },
     // 渲染车辆点到地图上
-    renderMarker (car) {
+    renderMarker (car, index) {
       // console.log(car)
       // let bindTime = car.vehicleDeliverStatus.bindTime
       // console.log(bindTime)
@@ -619,11 +622,19 @@ export default {
         marker.inSpecialArea = false
         this.map && marker.addTo(this.map)
       }
-      this.markers.push({
+      // this.markers.push({
+      //   marker,
+      //   id: car.vehicle.id,
+      //   locatorId: car.locator.id
+      // })
+      this.markers[index] = {
         marker,
         id: car.vehicle.id,
         locatorId: car.locator.id
-      })
+      }
+      this.carMarkerMap[car.locator.id] = index
+      // console.log(this.carMarkerMap)
+      // console.log(this.markers)
     },
     formatTime (s) {
       let repairTime = this.$moment().valueOf() - s
@@ -681,8 +692,8 @@ export default {
             }
           }
           if (this.bindCars.length > 0 && isInit === true) {
-            this.bindCars.forEach((car) => {
-              this.renderMarker(car)
+            this.bindCars.forEach((car, index) => {
+              this.renderMarker(car, index)
             })
             this.showingCars = this.bindCars
             this.renderChart()
