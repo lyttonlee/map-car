@@ -80,7 +80,8 @@ export default {
       carMapNum: new Map(),
       showingCars: [],
       names: ['正常', '告警'],
-      skipIntro: true
+      skipIntro: true,
+      carMap: {}
     }
   },
   created () {
@@ -229,14 +230,14 @@ export default {
       let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.id === carId)
       // console.log(hasThisCar)
       if (!hasThisCar) {
-        console.log('add car')
+        // console.log('add car')
         this.bindCars.push(newCar)
         this.showingCars.push(newCar)
         this.renderMarker(newCar)
         // this.carMapNum = this.computeAreaCarNums()
         let point = [newCar.locator.y / this.pointScale, newCar.locator.x / this.pointScale]
         let mapId = this.computeWhichArea(point)
-        console.log(this.bindCars)
+        // console.log(this.bindCars)
         if (this.bindCars[currentCarIndex].areaId !== mapId) {
           if (this.bindCars[currentCarIndex].areaId !== -1) {
             this.carMapNum.set(this.bindCars[currentCarIndex].areaId, this.carMapNum.get(this.bindCars[currentCarIndex].areaId) - 1)
@@ -312,7 +313,7 @@ export default {
     guide () {
       // console.log(this.$intro)
       this.$intro().setOptions(introOption).start().oncomplete(() => {
-        console.log('over')
+        // console.log('over')
         localStorage.setItem('homeIntro', true)
         // this.$refs['carlist'].guide()
       }).onexit(() => {
@@ -448,6 +449,8 @@ export default {
     },
     // 计算各科室有多少辆车
     computeAreaCarNums () {
+      // console.log(new Data().valueOf())
+      // let start = new Date().valueOf()
       let carMap = new Map()
       // let mapPoints
       // this.childMapInfos.forEach((mapInfo) => {
@@ -492,6 +495,9 @@ export default {
       // 优化结束
       carMap.set(this.mapInfo.id, this.bindCars.length)
       // console.log(carMap)
+      // let end = new Date().valueOf()
+      // console.log(end)
+      // console.log(end - this.start)
       return carMap
     },
     /*
@@ -521,7 +527,7 @@ export default {
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker
         // setPopupContent
-        console.log(car)
+        // console.log(car)
         // currentMarker.setPopupContent(`<div>车 架 号: ${car.vehicleIdentification}</div><div>标 签 号: ${car.locatorSn}</div><div>${car.locatorY + ' ' + car.locatorX}</div>`)
         let isOpenPopup = currentMarker.isPopupOpen()
         if (!isOpenPopup) {
@@ -658,10 +664,11 @@ export default {
       getBindList(params).then((res) => {
         // console.log(res)
         if (res.code === 0) {
+          // this.start = new Date().valueOf()
           this.bindCars = res.result
           if (!isInit) {
-            console.log('fresh')
-            console.log(this.carListTime)
+            // console.log('fresh')
+            // console.log(this.carListTime)
             // this.bindCars = [...this.bindCars]
             if (this.currentMapInfo.id === this.mapInfo.id) {
               this.showingCars = this.bindCars
@@ -731,12 +738,12 @@ export default {
     },
     // 改变特殊区域的数量
     changeSpecialAreaNum (name, isAdd) {
-      console.log(name)
+      // console.log(name)
       for (let i = 0; i < this.specalAreas.length; i++) {
-        console.log(this.specalAreas[i].name)
-        console.log(typeof name)
+        // console.log(this.specalAreas[i].name)
+        // console.log(typeof name)
         if (name.includes(this.specalAreas[i].name)) {
-          console.log('+1 -1')
+          // console.log('+1 -1')
           if (isAdd === true) {
             this.specalAreas[i].sum++
           } else {
@@ -758,11 +765,11 @@ export default {
       let divMarker = L.marker(center, { icon: myIcon })
       divMarker.name = specalArea.name
       divMarker.id = specalArea.id
-      console.log(divMarker)
+      // console.log(divMarker)
       this.divMarkers.push(divMarker)
       divMarker.addTo(this.map)
-      console.log(this.divMarkers)
-      console.log(this.markers)
+      // console.log(this.divMarkers)
+      // console.log(this.markers)
     },
     // 更新聚合点
     updateDivMarker (area) {
