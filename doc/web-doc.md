@@ -69,3 +69,6 @@ toc:
 
 <!-- @import "option.md" -->
 
+### 操作指引
+
+<!-- @import "guide.md" -->
