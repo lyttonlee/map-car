@@ -70,6 +70,7 @@ export default {
       isShowing: false,
       // 绑定
       bindCars: [],
+      isLoadOK: false, // 几点页面加载是否完成
       markers: [],
       showingCar: {},
       specalAreas: [],
@@ -149,6 +150,10 @@ export default {
     },
     position (data) {
       console.log('接收到position事件推送')
+      if (!this.isLoadOK) {
+        // console.log('页面数据尚未计算完成，忽略本次位置推送')
+        return
+      }
       // console.log(data)
       // console.log(this.bindCars)
       const newPos = JSON.parse(data)
@@ -156,9 +161,11 @@ export default {
       // 找到对应的marker
       // let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
       let index = this.carMarkerMap[newPos.content.id]
+      console.log(this.carMarkerMap)
       let markerIndex = index
       // 移动位置
       if (markerIndex !== -1) {
+        console.log(this.markers)
         let currentMarker = this.markers[markerIndex].marker
         // console.log(this.bindCars)
         // let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.locatorId === newPos.content.id)
@@ -166,6 +173,7 @@ export default {
         // console.log(currentCarIndex)
         // 如果bindCars 有这两车就更新这辆车的位置信息
         if (currentCarIndex !== -1) {
+          console.log(this.bindCars[currentCarIndex])
           if (this.bindCars[currentCarIndex].locator.x === newPos.content.x && this.bindCars[currentCarIndex].locator.y === newPos.content.y) return
           this.bindCars[currentCarIndex].locator.x = newPos.content.x
           this.bindCars[currentCarIndex].locator.y = newPos.content.y
@@ -219,11 +227,16 @@ export default {
           if (mapId !== -1) {
             this.carMapNum.set(mapId, this.carMapNum.get(mapId) + 1)
           }
+          this.bindCars[currentCarIndex].areaId = mapId
           this.carMapNum = new Map([...this.carMapNum])
         }
       }
     },
     bind (data) {
+      if (!this.isLoadOK) {
+        console.log('页面数据尚未计算完成，忽略本次位置推送')
+        return
+      }
       // console.log(data)
       const newCar = JSON.parse(data)
       console.log(newCar)
@@ -253,6 +266,10 @@ export default {
       }
     },
     unbind (data) {
+      if (!this.isLoadOK) {
+        console.log('页面数据尚未计算完成，忽略本次位置推送')
+        return
+      }
       const removeCar = JSON.parse(data)
       console.log('删除了car')
       // console.log(removeCar)
@@ -488,16 +505,17 @@ export default {
             // ..
             this.bindCars[i].areaId = mapBounds[smallMapIndex].mapId
             carMap.set(mapBounds[smallMapIndex].mapId, tem + 1)
-            // console.log(carMap)
             break
           }
           smallMapIndex--
         }
-        this.bindCars[i].areaId = -1
+        if (!this.bindCars[i].hasOwnProperty('areaId')) {
+          this.bindCars[i].areaId = -1
+        }
       }
       // 优化结束
       carMap.set(this.mapInfo.id, this.bindCars.length)
-      // console.log(carMap)
+      console.log(carMap)
       // let end = new Date().valueOf()
       // console.log(end)
       // console.log(end - this.start)
@@ -703,6 +721,7 @@ export default {
             })
           }
           this.carMapNum = this.computeAreaCarNums()
+          this.isLoadOK = true
         }
       })
     },
@@ -998,7 +1017,7 @@ export default {
         let { code, result } = res
         if (code === 0) {
           this.getBindCars(true)
-          // this.carListTime = setInterval(this.getBindCars, 1800000)
+          this.carListTime = setInterval(this.getBindCars, 1800000)
           // console.log(result)
           // this.carListTime = setInterval(() => {
           //   this.bindCars = [...this.bindCars]
