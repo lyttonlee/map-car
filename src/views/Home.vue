@@ -172,6 +172,11 @@ export default {
         let currentCarIndex = index
         // console.log(currentCarIndex)
         // 如果bindCars 有这两车就更新这辆车的位置信息
+        // if (!newPos.content.existenceZone && currentMarker.isAddedToMap === true) {
+        //   currentMarker.moveTo([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], 500, newPos.content.angle)
+        // }
+        currentMarker.setRotation(newPos.content.angle)
+        currentMarker.angle = newPos.content.angle
         if (currentCarIndex !== -1) {
           console.log(this.bindCars[currentCarIndex])
           if (this.bindCars[currentCarIndex].locator.x === newPos.content.x && this.bindCars[currentCarIndex].locator.y === newPos.content.y) return

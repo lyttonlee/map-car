@@ -1,5 +1,8 @@
 <template>
   <div class="page">
+    <div class="fixed">
+      <div>建议您将屏幕分辨率调为 1920 x 1080 及以上</div>
+    </div>
     <div class="login">
       <!-- <h2>登录系统</h2> -->
       <img src="../assets/img/logo-login.png" alt="">
@@ -73,7 +76,7 @@ export default {
     test (ev) {
       console.log(ev)
     }
-  }
+  },
 }
 </script>
 <style lang="less" scoped>
@@ -85,6 +88,14 @@ export default {
   // display: flex;
   // justify-content: center;
   // align-items: center;
+  .fixed {
+    width: 100%;
+    position: fixed;
+    bottom: 15px;
+    color: #fffa;
+    text-align: center;
+    font-size: .8rem;
+  }
   .login {
     width: 350px;
     height: 300px;
