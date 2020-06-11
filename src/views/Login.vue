@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="fixed">
-      <div>建议您将屏幕分辨率调为 1920 x 1080 及以上</div>
+      <div>推荐使用Chrome浏览器，最佳分辨率为 1920 x 1080</div>
     </div>
     <div class="login">
       <!-- <h2>登录系统</h2> -->
@@ -94,7 +94,7 @@ export default {
     bottom: 15px;
     color: #fffa;
     text-align: center;
-    font-size: .8rem;
+    font-size: .9rem;
   }
   .login {
     width: 350px;
