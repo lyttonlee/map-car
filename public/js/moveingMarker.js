@@ -170,7 +170,9 @@ L.Marker.MovingMarker = L.Marker.extend({
     let regex = /rotateZ\([0-9]*deg\)/g
     let newStr = transformText.replace(regex, '')
     // console.log(newStr)
-    this._icon.style.transform = `${newStr} rotateZ(${this.options.initialRotationAngle + deg}deg)`
+    // this._icon.style.transform = `${newStr} rotateZ(${this.options.initialRotationAngle + deg}deg)`
+    let curDeg = this.options.initialRotationAngle + deg
+    this._icon.style.transform = newStr + ' ' + 'rotateZ(' + curDeg + 'deg)'
     this._oldDeg = deg
   },
 
@@ -351,7 +353,7 @@ L.Marker.MovingMarker = L.Marker.extend({
       // no need to animate
       // 有角度就旋转角度
       if (this._deg || this._deg == 0) {
-        console.log('旋转角度')
+        // console.log('旋转角度')
         this.setRotation(this._deg)
       }
       return;

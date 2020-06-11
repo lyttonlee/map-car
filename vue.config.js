@@ -13,6 +13,7 @@ module.exports = {
       })
     ],
   },
+  transpileDependencies: ['vue-socket.io'],
   devServer: {
     overlay: {
       error: false,
