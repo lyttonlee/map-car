@@ -14,6 +14,19 @@ module.exports = {
     ],
   },
   transpileDependencies: ['vue-socket.io'],
+  // css: {
+  //   loaderOptions: {
+  //     postcss: {
+  //       // ..
+  //       plugins: [
+  //         require('autoprefixer')({
+  //           grid: 'autoplace',
+  //           // overrideBrowserslist: ['last 15 versions']
+  //         })
+  //       ]
+  //     }
+  //   }
+  // },
   devServer: {
     overlay: {
       error: false,
