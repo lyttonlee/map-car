@@ -82,6 +82,8 @@ export default {
         icon,
         title: station.sn,
       })
+      stationMarker.bindPopup(station.sn)
+      stationMarker.openPopup()
       this.baseStationMarkers.push(stationMarker)
       this.map && stationMarker.addTo(this.map)
     },
