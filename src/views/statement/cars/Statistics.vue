@@ -3,6 +3,7 @@
     <!-- <h2>statistics</h2> -->
     <div v-intro="'您可以通过选择预设的时间段或通过日历来手动选择时间段来查询统计数据,点击导出按钮可以将查询的时间段数据导出到excel表格'" v-intro-step="1" class="action">
       <el-date-picker
+        class="item-child"
         :picker-options="pickerOption"
         type="daterange"
         v-model="selectDates"
@@ -11,12 +12,12 @@
         start-placeholder="开始日期"
         end-placeholder="结束日期">
       </el-date-picker>
-      <el-radio-group @change="changeDate" v-model="dates2" :max="1" :min="0">
+      <el-radio-group class="item-child" @change="changeDate" v-model="dates2" :max="1" :min="0">
         <template v-for="(item) in times">
           <el-radio-button :key="item.date" :label="item.date" >{{item.name}}</el-radio-button>
         </template>
       </el-radio-group>
-      <el-button @click="downloadFile" class="btn" round type="primary" size="small">导出</el-button>
+      <el-button @click="downloadFile" class="btn item-child" round type="primary" size="small">导出</el-button>
     </div>
     <div class="body">
       <div class="total-chart">
@@ -569,22 +570,28 @@ export default {
     grid-template-columns: 30% 40% 10%;
     column-gap: 15px;
     justify-content: center;
-    align-items: center;
+    // align-items: center;
     .btn {
       width: 100px;
+    }
+    .item-child {
+      align-self: center;
     }
   }
   .body {
     height: 40vh;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
     justify-content: center;
-    align-items: center;
+    // align-items: center;
     .list {
       display: grid;
       grid-template-rows: 1fr 1fr 1fr;
+      grid-template-columns: auto;
+      align-self: center;
       justify-content: stretch;
-      align-items: center;
+      // align-items: center;
       margin-left: 180px;
       row-gap: 15px;
       width: 100%;
@@ -605,8 +612,9 @@ export default {
     height: 30vh;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
     justify-content: center;
-    align-items: center;
+    // align-items: center;
     // background: cornflowerblue;
     #line-store {
       height: 30vh;

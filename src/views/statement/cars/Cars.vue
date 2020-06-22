@@ -236,6 +236,7 @@ export default {
     height: 20vh;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
     column-gap: 20px;
     .item  {
       padding: 25px;
@@ -279,6 +280,7 @@ export default {
         height: 400px;
         display: grid;
         grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
         column-gap: 15px;
         .info {
           // height: 400px;

@@ -113,10 +113,12 @@ export default {
 .item-box {
   display: grid;
   grid-template-columns: 0 auto;
+  grid-template-rows: auto;
   text-align: left;
   .log {
     display: grid;
     grid-template-columns: 70px 10px 55%;
+    grid-template-rows: auto;
     // column-gap: 10px;
     // margin-top: 15px;
     padding: 10px 5px;
