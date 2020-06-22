@@ -122,6 +122,7 @@ export default {
   .list {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
     column-gap: 15px;
     row-gap: 15px;
     width: 100%;
