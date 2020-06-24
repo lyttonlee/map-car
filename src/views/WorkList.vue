@@ -190,6 +190,7 @@ export default {
       border-bottom: .5px solid rgba(251, 252, 250, 0.473);
       display: grid;
       grid-template-columns: 40% 20% 25% 10%;
+      grid-template-rows: auto;
       &:hover {
         background: @page-background;
         border-bottom: .5px solid rgba(251, 252, 250, 0.699);
@@ -214,6 +215,7 @@ export default {
       border-bottom: .5px solid rgba(251, 252, 250, 0.473);
       display: grid;
       grid-template-columns:  40% 20% 25% 10%;
+      grid-template-rows: auto;
       &:hover {
         background: @page-background;
         border-bottom: .5px solid rgba(251, 252, 250, 0.699);

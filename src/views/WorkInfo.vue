@@ -230,6 +230,7 @@ export default {
     text-align: left;
     display: grid;
     grid-template-columns: 40% 40% 20%;
+    grid-template-rows: auto;
     .section {
       padding-left: 15px;
       // border-bottom: 2px solid #fff;

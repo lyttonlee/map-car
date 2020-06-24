@@ -18,7 +18,7 @@ export const routes = [
       {
         path: '/vq',
         name: '系统看板',
-        component: () => import(/* webpackChunkName: "about" */ '../views/VQ.vue'),
+        component: () => import(/* webpackChunkName: "vq" */ '../views/Stat.vue'),
         meta: {
           auth: true,
           icon: 'zx-vq',
@@ -177,7 +177,8 @@ export const routes = [
       {
         path: '/fence',
         name: '围栏管理',
-        component: () => import(/* webpackChunkName: "fence" */ '../views/fence/Fence.vue'),
+        // component: () => import(/* webpackChunkName: "fence" */ '../views/fence/Fence.vue'),
+        component: () => import(/* webpackChunkName: "fence" */ '../views/Stat.vue'),
         meta: {
           auth: true,
           icon: 'zx-tongji1',

@@ -125,9 +125,10 @@ export default {
     // background: @page-background-opacity;
     // border-radius: 10px;
     box-sizing: border-box;
-    align-items: center;
+    // align-items: center;
     .point {
       // position: absolute;
+      align-self: center;
       background-color: @info;
       border-radius: 50%;
       height: 10px;
@@ -137,6 +138,7 @@ export default {
       // align-items: center;
     }
     .point-end {
+      align-self: center;
       background-color: @primary-color;
       border-radius: 50%;
       height: 10px;
@@ -144,6 +146,7 @@ export default {
     }
     .date {
       // border-right: 1px solid #666;
+      align-self: center;
       text-align: center;
       .date-time {
         font-size: 1rem;
@@ -156,6 +159,7 @@ export default {
       }
     }
     .content {
+      align-self: center;
       padding-top: 8px;
       padding-left: 10px;
       // border-left: 1px solid @info;

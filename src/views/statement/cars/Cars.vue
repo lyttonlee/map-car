@@ -245,6 +245,9 @@ export default {
       .font {
         font-size: 4rem;
         color: @primary-color;
+        @media screen and (max-width: 1600px) {
+          font-size: 3rem;
+        }
       }
     }
   }

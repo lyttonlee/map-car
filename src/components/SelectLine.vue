@@ -41,6 +41,7 @@ export default {
 .lines {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
   .line {
     padding: 20px;
     margin:  10px;

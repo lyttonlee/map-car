@@ -194,6 +194,7 @@ export default {
     .tab {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto;
       font-weight: bold;
       .menu {
         cursor: pointer;

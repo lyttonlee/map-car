@@ -105,6 +105,7 @@ export default {
 .sum {
   display: grid;
   grid-template-columns: 50% auto;
+  grid-template-rows: auto;
   height: 100%;
   box-sizing: border-box;
   column-gap: 10px;
@@ -112,13 +113,15 @@ export default {
   background: @base-background;
   box-shadow: @shadow-base;
   border-radius: 10px;
-  align-items: center;
+  // align-items: center;
   // justify-items: start;
   .left {
     // font-size: 2rem;
+    align-self: center;
     width: 100%;
     display: grid;
     grid-template-columns: 30% auto;
+    grid-template-rows: auto;
     column-gap: 5px;
     .icon {
       font-size: 2rem;
@@ -133,6 +136,7 @@ export default {
   }
   .content {
     // color: darkgreen;
+    align-self: center;
     .main {
       .font {
         font-size: 3rem;
@@ -142,6 +146,7 @@ export default {
     .history {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto;
       column-gap: 10px;
       color: @font-color;
     }

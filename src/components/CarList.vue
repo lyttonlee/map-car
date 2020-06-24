@@ -226,6 +226,7 @@ export default {
   .header {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
     border-bottom: 1px solid #fff;
     .menu {
       cursor: pointer;
@@ -238,6 +239,7 @@ export default {
   .header-area {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto;
     border-bottom: 1px solid #fff;
     margin-bottom: 15px;
     .menu {
@@ -259,6 +261,7 @@ export default {
       border-bottom: .5px solid rgba(251, 252, 250, 0.473);
       display: grid;
       grid-template-columns: 20% 50% 30%;
+      grid-template-rows: auto;
       &:hover {
         background: @page-background;
         border-bottom: .5px solid rgba(251, 252, 250, 0.699);

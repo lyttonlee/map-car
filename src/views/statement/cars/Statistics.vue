@@ -568,8 +568,9 @@ export default {
     height: 10vh;
     display: grid;
     grid-template-columns: 30% 40% 10%;
+    grid-template-rows: auto;
     column-gap: 15px;
-    justify-content: center;
+    // justify-content: center;
     // align-items: center;
     .btn {
       width: 100px;
@@ -579,20 +580,21 @@ export default {
     }
   }
   .body {
+    width: 100%;
     height: 40vh;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
-    justify-content: center;
+    // justify-content: center;
     // align-items: center;
     .list {
       display: grid;
       grid-template-rows: 1fr 1fr 1fr;
       grid-template-columns: auto;
       align-self: center;
-      justify-content: stretch;
+      // justify-content: stretch;
       // align-items: center;
-      margin-left: 180px;
+      margin:0 auto;
       row-gap: 15px;
       width: 100%;
       max-width: 400px;
@@ -604,6 +606,7 @@ export default {
         // width: 400px;
         width: 100%;
         height: 100%;
+        min-height: 38vh;
         // background: rgba(128, 255, 0, 0.096);
       }
     }
@@ -613,7 +616,7 @@ export default {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
-    justify-content: center;
+    // justify-content: center;
     // align-items: center;
     // background: cornflowerblue;
     #line-store {
