@@ -5,5 +5,5 @@ export const getSystemOption = () => {
 }
 
 export const updateConfirmTime = (time) => {
-  return request.post('/api/systemParam/v1.0/update/repairAutoConfirmTime', time)
+  return request.post('/api/systemParam/v1.0/update/systemparam', time)
 }

@@ -1,24 +1,37 @@
 <template>
   <div class="set">
     <div class="list">
-      <div class="item">
+      <template v-for="(option, index) in systemOptions">
+        <div :key="index" class="item">
+          <el-card>
+            <div class="title">{{map[option.type]}}</div>
+            <div class="content">
+              <!-- {{$moment.duration(confirmOption.param * 1, 'ms').humanize()}} -->
+              {{formatTime(option.param * 1 / 1000)}}
+            </div>
+            <div class="action">
+              <el-button @click="editOption(option)" style="width: 100%" size="mini" round type="info">修改</el-button>
+            </div>
+          </el-card>
+        </div>
+      </template>
+      <!-- <div class="item">
         <el-card>
           <div class="title">科室自动确认时间</div>
           <div class="content">
-            <!-- {{$moment.duration(confirmOption.param * 1, 'ms').humanize()}} -->
             {{formatTime(confirmOption.param * 1 / 1000)}}
           </div>
           <div class="action">
             <el-button @click="editOption(confirmOption)" style="width: 100%" size="mini" round type="info">修改</el-button>
           </div>
         </el-card>
-      </div>
+      </div> -->
     </div>
     <!-- <div v-if="showModal" class="modal"></div> -->
     <Modal ref="modal" v-if="showModal" :loading="loading" width="30%" @quit="quit" @ok="handleOk">
       <!-- {{showingOption}} -->
-      <h3>修改科室自动确认时间</h3>
-     <el-input size="small"  placeholder="请输入科室自动确认时间" v-model="confirmTime">
+      <h3>{{map[showingOption.type]}}</h3>
+      <el-input size="small"  :placeholder="map[showingOption.type]" v-model="confirmTime">
         <template slot="append">{{'分钟'}}</template>
       </el-input>
       <div></div>
@@ -47,6 +60,10 @@ export default {
       showingOption: '',
       confirmTime: '',
       // loading: false
+      map: {
+        2: '自动确认开始维修',
+        3: '自动确认结束维修'
+      }
     }
   },
   methods: {
@@ -56,8 +73,11 @@ export default {
         let { code, result } = res
         if (code === 0) {
           // console.log(result)
-          this.systemOptions = result
-          this.confirmOption = this.systemOptions.find((option) => option.type === 2)
+          this.systemOptions = result.filter((option) => {
+            return option.type === 2 || option.type === 3
+          })
+          this.systemOptions.sort((a, b) => a.type - b.type)
+          // this.confirmOption = this.systemOptions.find((option) => option.type === 2)
         }
       })
     },
@@ -86,12 +106,17 @@ export default {
       }
       if (this.confirmTime && isTime(this.confirmTime)) {
         let time = this.confirmTime * 60 * 1000
-        updateConfirmTime(time).then((res) => {
+        let param = {
+          param: time,
+          type: this.showingOption.type
+        }
+        updateConfirmTime(param).then((res) => {
           let { code, desc } = res
           if (code === 0) {
             this.$notify.success({
               message: desc
             })
+            this.showingOption = ''
             this.quit()
             this.getInitOption()
           } else {
