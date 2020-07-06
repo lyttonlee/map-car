@@ -40,7 +40,7 @@ export default {
 @import '../assets/less/color.less';
 .map-list {
   position: absolute;
-  top: 25px;
+  top: 65px;
   left: 25px;
   // width: 150px;
   height: 80vh;

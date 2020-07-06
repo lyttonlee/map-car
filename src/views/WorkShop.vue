@@ -926,10 +926,19 @@ export default {
       display: flex;
       // align-items: center;
       justify-content: center;
+      @media screen and (max-width: 1600px) {
+        width: 300px;
+        font-size: 1.5rem;
+        height: 80px;
+        line-height: 80px;
+      }
       .value {
         margin-left: 20px;
         font-size: 3rem;
         color: @primary-color;
+        @media screen and (max-width: 1600px) {
+          font-size: 2rem;
+        }
       }
     }
   }

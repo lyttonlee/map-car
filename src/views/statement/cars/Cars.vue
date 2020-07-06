@@ -231,6 +231,7 @@ export default {
 <style lang="less" scoped>
 @import '../../../assets/less/color.less';
 .page {
+  overflow-y: auto;
   .total  {
     margin-top: 15px;
     height: 20vh;

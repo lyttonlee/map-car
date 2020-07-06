@@ -71,6 +71,6 @@
   },
   "browserslist": [
     "last 10 versions",
-    "not ie <= 9"
+    "not ie < 11"
   ]
 }

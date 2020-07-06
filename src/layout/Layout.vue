@@ -47,7 +47,7 @@ export default {
   sockets: {
     login (data) {
       let loginedUser = JSON.parse(data)
-      console.log(loginedUser)
+      // console.log(loginedUser)
       this.$notify.success({
         dangerouslyUseHTMLString: true,
         message: `<div>${loginedUser.content.nickname}</div><div>登录平台: ${loginedUser.content.platform}</div>`,
@@ -94,6 +94,9 @@ export default {
   text-align: center;
   color: @sub-font-color;
   font-size: 14px;
+  @media screen and (max-width: 1600px) {
+    font-size: 12px;
+  }
   // overflow: hidden;
   // background: #eee;
   .select {

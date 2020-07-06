@@ -5,14 +5,14 @@
       <ShowTime />
     </div> -->
     <div class="layout">
-      <div class="item unique-item">
+      <div class="item">
         <div class="total-layout">
           <template v-for="(item, index) in broad">
             <TotalItem :key="index" :id="'car-broad-' + index" :info="item" type="broad" />
           </template>
         </div>
       </div>
-      <div class="item item-row-1-3 item-col-2-4 map">
+      <div class="item map">
         <div id="map-small" class="page"></div>
         <div class="percent">
           <template v-for="(item, index) in percentData">
@@ -49,8 +49,8 @@
           <div class="no-data" v-if="importantLogs.length === 0">没有数据</div>
         </el-carousel>
       </div>
-      <div class="item item-col-1-3" id="repaired-percent-chart"></div>
-      <div class="item item-col-3-5" id="repair-num-chart"></div>
+      <div class="item" id="repaired-percent-chart"></div>
+      <div class="item" id="repair-num-chart"></div>
     </div>
   </div>
 </template>
@@ -982,10 +982,10 @@ export default {
     margin-top: 5px;
     box-sizing: border-box;
     display: grid;
-    grid-template-columns: 30% 19% 19% 30%;
-    grid-template-rows: 40% 30% 30%;
+    grid-template-columns: 27% 45% 27%;
+    grid-template-rows: 70% 30%;
     grid-gap: 10px;
-    grid-auto-flow: column dense;
+    // grid-auto-flow: column dense;
     .unique-item {
       background: #00000000 !important;
       box-shadow: none !important;
@@ -1004,6 +1004,7 @@ export default {
       .total-layout {
         display: grid;
         grid-template-rows: 1fr 1fr 1fr;
+        grid-template-columns: auto;
         row-gap: 13px;
         // row-gap: 8px;
         @media screen and (max-width: 1800px) {
@@ -1016,6 +1017,7 @@ export default {
         .log {
           display: grid;
           grid-template-columns: 20% 60% 20%;
+          grid-template-rows: auto;
           padding: 10px 5px;
           border-radius: 5px;
           box-sizing: border-box;
@@ -1057,8 +1059,12 @@ export default {
     .map {
       display: grid;
       grid-template-columns: auto 70px;
+      grid-template-rows: auto;
       grid-gap: 10;
-      align-items: center;
+      // align-items: center;
+      .percent {
+        align-self: center;
+      }
     }
   }
   }

@@ -1,5 +1,5 @@
 <template>
-  <div class="page home">
+  <div class="page-home home">
     <div id="map" class="map" v-intro="'当前所有在修车辆的位置和基本信息会以小车辆图标的形式在地图上显示，点击车辆图标会弹出车辆的基本信息和维修详细信息'" v-intro-step="1"></div>
     <div class="chart">
       <div v-intro="'饼形图表会动态的显示当前所有在修车辆正常状态和异常状态(告警、超时)的数量和所占比例'" v-intro-step="3" id="total-chart"></div>

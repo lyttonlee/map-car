@@ -163,6 +163,7 @@ export default {
 <style lang="less" scoped>
 @import '../../../assets/less/color.less';
 .page {
+  overflow-y: auto;
   .search {
     margin: 15px 0;
   }

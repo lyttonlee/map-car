@@ -66,7 +66,7 @@ export default {
     return {
       logs: [],
       pagination: {
-        pageSize: 10,
+        pageSize: 8,
         total: 0,
         current: 1,
       },
@@ -213,6 +213,7 @@ export default {
 <style lang="less" scoped>
 @import '../../../assets/less/main.less';
 .page {
+  overflow-y: auto;
   .search {
     margin: 15px 0;
   }

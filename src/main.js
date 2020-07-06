@@ -29,7 +29,7 @@ Vue.use(VueIntro)
 Vue.prototype.$moment = moment
 Vue.use(new VueSocketIo({
   debug: false,
-  connection: 'http://192.168.1.247:9099'
+  connection: 'http://192.168.1.205:9099'
 }))
 
 router.beforeEach((to, from, next) => {

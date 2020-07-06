@@ -18,7 +18,7 @@ export const routes = [
       {
         path: '/vq',
         name: '系统看板',
-        component: () => import(/* webpackChunkName: "vq" */ '../views/Stat.vue'),
+        component: () => import(/* webpackChunkName: "vq" */ '../views/VQ.vue'),
         meta: {
           auth: true,
           icon: 'zx-vq',
