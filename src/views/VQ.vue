@@ -6,51 +6,109 @@
     </div> -->
     <div class="layout">
       <div class="item">
-        <div class="total-layout">
-          <template v-for="(item, index) in broad">
-            <TotalItem :key="index" :id="'car-broad-' + index" :info="item" type="broad" />
-          </template>
-        </div>
-      </div>
-      <div class="item map">
-        <div id="map-small" class="page"></div>
-        <div class="percent">
-          <template v-for="(item, index) in percentData">
-            <div :key="index" class="percent-item">
-              <div class="text">{{item.title}}</div>
-              <el-progress :show-text="false" :stroke-width="8" :percentage="item.percent" :color="item.color"></el-progress>
-              <div class="number">{{item.percent}}% ({{item.num}}辆)</div>
+        <div class="total-left">
+          <div class="head">
+            <div class="child icon">
+              <zx-icon type="zx-kucun"></zx-icon>
             </div>
-          </template>
-        </div>
-      </div>
-      <div class="item" id="out-put"></div>
-      <div class="item unique-item">
-        <div class="total-layout">
-          <template v-for="(item, index) in storeData">
-            <TotalItem :key="index" :id="'car-store-' + index" :info="item" />
-          </template>
+            <div class="child title">{{'在库'}}</div>
+            <div class="child left-content">{{info.totalNum}}台</div>
+          </div>
+          <div class="item-content">
+            <div class="title">VQ返修复检: {{info.vqCheckNum}}台</div>
+            <div class="title-sub success">超1.5h(未达8h): {{info.timeout1}}台</div>
+            <div class="box">
+              <div class="child">
+                <template v-for="(item, index) in officeMap">
+                  <div class="attr" :key="index">{{item.name + ' : ' + info.timeoutDetail1[item.key] + '台'}}</div>
+                </template>
+              </div>
+              <div class="child">
+                <template v-for="(item, index) in nodeMap">
+                  <div class="attr" :key="index">{{item.name + ' : ' + info.timeoutDetail1[item.key] + '台'}}</div>
+                </template>
+              </div>
+            </div>
+            <div class="title-sub warn">超8h: {{info.timeout2}}台</div>
+            <div class="box">
+              <div class="child">
+                <template v-for="(item, index) in officeMap">
+                  <div class="attr" :key="index">{{item.name + ' : ' + info.timeoutDetail2[item.key] + '台'}}</div>
+                </template>
+              </div>
+              <div class="child">
+                <template v-for="(item, index) in nodeMap">
+                  <div class="attr" :key="index">{{item.name + ' : ' + info.timeoutDetail2[item.key] + '台'}}</div>
+                </template>
+              </div>
+            </div>
+            <div v-if="info.afOutLine" class="title">AF线外返修: {{info.afOutLine.threeHour + info.afOutLine.oneDay + info.afOutLine.threeDay}}台</div>
+            <div v-if="info.afOutLine" class="out-line">
+              <div class="child success">超3h: {{info.afOutLine.threeHour}}</div>
+              <div class="child warn">超1天: {{info.afOutLine.oneDay}}</div>
+              <div class="child error">超3天: {{info.afOutLine.threeDay}}</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="item">
-        <!-- <h4>超八小时未出荷车辆列表</h4> -->
-        <el-carousel :autoplay="true" indicator-position="none" arrow="never" :interval="5000" >
-          <el-carousel-item  v-for="(item, index) in importantLogs" :key="index">
-            <div class="item-log">
-              <template v-for="(log, index) in item">
-                <div class="log" :key="index">
-                  <div>{{log.name}}</div>
-                  <div>{{log.content}}</div>
-                  <div>{{$moment(log.time).toNow()}}</div>
-                </div>
-              </template>
-            </div>
-          </el-carousel-item>
-          <div class="no-data" v-if="importantLogs.length === 0">没有数据</div>
-        </el-carousel>
+        <div class="head">
+          <div class="title">实时地图</div>
+          <div class="search">
+            <el-input v-model="searchParam" @blur="onSearch" @keyup.native.enter="onSearch" size="small" placeholder="请输入车架号"></el-input>
+          </div>
+        </div>
+        <div class="map">
+          <div id="map-small" class="page-map"></div>
+          <div class="percent">
+            <template v-for="(item, index) in percentData">
+              <div :key="index" class="percent-item">
+                <div class="text">{{item.title}}</div>
+                <el-progress :show-text="false" :stroke-width="8" :percentage="item.percent" :color="item.color"></el-progress>
+                <div class="number">{{item.percent}}% ({{item.num}}辆)</div>
+              </div>
+            </template>
+          </div>
+        </div>
       </div>
-      <div class="item" id="repaired-percent-chart"></div>
-      <div class="item" id="repair-num-chart"></div>
+      <div class="item">
+        <div class="total-right">
+          <div class="date">
+            <div class="time">{{moment(date).format('HH:mm:ss')}}</div>
+            <div class="date-info">
+              <div class="day">{{moment(date).format('YYYY-MM-DD')}}</div>
+              <div class="week">{{moment(date).format('dddd')}}</div>
+            </div>
+          </div>
+          <div v-if="info.outOfBatch" class="line-content">
+            <div class="sub-title">线内脱批: {{info.outOfBatch.oneDay + info.outOfBatch.threeDay}}台</div>
+            <div class="list">
+              <div class="warn">超一天(未达3天): {{info.outOfBatch.oneDay}}台</div>
+              <div class="error">超三天: {{info.outOfBatch.threeDay}}台</div>
+            </div>
+          </div>
+          <div class="error-infos">
+            <div class="sub-title">在库异常信息</div>
+            <div class="list-item">
+              <div class="item-row">
+                <div class="name">录入时间</div>
+                <div class="val">xxxxxxxxxxxx</div>
+              </div>
+              <div class="item-row">
+                <div class="name">设备ID</div>
+                <div class="val">xxxxxxxxxxxx</div>
+              </div>
+              <div class="item-row">
+                <div class="name">异常内容</div>
+                <div class="val">xxxxxxxxxxxx</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item chart" id="pie-total"></div>
+      <div class="item chart" id="line-time"></div>
+      <div class="item chart" id="line-node"></div>
     </div>
   </div>
 </template>
@@ -63,7 +121,7 @@ import echart from 'echarts'
 import bus from '@/bus/bus'
 import { baseChartOption } from '../config/chartConfig'
 // import { broads } from '../mock/broad'
-import getLastDays from '../mock/days'
+import { getHours } from '../mock/days'
 // import imgMap from '../assets/img/office-map.png'
 import { cars } from '../mock/cars'
 import moment from 'moment'
@@ -77,10 +135,12 @@ import {
   queryEfficiency,
   querySummary,
   getSpecicalFence,
+  getStatistic,
 } from '../api/vq'
 import alarmCar from '../assets/img/car-red.png'
 import overtimeCar from '../assets/img/car-yellow.png'
 import normalCar from '../assets/img/car-blue.png'
+import offlineCar from '../assets/img/car-offline.png'
 import {
   mapState,
   mapActions,
@@ -102,13 +162,34 @@ export default {
       importantLogs: [],
       specalAreas: [],
       divMarkers: [],
+      carMarkerMap: {},
+      noUploadCars: [], // 未上传信息的车辆列表
+      noUpLoadMarkers: [], // 未上传信息的车辆marker数组
+      noUploadMap: new Map(), // 定位器ID 与 车辆和marker数组位置的映射关系
+      date: '',
+      info: '',
+      officeMap: [
+        { key: 'we', name: 'WE' },
+        { key: 'af', name: 'AF' },
+        { key: 'pq', name: 'PQ' },
+        { key: 'pa', name: 'PA' },
+        { key: 'dhec', name: 'DHEC' }
+      ],
+      nodeMap: [
+        { key: 'delivery', name: '待 出 荷' },
+        { key: 'area1', name: '再检查1' },
+        { key: 'area2', name: '再检查2' },
+        { key: 'area3', name: '再检查3' },
+        { key: 'vqCheck', name: 'VQ解析' }
+      ],
+      searchParam: '',
     }
   },
   components: {
     // ShowTime
     // SeamLessScroll
     // CountTo: () => import('../components/CountTo'),
-    TotalItem: () => import('../components/TotalItem'),
+    // TotalItem: () => import('../components/TotalItem'),
   },
   computed: {
     ...mapState(['carScale', 'productLineId', 'pointScale', 'initMapZoom', 'vqMapZoom', 'vqCarScale']),
@@ -159,6 +240,10 @@ export default {
     // this.getAlarmData()
     this.getStoreData()
     this.getImportantSummary()
+    this.queryStatistic()
+    this.dateTime = setInterval(() => {
+      this.date = new Date()
+    }, 1000)
   },
   sockets: {
     connect (data) {
@@ -211,36 +296,85 @@ export default {
     position (data) {
       // console.log('接收到position事件推送')
       // console.log(data)
-      const newPos = JSON.parse(data)
-      // console.log(newPos)
-      // 找到对应的marker
-      let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.content.id)
-      // 移动位置
-      if (markerIndex !== -1) {
-        let currentMarker = this.markers[markerIndex].marker
-        // 判断是否在特殊区域
-        if (newPos.content.existenceZone) { // 如果位置点在存在性区域中
-          if (!currentMarker.inSpecialArea) { // 如果这个marker以前不在这个区域
-            // 去除这个marker 更新数据
-            this.changeSpecialAreaNum(newPos.content.existenceZone, true)
-            currentMarker.zone = newPos.content.existenceZone
-            currentMarker.inSpecialArea = true
-            currentMarker.remove()
+      const posList = JSON.parse(data).content
+      console.log(posList)
+      posList.forEach((newPos) => {
+        // 找到对应的marker
+        let index = this.carMarkerMap[newPos.id]
+        // console.log(this.carMarkerMap)
+        let markerIndex = index
+        // console.log(markerIndex)
+        // 移动位置正常逻辑
+        if (this.carMarkerMap.hasOwnProperty(newPos.id) && markerIndex !== -1) {
+          // console.log(this.markers)
+          let currentMarker = this.markers[markerIndex].marker
+          // console.log(this.bindCars)
+          // let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.locatorId === newPos.id)
+          let currentCarIndex = index
+          // console.log(currentCarIndex)
+          // 如果bindCars 有这两车就更新这辆车的位置信息
+          // if (!newPos.existenceZone && currentMarker.isAddedToMap === true) {
+          //   currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
+          // }
+          currentMarker.setRotation(newPos.angle)
+          currentMarker.angle = newPos.angle
+          if (currentCarIndex !== -1) {
+            // console.log(this.bindCars[currentCarIndex])
+            if (this.bindCars[currentCarIndex].locator.x === newPos.x && this.bindCars[currentCarIndex].locator.y === newPos.y) return
+            this.bindCars[currentCarIndex].locator.x = newPos.x
+            this.bindCars[currentCarIndex].locator.y = newPos.y
           }
-        } else if (newPos.content.existenceZone === null) { // 如果这个marker不在需检测的存在性区域中
-          if (currentMarker.inSpecialArea === true) { // 以前这个marker在存在性区域
-            // 将这个marker显示出来
-            currentMarker.addTo(this.map)
-            currentMarker.inSpecialArea = false
-            // 更新数据
-            this.changeSpecialAreaNum(currentMarker.zone, false)
+          // console.log(this.bindCars[currentCarIndex])
+          // currentMarker.setLatLng([newPos.y, newPos.x])
+          // console.log(newPos.angle)
+          // console.log(currentMarker)
+          // currentMarker.setPopupContent(newPos.y + ' ' + newPos.x)
+          // currentMarker.openPopup()
+          // 判断是否在特殊区域
+          if (newPos.existenceZone) { // 如果位置点在存在性区域中
+            if (!currentMarker.inSpecialArea) { // 如果这个marker以前不在这个区域
+              // 去除这个marker 更新数据
+              this.changeSpecialAreaNum(newPos.existenceZone, true)
+              currentMarker.zone = newPos.existenceZone
+              currentMarker.inSpecialArea = true
+              currentMarker.remove()
+            }
+          } else if (newPos.existenceZone === null) { // 如果这个marker不在需检测的存在性区域中
+            if (currentMarker.inSpecialArea === true) { // 以前这个marker在存在性区域
+              // 将这个marker显示出来
+              currentMarker.addTo(this.map)
+              currentMarker.inSpecialArea = false
+              // 更新数据
+              this.changeSpecialAreaNum(currentMarker.zone, false)
+            }
+          }
+          if (!newPos.existenceZone && currentMarker.isAddedToMap === true) {
+            currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
+          }
+          currentMarker.angle = newPos.angle
+        } else {
+          if (newPos.statisticZone !== 'bind') { // 不是在绑定点，实际已绑定但未上传绑定信息的车辆
+            // 1.判断是否已存在于 noUploadCars 里面
+            if (this.noUploadMap.has(newPos.id)) { // 已存在
+              //  已存在，判断位置是否相同, 不一样就移动车辆 计算位置区域
+              let curIndex = this.noUploadMap.get(newPos.id)
+              if (newPos.x !== this.noUploadCars[curIndex].x || newPos.y !== this.noUploadCars[curIndex].y) {
+                // 移动车辆
+                this.noUploadCars[curIndex].y = newPos.y
+                this.noUploadCars[curIndex].x = newPos.x
+                let currentMarker = this.noUpLoadMarkers[curIndex]
+                currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
+                currentMarker.angle = newPos.angle
+              }
+            } else { // 不存在 添加这两车
+              this.noUploadCars.push(newPos)
+              let index = this.noUploadCars.length - 1
+              this.renderNouploadMarker(newPos, index)
+              this.noUploadMap.set(newPos.id, index)
+            }
           }
         }
-        if (!newPos.content.existenceZone) {
-          currentMarker.moveTo([newPos.content.y / this.pointScale, newPos.content.x / this.pointScale], 500, newPos.content.angle)
-        }
-        currentMarker.angle = newPos.content.angle
-      }
+      })
     },
     bind (data) {
       // console.log(data)
@@ -251,7 +385,18 @@ export default {
       let hasThisCar = this.bindCars.find((car) => car.vehicle.id === carId)
       if (!hasThisCar) {
         this.bindCars.push(newCar)
-        this.renderMarker(newCar)
+        this.renderMarker(newCar, this.bindCars.length - 1)
+      }
+      // 如果这辆车位于未上传信息的车辆就删除原来信息
+      if (this.noUploadMap.has(locatorId)) {
+        const curIndex = this.noUploadMap.get(locatorId)
+        // 从地图上移除marker
+        this.noUpLoadMarkers[curIndex].remove()
+        // 从数组中删除这一项
+        this.noUpLoadMarkers.splice(curIndex, 1)
+        this.noUploadCars.splice(curIndex, 1)
+        // 从映射表中删除
+        this.noUploadMap.delete(locatorId)
       }
     },
     unBind (data) {
@@ -296,6 +441,33 @@ export default {
   },
   methods: {
     ...mapActions(['getMapInfo']),
+    moment,
+    onSearch () {
+      if (this.searchParam === '') return false
+      // 查找车辆
+      let curCar = this.bindCars.find((car) => {
+        return car.vehicle.identification === this.searchParam || car.locator.sn === this.searchParam
+      })
+      if (curCar) {
+        // ..
+        const currentMarker = this.markers[this.carMarkerMap[curCar.locator.id]].marker
+        let isOpenPopup = currentMarker.isPopupOpen()
+        if (!isOpenPopup) {
+          currentMarker.openPopup()
+        }
+      } else {
+        let curCar = this.noUploadCars.find((car) => car.sn === this.searchParam)
+        if (curCar) {
+          let marker = this.noUpLoadMarkers[this.noUploadMap[curCar.id]]
+          let isOpenPopup = marker.isPopupOpen()
+          if (!isOpenPopup) {
+            marker.openPopup()
+          }
+        } else {
+          this.$message.error('很抱歉没有找到相关车辆')
+        }
+      }
+    },
     isDelay (bindTime) {
       // console.log(bindTime)
       let duration = this.$moment().valueOf() - bindTime
@@ -375,7 +547,7 @@ export default {
         // console.log(res)
         if (res.code === 0) {
           this.charts = res.result
-          this.loadOk = true
+          // this.loadOk = true
           // console.log(this.charts)
         }
       })
@@ -394,8 +566,8 @@ export default {
             this.bindCars = [...this.bindCars]
           }
           if (this.bindCars.length > 0 && isInit === true) {
-            this.bindCars.forEach((car) => {
-              this.renderMarker(car)
+            this.bindCars.forEach((car, index) => {
+              this.renderMarker(car, index)
             })
           }
         }
@@ -427,23 +599,36 @@ export default {
         }
       }
     },
+    // 获取统计信息 （新版UI）
+    queryStatistic () {
+      getStatistic().then((res) => {
+        console.log(res)
+        if (res.code === 0) {
+          this.info = res.result
+          // this.pageLoading = false
+          this.$nextTick().then(() => {
+            this.renderCharts()
+          })
+          // this.loadOk = true
+          // this.updateCharts()
+        }
+      })
+    },
     // 渲染图标数据
     renderCharts () {
-      const repairNum = echart.init(document.getElementById('repair-num-chart'))
-      const repairedPercentChart = echart.init(document.getElementById('repaired-percent-chart'))
-      repairNum.setOption({
-        color: ['#00ffde', '#00d2ff', '#fcff00', '#6e7074', '#546570', '#c4ccd3'],
-        title: {
-          text: this.charts[2].tableName,
-          textStyle: {
-            color: '#fff'
-          },
-          // textAlign: 'center',
-          left: '30%',
-          top: 10,
-        },
+      // console.log('start')
+      // 饼图 维修时长分段统计数据
+      const pieTotal = echart.init(document.getElementById('pie-total'))
+      // 线图 按小时的在库数量趋势
+      const lineTime = echart.init(document.getElementById('line-time'))
+      // 线图 各节点实时台数
+      const lineNode = echart.init(document.getElementById('line-node'))
+      // console.log('start')
+      pieTotal.setOption({
+        color: ['#00d2ff', '#fcff00', 'red', '#6e7074', '#546570', '#c4ccd3'],
         tooltip: {
-          trigger: 'axis',
+          trigger: 'item',
+          formatter: '{b}: {c}台  ({d}%)',
           axisPointer: {
             type: 'cross',
             label: {
@@ -456,33 +641,70 @@ export default {
         },
         legend: {
           // type: 'scroll',
-          // orient: 'vertical',
-          left: '20%',
-          bottom: '5%',
-          data: this.charts[2].itemNames,
+          orient: 'vertical',
+          right: '1%',
+          bottom: 'center',
+          data: ['超1.5h', '超8h', '超3天'],
           textStyle: {
             color: '#fefefe'
           }
         },
+        series: [
+          {
+            type: 'pie',
+            radius: ['40%', '60%'],
+            center: ['45%', '50%'],
+            data: [
+              { value: this.info.timeoutTable.timeout1, name: '超1.5h' },
+              { value: this.info.timeoutTable.timeout2, name: '超8h' },
+              { value: this.info.timeoutTable.timeout3, name: '超3天' },
+            ],
+          }
+        ],
+      })
+      // console.log(pieTotal)
+      const timeOption = {
+        title: {
+          text: '今日在库变化趋势',
+          textStyle: {
+            color: '#fefefe'
+          },
+          // textAlign: 'center',
+          left: 'center',
+          top: 10,
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985'
+            }
+          },
+          // formatter: '{a} {c}%'
+        },
         grid: {
           left: '5%',
-          right: '6%',
-          bottom: '20%',
+          right: '5%',
+          bottom: '3%',
           containLabel: true
         },
         xAxis: [
           {
             type: 'category',
             boundaryGap: false,
-            name: '日期',
+            // name: '时间',
             // data: legend,
-            data: getLastDays(7),
+            data: getHours(),
             axisLine: {
               lineStyle: {
                 color: '#fefefe',
                 width: 1
               }
             },
+            axisTick: {
+              interval: 0
+            }
           }
         ],
         yAxis: [
@@ -500,109 +722,27 @@ export default {
             },
           }
         ],
-        series: Object.keys(this.charts[2].datas).map((item) => {
-          return {
-            name: item,
-            type: 'line',
-            data: this.charts[2].datas[item],
-            // label: {
-            //   normal: {
-            //     show: true,
-            //     position: 'top'
-            //   }
-            // },
-          }
-        }),
-      })
-      // console.log(repairNum)
-      const customRepairedOption = {
-        title: {
-          text: this.charts[1].tableName,
-          textStyle: {
-            color: '#fefefe'
-          },
-          // textAlign: 'center',
-          left: '30%',
-          top: 10,
-        },
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'cross',
-            label: {
-              backgroundColor: '#6a7985'
-            }
-          },
-          // formatter: '{a} {c}%'
-        },
-        legend: {
-          // type: 'scroll',
-          // orient: 'vertical',
-          left: '20%',
-          bottom: '5%',
-          data: this.charts[1].itemNames,
-          textStyle: {
-            color: '#fefefe'
-          }
-        },
-        grid: {
-          left: '5%',
-          right: '6%',
-          bottom: '20%',
-          containLabel: true
-        },
-        xAxis: [
-          {
-            type: 'category',
-            boundaryGap: false,
-            name: '日期',
-            // data: legend,
-            data: getLastDays(7),
-            axisLine: {
-              lineStyle: {
-                color: '#fefefe',
-                width: 1
-              }
-            },
-          }
-        ],
-        yAxis: [
-          {
-            type: 'value',
-            name: '百分比',
-            splitLine: {
-              show: false
-            },
-            axisLine: {
-              lineStyle: {
-                color: '#fefefe',
-                width: 1
-              }
-            },
-          }
-        ],
         axisLine: {
           lineStyle: {
             color: '#fefefe'
           }
         },
-        series: Object.keys(this.charts[1].datas).map((item) => {
-          return {
-            name: item,
+        series: [
+          {
             type: 'line',
-            data: this.charts[1].datas[item],
-            // label: {
-            //   normal: {
-            //     show: true,
-            //     position: 'top'
-            //   }
-            // },
+            smooth: true,
+            areaStyle: {
+              // color: '#00d2ff58'
+              color: 'rgba(0, 208, 255, 0.35)'
+            },
+            data: this.info.hourStatistic.items.filter((item) => item.k >= moment().startOf('day').valueOf()).map((item) => item.v)
           }
-        }),
+        ],
       }
-      const outputOption = {
+      const nodeOption = {
+        color: ['rgba(27, 212, 141, 0.9)'],
         title: {
-          text: this.charts[0].tableName,
+          text: '个节点实时生产台数',
           textStyle: {
             color: '#fefefe'
           },
@@ -621,32 +761,34 @@ export default {
         },
         grid: {
           left: '5%',
-          right: '12%',
-          bottom: '20%',
+          right: '10%',
+          bottom: '3%',
           containLabel: true
         },
         xAxis: [
           {
-            type: 'category',
+            type: 'value',
             boundaryGap: false,
-            name: '日期',
-            // data: legend,
-            data: getLastDays(7),
+            name: '数量',
             axisLine: {
               lineStyle: {
                 color: '#fefefe',
                 width: 1
               }
             },
+            splitLine: {
+              show: false,
+            }
           }
         ],
         yAxis: [
           {
-            type: 'value',
-            name: '小时',
+            type: 'category',
+            // name: '小时',
             splitLine: {
               show: false
             },
+            data: this.info.nodeStatistic.items.map((item) => item.k),
             axisLine: {
               lineStyle: {
                 color: '#fefefe',
@@ -655,36 +797,77 @@ export default {
             },
           }
         ],
-        series: Object.keys(this.charts[0].datas).map((item) => {
-          return {
-            type: 'line',
-            data: this.charts[0].datas[item],
+        series: [
+          {
+            type: 'bar',
+            barWidth: '30%',
             label: {
               normal: {
                 show: true,
-                position: 'top'
+                position: 'right'
               }
             },
-            areaStyle: {}
+            data: this.info.nodeStatistic.items.map((item) => item.v)
           }
-        })
+        ]
       }
-      const outNum = echart.init(document.getElementById('out-put'))
-      outNum.setOption(Object.assign(baseChartOption, outputOption))
-      const repairedOption = Object.assign(baseChartOption, customRepairedOption)
-      repairedPercentChart.setOption(repairedOption)
+      lineNode.setOption(Object.assign(baseChartOption, nodeOption))
+      const lineTimeOption = Object.assign(baseChartOption, timeOption)
+      lineTime.setOption(lineTimeOption)
       window.addEventListener('resize', () => {
-        repairNum.resize()
-        outNum.resize()
-        repairedPercentChart.resize()
+        pieTotal.resize()
+        lineNode.resize()
+        lineTime.resize()
       })
       bus.$on('menuSizeChanged', (statu) => {
-        console.log('resize')
+        // console.log('resize')
         setTimeout(() => {
-          repairNum.resize()
-          outNum.resize()
-          repairedPercentChart.resize()
+          pieTotal.resize()
+          lineNode.resize()
+          lineTime.resize()
         }, 500)
+      })
+      this.lineTime = lineTime
+      this.pieTotal = pieTotal
+      this.lineNode = lineNode
+    },
+    // 更新图表新UI
+    updateCharts () {
+      this.lineTime && this.lineTime.setOption({
+        series: [{
+          data: this.info.hourStatistic.items.filter((item) => item.k >= moment().startOf('day').valueOf()).map((item) => item.v)
+        }]
+      })
+      this.lineNode && this.lineNode.setOption({
+        yAxis: [
+          {
+            data: this.info.nodeStatistic.items.map((item) => item.k)
+          }
+        ],
+        series: [
+          {
+            data: this.info.nodeStatistic.items.map((item) => item.v)
+          }
+        ]
+      })
+      this.pieTotal && this.pieTotal.setOption({
+        series: [
+          {
+            data: [
+              { value: this.info.timeoutTable.timeout1, name: '超1.5h' },
+              { value: this.info.timeoutTable.timeout2, name: '超8h' },
+              { value: this.info.timeoutTable.timeout3, name: '超3天' },
+            ]
+          }
+        ]
+      })
+    },
+    updatePage () {
+      getStatistic().then((res) => {
+        if (res.code === 0) {
+          this.info = res.result
+          this.updateCharts()
+        }
       })
     },
     // 创建点marker
@@ -699,6 +882,9 @@ export default {
           break
         case 'normal':
           carImg = normalCar
+          break
+        case 'offline':
+          carImg = offlineCar
           break
         default:
           carImg = normalCar
@@ -728,8 +914,25 @@ export default {
         return 'normal'
       }
     },
+    renderNouploadMarker (info, index) {
+      let carPos = [info.y / this.pointScale, info.x / this.pointScale]
+      let iconType = 'offline'
+      let icon = this.createPointMarker(iconType)
+      const marker = L.Marker.movingMarker([carPos], [], {
+        rotate: true,
+        icon,
+        initialRotationAngle: 0,
+        // title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
+      })
+      marker.bindPopup(`<div>车 架 号: ---</div><div>标 签 号: ${info.sn}</div><div>位 置 : ${info.address}</div>`)
+      // marker.on('click', this.clickMarker)
+      marker.locatorId = info.id
+      marker.angle = info.angle
+      this.noUpLoadMarkers.push(marker)
+      this.map && marker.addTo(this.map)
+    },
     // 渲染车辆点到地图上
-    renderMarker (car) {
+    renderMarker (car, index) {
       // console.log(car)
       // let bindTime = car.vehicleDeliverStatus.bindTime
       // console.log(bindTime)
@@ -764,6 +967,7 @@ export default {
         id: car.vehicle.id,
         locatorId: car.locator.id
       })
+      this.carMarkerMap[car.locator.id] = index
       // this.map && marker.addTo(this.map)
     },
     // moment,
@@ -779,8 +983,9 @@ export default {
     },
     intervalBroad () {
       this.broadTime = setInterval(() => {
-        this.getBoradData()
-        this.getStoreData()
+        // this.getBoradData()
+        // this.getStoreData()
+        this.updatePage()
       }, 10000)
     },
     intervalSummary () {
@@ -843,11 +1048,11 @@ export default {
   },
   watch: {
     // 当异步chart数据获取完成后
-    loadOk (newVal) {
-      if (newVal) {
-        this.renderCharts()
-      }
-    },
+    // loadOk (newVal) {
+    //   if (newVal) {
+    //     this.renderCharts()
+    //   }
+    // },
     specalAreas: {
       handler: function (newVal) {
         // console.log('new areas')
@@ -964,12 +1169,14 @@ export default {
     })
     // 看板总体数据概览变换
     this.intervalBroad()
+    // this.renderCharts()
   },
   beforeDestroy () {
     bus.$off('menuSizeChanged')
     this.broadTime && clearInterval(this.broadTime)
     this.summaryTime && clearInterval(this.summaryTime)
     this.carListTime && clearInterval(this.carListTime)
+    this.dateTime && clearInterval(this.dateTime)
   }
 }
 </script>
@@ -998,6 +1205,191 @@ export default {
       overflow-y: auto;
       box-sizing: border-box;
       // border: .5px solid #fff;
+      .total-left {
+        .head {
+          height: 60px;
+          padding: 10px;
+          border-bottom: 1px solid #666;
+          display: grid;
+          grid-template-rows: auto;
+          grid-template-columns: 1fr 1fr 1fr;
+          box-sizing: border-box;
+          .child {
+            align-self: center;
+            justify-self: center;
+          }
+          .icon {
+            font-size: 1.4rem;
+          }
+          .title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: @primary-color;
+          }
+          .left-content {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: @primary-color;
+          }
+        }
+        .item-content {
+          padding: 15px 0;
+          @media screen and (max-width: 1600px) {
+            padding: 8px 0;
+          }
+          .title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            @media screen and (max-width: 1600px) {
+              font-size: 1.1rem;
+              // font-weight: 500;
+            }
+          }
+          .title-sub {
+            margin: 15px 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            // color: @primary-color;
+            @media screen and (max-width: 1600px) {
+              margin: 8px 0;
+              font-size: 1rem;
+            }
+          }
+          .box {
+            min-height: 100px;
+            max-height: 130px;
+            border-radius: 8px;
+            border: 1.5px solid #fff;
+            margin: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr;
+            @media screen and (max-width: 1600px) {
+              margin: 8px;
+            }
+            .child {
+              .attr {
+                padding: 5px;
+                color: #ddd;
+                @media screen and (max-width: 1600px) {
+                  padding: 3px;
+                }
+              }
+            }
+          }
+          .out-line {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto;
+            margin: 15px 0;
+            @media screen and (max-width: 1600px) {
+              margin: 8px 0;
+            }
+            .child {
+              align-self: center;
+              justify-self: center;
+            }
+          }
+        }
+      }
+      .head {
+        height: 60px;
+        padding: 10px;
+        border-bottom: 1px solid #666;
+        display: grid;
+        grid-template-rows: auto;
+        grid-template-columns: 1fr 1fr;
+        box-sizing: border-box;
+        .title {
+          align-self: center;
+          font-size: 1.4rem;
+        }
+        .search {
+          align-self: center;
+        }
+      }
+      .map {
+        height: calc(100% - 60px);
+        display: grid;
+        grid-template-columns: 80% 15%;
+        grid-template-rows: 1fr;
+        // grid-gap: 10;
+        // align-items: center;
+        .percent {
+          align-self: center;
+          justify-self: center;
+          padding: 0 3px;
+        }
+        .page-map {
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+      }
+      .total-right {
+        .date {
+          height: 60px;
+          padding: 10px;
+          border-bottom: 1px solid #666;
+          box-sizing: border-box;
+          .time {
+            font-size: 1.5rem;
+          }
+          .date-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr;
+          }
+        }
+        .line-content {
+          margin: 15px 0;
+          border-bottom: 1px solid #666;
+          box-sizing: border-box;
+          padding-bottom: 15px;
+          @media screen and (max-width: 1600px) {
+            margin: 8px 0;
+            padding-bottom: 8px;
+          }
+          .sub-title {
+            font-size: 1.3rem;
+            @media screen and (max-width: 1600px) {
+              font-size: 1rem;
+            }
+          }
+          .list {
+            padding-top: 15px;
+            display: grid;
+            grid-template-rows: 1fr;
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+        .error-infos {
+          .sub-title {
+            font-size: 1.3rem;
+            @media screen and (max-width: 1600px) {
+              font-size: 1rem;
+            }
+          }
+          .list-item {
+            // ..
+            margin: 10px;
+            .item-row {
+              display: grid;
+              grid-template-columns: 25% 75%;
+              grid-template-rows: auto;
+              color: #ddd;
+              .name {
+                border: 1px solid #eee;
+                padding: 5px 0;
+              }
+              .val {
+                border: 1px solid #eee;
+                padding: 5px 0;
+              }
+            }
+          }
+        }
+      }
       .no-data {
         padding-top: 15px;
       }
@@ -1056,15 +1448,8 @@ export default {
         }
       }
     }
-    .map {
-      display: grid;
-      grid-template-columns: auto 70px;
-      grid-template-rows: auto;
-      grid-gap: 10;
-      // align-items: center;
-      .percent {
-        align-self: center;
-      }
+    .chart {
+      overflow: hidden;
     }
   }
   }

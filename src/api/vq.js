@@ -39,6 +39,11 @@ export const querySummary = () => {
   return request.get('/api/monitor/v1.0/important/summary')
 }
 
+// 获取统计信息
+export const getStatistic = () => {
+  return request.get('/api/monitor/v1.0/statistic/data')
+}
+
 // 查询存在性区域围栏
 export const getSpecicalFence = (params) => {
   return request.get('/api/map/v1.0/exsitDetectZone', { params })

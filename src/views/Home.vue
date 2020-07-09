@@ -804,6 +804,7 @@ export default {
         initialRotationAngle: 0,
         // title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
       })
+      marker.bindPopup(`<div>车 架 号: ---</div><div>标 签 号: ${info.sn}</div><div>位 置 : ${info.address}</div>`)
       marker.on('click', this.clickMarker)
       marker.locatorId = info.id
       marker.angle = info.angle
