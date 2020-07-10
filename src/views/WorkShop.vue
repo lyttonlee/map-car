@@ -905,6 +905,7 @@ export default {
   .total {
     position: absolute;
     top: 30px;
+    left: 0;
     display: flex;
     width: 70%;
     justify-content: space-around;
