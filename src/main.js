@@ -25,11 +25,15 @@ import 'intro.js/introjs.css'
 import moment from 'moment'
 moment.locale('zh-cn')
 
+const hostname = window.location.hostname
+const socketUrl = process.env.NODE_ENV === 'development' ? `http://192.168.1.205:9099` : `http://${hostname}:9099`
+
 Vue.use(VueIntro)
 Vue.prototype.$moment = moment
 Vue.use(new VueSocketIo({
   debug: false,
-  connection: 'http://192.168.1.205:9099'
+  // connection: 'http://192.168.1.205:9099'
+  connection: socketUrl
 }))
 
 router.beforeEach((to, from, next) => {
