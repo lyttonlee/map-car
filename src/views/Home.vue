@@ -25,6 +25,15 @@
       <el-button @click="changePage" class="fix-button" round type="primary" >地图模式</el-button>
       <div class="car-stistic">
         <div class="title">实时在库分布</div>
+        <div class="total-table">
+          <template v-for="(item, index) in carTotal">
+            <div class="item" :key="index">
+              <div class="child item-name">{{item.name}}</div>
+              <div class="child">{{item.pdi}}</div>
+              <div class="child">{{item.vqPark}}</div>
+            </div>
+          </template>
+        </div>
       </div>
       <div class="car-table">
         <div class="title">
@@ -49,32 +58,32 @@
             </el-table-column>
             <el-table-column label="当前状态" >
               <template slot-scope="scope">
-                <div>{{scope.row.areaId}}</div>
+                <div>{{scope.row.vehicle.status === 0 ? '正常' : '告警'}}</div>
               </template>
             </el-table-column>
             <el-table-column label="位置" >
               <template slot-scope="scope">
-                <div>{{scope.row.locator.statisticZone}}</div>
+                <div>{{scope.row.locator.address}}</div>
               </template>
             </el-table-column>
             <el-table-column label="在库时长" >
               <template slot-scope="scope">
-                <div>{{scope.row.locator.statisticZone}}</div>
+                <div>{{scope.row.vehicleDeliverStatus.bindTime ? formatTimes($moment().unix() - scope.row.vehicleDeliverStatus.bindTime / 1000) : '未知' }}</div>
               </template>
             </el-table-column>
             <el-table-column label="标签状态" >
               <template slot-scope="scope">
-                <div>{{scope.row.locator.statisticZone}}</div>
+                <div>{{scope.row.locator.power > 10 ? '正常' : '低电量'}}</div>
               </template>
             </el-table-column>
             <el-table-column label="责任部门" >
               <template slot-scope="scope">
-                <div>{{scope.row.locator.statisticZone}}</div>
+                <div>{{scope.row.locator.currentZone}}</div>
               </template>
             </el-table-column>
             <el-table-column label="检修内容" >
               <template slot-scope="scope">
-                <div>{{scope.row.locator.statisticZone}}</div>
+                <div>{{scope.row.vehicle.flawMessage}}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -109,6 +118,8 @@ import {
   getBindList,
   queryCars,
   getSpecicalFence,
+  getStatisticCarTotal,
+  getRepairCarInfo,
 } from '../api/vq'
 import {
   mapState,
@@ -118,6 +129,7 @@ import {
 import {
   isInPolygon,
   computeCarScale,
+  formatTime,
 } from '../utils/utils'
 // import RepairTrack from '../components/RepairTrack'
 import CarInfo from '@/components/CarInfo'
@@ -166,13 +178,12 @@ export default {
       noUploadCars: [], // 未上传信息的车辆列表
       noUpLoadMarkers: [], // 未上传信息的车辆marker数组
       noUploadMap: new Map(), // 定位器ID 与 车辆和marker数组位置的映射关系
+      carTotal: '', // 车辆统计
     }
   },
   created () {
     this.skipIntro = localStorage.getItem('homeIntro') || false
-    this.checkedAreaStatu = this.childMapInfos.map((map) => {
-      return map.name
-    })
+    this.getCarTotal()
   },
   computed: {
     ...mapState(['mapInfo', 'carScale', 'productLineId', 'pointScale', 'childMapInfos', 'initMapZoom']),
@@ -473,10 +484,29 @@ export default {
   },
   methods: {
     ...mapActions(['getMapInfo']),
+    formatTimes: formatTime,
+    // 获取车辆统计信息
+    getCarTotal () {
+      getStatisticCarTotal().then((res) => {
+        console.log(res)
+        const { code, result } = res
+        if (code === 0) {
+          this.carTotal = result.list
+          this.carTotal.unshift({
+            name: '  ',
+            pdi: 'PDI车间',
+            vqPark: 'VQ车场'
+          })
+        }
+      })
+    },
     // 切换页面显示
     changePage () {
       this.isShowingMapPage = !this.isShowingMapPage
       if (!this.isShowingMapPage) {
+        this.checkedAreaStatu = this.childMapInfos.map((map) => {
+          return map.name
+        })
         this.pagination.total = this.bindCars.length
         this.tableCars = this.bindCars.slice(0, 10)
       }
@@ -499,12 +529,14 @@ export default {
       if (this.searchParam) {
         cars = this.bindCars.filter((car) => car.vehicle.identification.includes(this.searchParam))
       }
+      console.log(cars)
       if (this.checkedAreaStatu.length !== this.childMapInfos.length) {
         cars = cars.filter((car) => {
-          return this.checkedAreaStatu.some((area) => area === car.locator.statisticZone)
+          return this.checkedAreaStatu.some((area) => area === car.locator.currentZone)
         })
       }
       cars = cars.slice((this.pagination.current - 1) * 10, this.pagination.current * 10)
+      console.log(cars)
       return cars
     },
     isDelay (bindTime) {
@@ -627,6 +659,10 @@ export default {
         bind: true,
         vehicleId: oui
       }
+      // const locatorId = car.locator.id
+      // getRepairCarInfo(locatorId).then((res) => {
+      //   console.log(res)
+      // })
       queryCars(param).then((res) => {
         // console.log(res)
         let { code, desc, result } = res
@@ -870,19 +906,15 @@ export default {
     // 点击marker
     clickMarker (ev) {
       console.log(ev)
-      let oui = ev.target.carId
+      // let oui = ev.target.carId
+      const locatorId = ev.target.locatorId
       // 查询这两车的信息
-      let param = {
-        productLineId: 1,
-        bind: true,
-        vehicleId: oui
-      }
-      queryCars(param).then((res) => {
-        // console.log(res)
+      getRepairCarInfo(locatorId).then((res) => {
+        console.log(res)
         let { code, desc, result } = res
         if (code === 0) {
           this.showingCar = result.resultList[0]
-          this.$refs['carlist'].setListActive(oui)
+          // this.$refs['carlist'].setListActive(oui)
           if (this.isShowing === false) {
             this.isShowing = true
           }
@@ -892,7 +924,6 @@ export default {
           })
         }
       })
-      // this.isShowing = true
     },
     // 获取绑定的车辆信息
     getBindCars (isInit) {
@@ -1316,6 +1347,39 @@ export default {
       text-align: left;
       .title {
         font-size: 1.5rem;
+      }
+      .total-table {
+        margin-top: 10px;
+        display: grid;
+        grid-template-rows: auto;
+        grid-template-columns: repeat(7, 1fr);
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        overflow: hidden;
+        box-sizing: border-box;
+        .item {
+          height: 100%;
+          align-self: center;
+          text-align: center;
+          &:first-child {
+            background: rgba(201, 200, 200, .5);
+            color: #222;
+            font-weight: bold;
+          }
+          .item-name {
+            background: rgba(201, 200, 200, .5);
+            color: #222;
+            font-weight: bold;
+            // height: 33%;
+          }
+          .child {
+            height: 33%;
+            border: 1px solid #aaa;
+            padding: 8px 0;
+            box-sizing: border-box;
+            border-bottom: none;
+          }
+        }
       }
     }
     .car-table {

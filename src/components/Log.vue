@@ -59,7 +59,7 @@ export default {
   data () {
     return {
       showInfobox: false,
-      icons: [{ name: 'pa', icon: 'zx-PA' }, { name: 'we', icon: 'zx-WE' }, { name: 'af', icon: 'zx-AF' }, { name: 'pq', icon: 'zx-PQ' }],
+      icons: [{ name: 'pa', icon: 'zx-PA' }, { name: 'we', icon: 'zx-WE' }, { name: 'af', icon: 'zx-AF' }, { name: 'pq', icon: 'zx-PQ' }, { name: 'dhec', icon: 'zx-PQ' }],
       showIndex: ''
     }
   },

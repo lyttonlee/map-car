@@ -17,7 +17,7 @@
           <div class="item-content">
             <div class="title">VQ返修复检: {{info.vqCheckNum}}台</div>
             <div class="title-sub success">超1.5h(未达8h): {{info.timeout1}}台</div>
-            <div class="box">
+            <div v-if="info.timeoutDetail1" class="box">
               <div class="child">
                 <template v-for="(item, index) in officeMap">
                   <div class="attr" :key="index">{{item.name + ' : ' + info.timeoutDetail1[item.key] + '台'}}</div>
@@ -30,7 +30,7 @@
               </div>
             </div>
             <div class="title-sub warn">超8h: {{info.timeout2}}台</div>
-            <div class="box">
+            <div v-if="info.timeoutDetail2" class="box">
               <div class="child">
                 <template v-for="(item, index) in officeMap">
                   <div class="attr" :key="index">{{item.name + ' : ' + info.timeoutDetail2[item.key] + '台'}}</div>
@@ -76,8 +76,8 @@
           <div class="date">
             <div class="time">{{moment(date).format('HH:mm:ss')}}</div>
             <div class="date-info">
-              <div class="day">{{moment(date).format('YYYY-MM-DD')}}</div>
-              <div class="week">{{moment(date).format('dddd')}}</div>
+              <div class="child day">{{moment(date).format('YYYY-MM-DD')}}</div>
+              <div class="child week">{{moment(date).format('dddd')}}</div>
             </div>
           </div>
           <div v-if="info.outOfBatch" class="line-content">
@@ -91,16 +91,44 @@
             <div class="sub-title">在库异常信息</div>
             <div class="list-item">
               <div class="item-row">
-                <div class="name">录入时间</div>
-                <div class="val">xxxxxxxxxxxx</div>
+                <div class="name">发生时间</div>
+                <div class="val">08：31：22</div>
               </div>
               <div class="item-row">
-                <div class="name">设备ID</div>
-                <div class="val">xxxxxxxxxxxx</div>
+                <div class="name">数量</div>
+                <div class="val">12</div>
               </div>
               <div class="item-row">
                 <div class="name">异常内容</div>
-                <div class="val">xxxxxxxxxxxx</div>
+                <div class="val">车辆脱离监管区域</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="item-row">
+                <div class="name">发生时间</div>
+                <div class="val">08：31：22</div>
+              </div>
+              <div class="item-row">
+                <div class="name">数量</div>
+                <div class="val">78</div>
+              </div>
+              <div class="item-row">
+                <div class="name">异常内容</div>
+                <div class="val">车辆维修时间超1.5小时</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="item-row">
+                <div class="name">发生时间</div>
+                <div class="val">08：31：22</div>
+              </div>
+              <div class="item-row">
+                <div class="name">数量</div>
+                <div class="val">25</div>
+              </div>
+              <div class="item-row">
+                <div class="name">异常内容</div>
+                <div class="val">设备电量低</div>
               </div>
             </div>
           </div>
@@ -382,6 +410,7 @@ export default {
       console.log(newCar)
       // 验证这辆车是否已存在与列表中，若存在则无视，若不存在则在车辆列表中添加这辆车并创建一个新的marker
       const carId = newCar.vehicle.id
+      const locatorId = newCar.locator.id
       let hasThisCar = this.bindCars.find((car) => car.vehicle.id === carId)
       if (!hasThisCar) {
         this.bindCars.push(newCar)
@@ -456,9 +485,13 @@ export default {
           currentMarker.openPopup()
         }
       } else {
+        // console.log(this.noUpLoadMarkers)
         let curCar = this.noUploadCars.find((car) => car.sn === this.searchParam)
         if (curCar) {
-          let marker = this.noUpLoadMarkers[this.noUploadMap[curCar.id]]
+          // console.log(curCar)
+          // console.log(this.noUploadMap)
+          let marker = this.noUpLoadMarkers[this.noUploadMap.get(curCar.id)]
+          // console.log(marker)
           let isOpenPopup = marker.isPopupOpen()
           if (!isOpenPopup) {
             marker.openPopup()
@@ -1282,8 +1315,10 @@ export default {
             grid-template-columns: 1fr 1fr 1fr;
             grid-template-rows: auto;
             margin: 15px 0;
+            font-size: 1.1em;
             @media screen and (max-width: 1600px) {
               margin: 8px 0;
+              font-size: 1em;
             }
             .child {
               align-self: center;
@@ -1329,16 +1364,24 @@ export default {
       .total-right {
         .date {
           height: 60px;
-          padding: 10px;
+          // padding: 10px;
           border-bottom: 1px solid #666;
           box-sizing: border-box;
+          display: grid;
+          grid-template-columns: 3fr 1fr;
+          grid-template-rows: 1fr;
           .time {
-            font-size: 1.5rem;
+            font-size: 2.5rem;
+            align-self: center;
           }
           .date-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr;
+            align-self: center;
+            .child {
+              padding: 5px 0;
+            }
+            // display: grid;
+            // grid-template-columns: 1fr 1fr;
+            // grid-template-rows: 1fr;
           }
         }
         .line-content {
@@ -1361,6 +1404,10 @@ export default {
             display: grid;
             grid-template-rows: 1fr;
             grid-template-columns: 1fr 1fr;
+            font-size: 1.1em;
+            @media screen and (max-width: 1600px) {
+              font-size: 1em;
+            }
           }
         }
         .error-infos {
@@ -1372,19 +1419,29 @@ export default {
           }
           .list-item {
             // ..
-            margin: 10px;
+            margin: 15px;
             .item-row {
               display: grid;
               grid-template-columns: 25% 75%;
               grid-template-rows: auto;
               color: #ddd;
               .name {
-                border: 1px solid #eee;
-                padding: 5px 0;
+                border: 1px solid #aaa;
+                padding: 10px 0;
+                // border-bottom: none;
+                &:nth-last-child(1) {
+                  border-bottom: 1px solid #aaa;
+                }
+                @media screen and (max-width: 1600px) {
+                  padding: 5px 0;
+                }
               }
               .val {
-                border: 1px solid #eee;
-                padding: 5px 0;
+                border: 1px solid #aaa;
+                padding: 10px 0;
+                @media screen and (max-width: 1600px) {
+                  padding: 5px 0;
+                }
               }
             }
           }

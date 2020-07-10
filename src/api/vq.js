@@ -48,3 +48,13 @@ export const getStatistic = () => {
 export const getSpecicalFence = (params) => {
   return request.get('/api/map/v1.0/exsitDetectZone', { params })
 }
+
+// 获取统计车辆
+export const getStatisticCarTotal = () => {
+  return request.get('/api/monitor/v1.0/statistic/vehicleList')
+}
+
+// 在修车辆查询
+export const getRepairCarInfo = (locatorId) => {
+  return request.post('/api/vehicle/v1.0/repair/query', locatorId)
+}

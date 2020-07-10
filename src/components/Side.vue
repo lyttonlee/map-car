@@ -112,12 +112,15 @@ export default {
     display: flex;
     flex-direction: column;
     .menu-item {
-      font-size: .95rem;
+      font-size: 1.1rem;
       display: block;
       text-decoration: none;
       color: @sub-font-color;
       padding: 15px 0;
       // text-align: left;
+      @media screen and (max-width: 1600px) {
+        font-size: 1rem;
+      }
       &:hover {
         background: @page-background;
         color: @font-color;
