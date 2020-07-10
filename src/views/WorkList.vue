@@ -8,15 +8,15 @@
         <!-- <div class="car-oui">位置</div> -->
         <div class="car-oui">位置</div>
         <div class="car-time">维修时长</div>
-        <div class="car-oui">操作</div>
+        <div class="car-oui">SN</div>
       </div>
       <template v-for="(car, index) in repair">
         <div :class="listActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index, 'repair')" :key="index">
-          <div class="car-oui">{{car.vehicle.identification}}</div>
+          <div class="car-oui">{{car.vehicle ? car.vehicle.identification : '---'}}</div>
           <div>{{car.locator.address}}</div>
           <!-- <div>{{computedCarNode(car.vehicleDeliverStatus.node)}}</div> -->
-          <div :class="formatTime(car.vehicleDeliverStatus.startTime) * 1 >= overtime * 1 ? 'warn' : 'success'">{{formatTime(car.vehicleDeliverStatus.startTime)}}小时</div>
-          <div class="action">结束</div>
+          <div :class="car.vehicleDeliverStatus && formatTime(car.vehicleDeliverStatus.startTime) * 1 >= overtime * 1 ? 'warn' : 'success'">{{car.vehicleDeliverStatus ? formatTime(car.vehicleDeliverStatus.startTime) + '小时' : '---'}}</div>
+          <div class="action">{{car.locator.sn}}</div>
         </div>
       </template>
     </div>
@@ -27,15 +27,15 @@
         <!-- <div class="car-oui">位置</div> -->
         <div class="car-oui">位置</div>
         <div class="car-time">维修时长</div>
-        <div class="car-oui">操作</div>
+        <div class="car-oui">SN</div>
       </div>
       <template v-for="(car, index) in pending">
         <div :class="pendingActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index, 'pending')" :key="index">
-          <div class="car-oui">{{car.vehicle.identification}}</div>
+          <div class="car-oui">{{car.vehicle ? car.vehicle.identification : '---'}}</div>
           <div>{{car.locator.address}}</div>
           <!-- <div>{{computedCarNode(car.vehicleDeliverStatus.node)}}</div> -->
           <div>{{'---'}}</div>
-          <div class="action">开始</div>
+          <div class="action">{{car.locator.sn}}</div>
         </div>
       </template>
     </div>
@@ -157,10 +157,10 @@ export default {
       // console.log('clear')
       this.listActiveIndex = ''
     },
-    setListActive (carId) {
+    setListActive (locatorId) {
       // console.log(this.renderedCars)
-      let index = this.repair.findIndex((car) => car.vehicle.id === carId)
-      let pendingIndex = this.pending.findIndex((car) => car.vehicle.id === carId)
+      let index = this.repair.findIndex((car) => car.locator.id === locatorId)
+      let pendingIndex = this.pending.findIndex((car) => car.locator.id === locatorId)
       // console.log(index)
       if (index !== -1) {
         this.listActiveIndex = index
