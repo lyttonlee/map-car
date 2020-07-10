@@ -109,7 +109,7 @@ export default {
           // inputErrorMessage: '邮箱格式不正确'
         }).then(({ value }) => {
           let param = {
-            vehicleId: id,
+            locatorId: id,
             note: value || ''
           }
           finishWorkShopCar(param).then((res) => {
