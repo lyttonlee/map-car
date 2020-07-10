@@ -28,7 +28,10 @@
             </div>
           </template>
         </div>
-        <div v-else class="author">操作员- {{log.nickName}}</div>
+        <div v-else class="author">
+          <div style="margin-bottom: 5px" v-if="log.param">问题- {{JSON.parse(log.param).note}}</div>
+          <div>操作员- {{log.nickName}}</div>
+        </div>
       </div>
       <!-- <div class="right">
         <div class="date-right">{{log.param && JSON.parse(log.param).stay ? $moment.duration(JSON.parse(log.param).stay / 1000, 's').asHours().toFixed(2) + 'h' : ''}}</div>
