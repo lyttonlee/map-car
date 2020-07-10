@@ -5,9 +5,13 @@
         <div :key="index" class="item">
           <el-card>
             <div class="title">{{map[option.type]}}</div>
-            <div class="content">
+            <div v-if="typeof option.param === 'number'" class="content">
               <!-- {{$moment.duration(confirmOption.param * 1, 'ms').humanize()}} -->
               {{formatTime(option.param * 1 / 1000)}}
+            </div>
+            <div v-if="typeof option.param === 'boolean'" class="content">
+              <!-- {{$moment.duration(confirmOption.param * 1, 'ms').humanize()}} -->
+              {{option.param ? '开启' : '关闭'}}
             </div>
             <div class="action">
               <el-button @click="editOption(option)" style="width: 100%" size="mini" round type="info">修改</el-button>
@@ -28,12 +32,15 @@
       </div> -->
     </div>
     <!-- <div v-if="showModal" class="modal"></div> -->
-    <Modal ref="modal" v-if="showModal" :loading="loading" width="30%" @quit="quit" @ok="handleOk">
+    <Modal ref="modal" v-if="showModal"  width="30%" @quit="quit" @ok="handleOk">
       <!-- {{showingOption}} -->
       <h3>{{map[showingOption.type]}}</h3>
-      <el-input size="small"  :placeholder="map[showingOption.type]" v-model="confirmTime">
+      <el-input v-if="showingOption.type === 2 || showingOption.type === 3" size="small"  :placeholder="map[showingOption.type]" v-model="confirmTime">
         <template slot="append">{{'分钟'}}</template>
       </el-input>
+      <div v-if="showingOption.type === 5">
+        <el-switch v-model="switchValue" active-text="当处于特定区域时车辆自动解绑" inactive-text="车辆只能手动解绑" ></el-switch>
+      </div>
       <div></div>
     </Modal>
   </div>
@@ -59,10 +66,12 @@ export default {
       confirmOption: '',
       showingOption: '',
       confirmTime: '',
+      switchValue: false,
       // loading: false
       map: {
         2: '自动确认开始维修',
-        3: '自动确认结束维修'
+        3: '自动确认结束维修',
+        5: '自动解绑',
       }
     }
   },
@@ -74,7 +83,7 @@ export default {
         if (code === 0) {
           // console.log(result)
           this.systemOptions = result.filter((option) => {
-            return option.type === 2 || option.type === 3
+            return option.type === 2 || option.type === 3 || option.type === 5
           })
           this.systemOptions.sort((a, b) => a.type - b.type)
           // this.confirmOption = this.systemOptions.find((option) => option.type === 2)
@@ -84,7 +93,12 @@ export default {
     editOption (option) {
       // console.log(option)
       this.showingOption = option
-      this.confirmTime = this.$moment.duration(this.showingOption.param * 1, 'ms').asMinutes()
+      if (option.type === 2 || option.type === 3) {
+        this.confirmTime = this.$moment.duration(this.showingOption.param * 1, 'ms').asMinutes()
+      }
+      if (option.type === 5) {
+        this.switchValue = option.param
+      }
       this.showModal = true
     },
     quit () {
@@ -104,36 +118,46 @@ export default {
           return false
         }
       }
-      if (this.confirmTime && isTime(this.confirmTime)) {
-        let time = this.confirmTime * 60 * 1000
-        let param = {
-          param: time,
+      let time = this.confirmTime * 60 * 1000
+      let param
+      if (this.showingOption.type === 5) {
+        param = {
+          param: this.switchValue,
           type: this.showingOption.type
         }
-        updateConfirmTime(param).then((res) => {
-          let { code, desc } = res
-          if (code === 0) {
-            this.$notify.success({
-              message: desc
-            })
-            this.showingOption = ''
-            this.quit()
-            this.getInitOption()
-          } else {
-            this.$notify.error({
-              message: desc
-            })
-            this.$refs['modal'].isLoading = false
-          }
-        }).catch((err) => {
-          console.log(err)
-          this.$refs['modal'].isLoading = false
-        })
-      } else {
-        this.$notify.error({
-          message: '自动确认时间应在1-60分钟之内'
-        })
       }
+      if (this.showingOption.type === 2 || this.showingOption.type === 3) {
+        if (this.confirmTime && isTime(this.confirmTime)) {
+          param = {
+            param: time,
+            type: this.showingOption.type
+          }
+        } else {
+          this.$notify.error({
+            message: '自动确认时间应在1-60分钟之内'
+          })
+          return
+        }
+      }
+      updateConfirmTime(param).then((res) => {
+        let { code, desc } = res
+        if (code === 0) {
+          this.$notify.success({
+            message: desc
+          })
+          this.showingOption = ''
+          this.quit()
+          this.getInitOption()
+        } else {
+          this.$notify.error({
+            message: desc
+          })
+          this.$refs['modal'].isLoading = false
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$refs['modal'].isLoading = false
+      })
     }
   },
   created () {
