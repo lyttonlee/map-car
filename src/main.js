@@ -26,6 +26,7 @@ import moment from 'moment'
 moment.locale('zh-cn')
 
 const hostname = window.location.hostname
+console.log(hostname)
 const socketUrl = process.env.NODE_ENV === 'development' ? `http://192.168.1.205:9099` : `http://${hostname}:9099`
 
 Vue.use(VueIntro)

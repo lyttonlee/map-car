@@ -20,7 +20,7 @@
         <div class="car-time">维修时长</div>
       </div>
       <template v-for="(car, index) in renderedCars">
-        <div :class="listActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index)" :key="index">
+        <div v-if="car.vehicle" :class="listActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index)" :key="index">
           <div :class="computeCarClassColorByStatu(car.vehicle.status, car.vehicleDeliverStatus.bindTime)">
             <zx-icon type="zx-car2"></zx-icon>
           </div>
@@ -144,29 +144,31 @@ export default {
       // 先切换menu 再在结果中找出符合搜索条件的car
       switch (this.activeIndex) {
         case 0:
-          temCars = this.cars
+          temCars = this.cars.filter((car) => car !== null)
           break
         case 1:
-          temCars = this.cars.filter((car) => car.vehicle.status !== 0)
+          temCars = this.cars.filter((car) => car.vehicle && car.vehicle.status !== 0)
           break
         case 2:
           temCars = this.cars.filter((car) => {
             // car.vehicleDeliverStatus.bindTime
+            if (!car.vehicleDeliverStatus) return false
             return this.formatTime(car.vehicleDeliverStatus.bindTime) * 1 >= this.overtime * 1
           })
           break
         default:
-          temCars = this.cars
+          temCars = this.cars.filter((car) => car !== null)
           break
       }
       // 搜索
       if (this.search !== '') {
-        temCars = temCars.filter((car) => car.vehicle.identification.includes(this.search) || car.locator.sn.includes(this.search))
+        temCars = temCars.filter((car) => car.vehicle && (car.vehicle.identification.includes(this.search) || car.locator.sn.includes(this.search)))
       }
       // 切换地图上对应的marker显示
       let carIds = temCars.map((car) => {
-        return car.vehicle.id
+        return car.vehicle ? car.vehicle.id : null
       })
+      carIds = carIds.filter((id) => id !== null)
       // console.log(carIds)
       // console.log(temCars)
       this.$emit('changeShowingMarkers', carIds)

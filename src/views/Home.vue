@@ -254,7 +254,7 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const posList = JSON.parse(data).content
-      console.log(posList)
+      // console.log(posList)
       posList.forEach((newPos) => {
         // 找到对应的marker
         let index = this.carMarkerMap[newPos.id]
@@ -262,8 +262,9 @@ export default {
         let markerIndex = index
         // console.log(markerIndex)
         // 移动位置正常逻辑
-        if (this.carMarkerMap.hasOwnProperty(newPos.id) && markerIndex !== -1) {
+        if (this.carMarkerMap.hasOwnProperty(newPos.id) && markerIndex) {
           // console.log(this.markers)
+          if (!this.markers[markerIndex]) return
           let currentMarker = this.markers[markerIndex].marker
           // console.log(this.bindCars)
           // let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.locatorId === newPos.id)
@@ -336,10 +337,12 @@ export default {
         } else {
           if (newPos.statisticZone !== 'bind') { // 不是在绑定点，实际已绑定但未上传绑定信息的车辆
             // 1.判断是否已存在于 noUploadCars 里面
+            // console.log(this.noUploadMap)
             if (this.noUploadMap.has(newPos.id)) { // 已存在
               //  已存在，判断位置是否相同, 不一样就移动车辆 计算位置区域
               let curIndex = this.noUploadMap.get(newPos.id)
-              if (newPos.x !== this.noUploadCars[curIndex].x || newPos.y !== this.noUploadCars[curIndex].y) {
+              // console.log(this.noUploadCars[curIndex])
+              if (this.noUploadCars[curIndex] && (newPos.x !== this.noUploadCars[curIndex].x || newPos.y !== this.noUploadCars[curIndex].y)) {
                 // 移动车辆
                 this.noUploadCars[curIndex].y = newPos.y
                 this.noUploadCars[curIndex].x = newPos.x
@@ -436,19 +439,23 @@ export default {
         console.log('页面数据尚未计算完成，忽略本次位置推送')
         return
       }
+      console.log('接收到unbind事件')
       const removeCar = JSON.parse(data)
-      console.log('删除了car')
-      // console.log(removeCar)
+      console.log(removeCar)
       // 找到是否有这辆车
       let carIndex = this.bindCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
       let shownCarIndex = this.showingCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
       // 移除数据
       if (carIndex !== -1 && shownCarIndex !== -1) { // 存在这辆车
+        console.log(this.carMarkerMap)
+        delete this.carMarkerMap[removeCar.locatorId]
+        this.carMapNum.set(this.mapInfo.id, this.carMapNum.get(this.mapInfo.id) - 1)
         if (this.bindCars[carIndex].areaId !== -1) {
           this.carMapNum.set(this.bindCars[carIndex].areaId, this.carMapNum.get(this.bindCars[carIndex].areaId) - 1)
           this.carMapNum = new Map([...this.carMapNum])
         }
-        this.bindCars.splice(carIndex, 1)
+        // this.bindCars.splice(carIndex, 1)
+        this.bindCars[carIndex] = null
         this.showingCars.splice(shownCarIndex, 1)
         // 找出这个marker
         // 找到对应的marker
@@ -459,7 +466,8 @@ export default {
           // console.log(currentMarker)
           // 删除marker
           currentMarker.remove()
-          this.markers.splice(markerIndex, 1)
+          // this.markers.splice(markerIndex, 1)
+          this.markers[markerIndex] = null
           // console.log(this.markers)
         }
       }
@@ -971,9 +979,13 @@ export default {
       // console.log(this.markers)
       // 循环marker
       const canRender = (carId) => {
+        if (!carId) return false
         return carIds.some((id) => id === carId)
       }
       this.markers.forEach((item) => {
+        if (!item) {
+          return
+        }
         // 符合的marker透明度设置为1，否则设置为0
         if (canRender(item.id)) {
           // item.marker.setOpacity(1)
