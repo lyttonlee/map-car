@@ -42,7 +42,14 @@
                 </template>
               </div>
             </div>
-            <div v-if="info.afOutLine" class="title">AF线外返修: {{info.afOutLine.threeHour + info.afOutLine.oneDay + info.afOutLine.threeDay}}台</div>
+            <div v-if="info.outOfBatch" class="line-content">
+              <div class="sub-title">线内脱批: {{info.outOfBatch.oneDay + info.outOfBatch.threeDay}}台</div>
+              <div class="list">
+                <div class="warn">超一天(未达3天): {{info.outOfBatch.oneDay}}台</div>
+                <div class="error">超三天: {{info.outOfBatch.threeDay}}台</div>
+              </div>
+            </div>
+            <div v-if="info.afOutLine" class="title-sub">AF线外返修: {{info.afOutLine.threeHour + info.afOutLine.oneDay + info.afOutLine.threeDay}}台</div>
             <div v-if="info.afOutLine" class="out-line">
               <div class="child success">超3h: {{info.afOutLine.threeHour}}</div>
               <div class="child warn">超1天: {{info.afOutLine.oneDay}}</div>
@@ -78,13 +85,6 @@
             <div class="date-info">
               <div class="child day">{{moment(date).format('YYYY-MM-DD')}}</div>
               <div class="child week">{{moment(date).format('dddd')}}</div>
-            </div>
-          </div>
-          <div v-if="info.outOfBatch" class="line-content">
-            <div class="sub-title">线内脱批: {{info.outOfBatch.oneDay + info.outOfBatch.threeDay}}台</div>
-            <div class="list">
-              <div class="warn">超一天(未达3天): {{info.outOfBatch.oneDay}}台</div>
-              <div class="error">超三天: {{info.outOfBatch.threeDay}}台</div>
             </div>
           </div>
           <div class="error-infos">
@@ -275,7 +275,7 @@ export default {
   },
   sockets: {
     connect (data) {
-      console.log(data)
+      // console.log(data)
       console.log('已成功连接到socket服务器')
       // console.log(this.token)
       // this.$socket.emit('init', this.token)
@@ -325,7 +325,7 @@ export default {
       // console.log('接收到position事件推送')
       // console.log(data)
       const posList = JSON.parse(data).content
-      console.log(posList)
+      // console.log(posList)
       posList.forEach((newPos) => {
         // 找到对应的marker
         let index = this.carMarkerMap[newPos.id]
@@ -407,7 +407,7 @@ export default {
     bind (data) {
       // console.log(data)
       const newCar = JSON.parse(data)
-      console.log(newCar)
+      // console.log(newCar)
       // 验证这辆车是否已存在与列表中，若存在则无视，若不存在则在车辆列表中添加这辆车并创建一个新的marker
       const carId = newCar.vehicle.id
       const locatorId = newCar.locator.id
@@ -430,7 +430,7 @@ export default {
     },
     unBind (data) {
       const removeCar = JSON.parse(data)
-      console.log('删除了car')
+      // console.log('删除了car')
       // console.log(removeCar)
       // 找到是否有这辆车
       let carIndex = this.bindCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
@@ -442,17 +442,17 @@ export default {
         let markerIndex = this.markers.findIndex((item) => item.id === removeCar.vehicle.id)
         if (markerIndex !== -1) {
           let currentMarker = this.markers[markerIndex].marker
-          console.log(currentMarker)
+          // console.log(currentMarker)
           // 删除marker
           currentMarker.remove()
           this.markers.splice(markerIndex, 1)
-          console.log(this.markers)
+          // console.log(this.markers)
         }
       }
     },
     changeBind (data) {
       const car = JSON.parse(data)
-      console.log(car)
+      // console.log(car)
       let carId = car.vehicle.id
       // 替换车的定位器id
       let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.id === carId)
@@ -737,7 +737,11 @@ export default {
             },
             axisTick: {
               interval: 0
-            }
+            },
+            // axisLabel: {
+            //   interval: 0,
+            //   fontSize: 9
+            // },
           }
         ],
         yAxis: [
@@ -819,6 +823,13 @@ export default {
             type: 'category',
             // name: '小时',
             splitLine: {
+              show: false
+            },
+            axisLabel: {
+              interval: 0,
+              fontSize: 9
+            },
+            axisTick: {
               show: false
             },
             data: this.info.nodeStatistic.items.map((item) => item.k),
@@ -1069,7 +1080,7 @@ export default {
       // 找到这个聚合点
       let currentDivMarker = this.divMarkers.find((marker) => marker.id === area.id)
       // 更新数据
-      console.log(area)
+      // console.log(area)
       if (currentDivMarker) {
         const myIcon = L.divIcon({
           className: 'marker-circle',
@@ -1089,7 +1100,7 @@ export default {
     specalAreas: {
       handler: function (newVal) {
         // console.log('new areas')
-        console.log(newVal)
+        // console.log(newVal)
         let hasDivMarker = (id) => {
           let hasMarker = false
           this.divMarkers.forEach((marker) => {
@@ -1266,9 +1277,38 @@ export default {
           }
         }
         .item-content {
-          padding: 15px 0;
+          padding: 12px 0;
           @media screen and (max-width: 1600px) {
-            padding: 8px 0;
+            padding: 5px 0;
+          }
+          .line-content {
+            margin: 13px 0 0 0;
+            // border-bottom: 1px solid #666;
+            box-sizing: border-box;
+            // padding-bottom: 15px;
+            @media screen and (max-width: 1600px) {
+              margin: 6px 0 0 0;
+              // padding-bottom: 8px;
+            }
+            .sub-title {
+              font-size: 1.3rem;
+              font-weight: 500;
+              @media screen and (max-width: 1600px) {
+                font-size: 1.1rem;
+                font-weight: 400;
+              }
+            }
+            .list {
+              padding-top: 12px;
+              display: grid;
+              grid-template-rows: 1fr;
+              grid-template-columns: 1fr 1fr;
+              font-size: 1.1em;
+              @media screen and (max-width: 1600px) {
+                font-size: 1em;
+                padding-top: 5px;
+              }
+            }
           }
           .title {
             font-size: 1.3rem;
@@ -1279,33 +1319,33 @@ export default {
             }
           }
           .title-sub {
-            margin: 15px 0;
+            margin: 12px 0 0 0;
             font-size: 1.1rem;
-            font-weight: 500;
             // color: @primary-color;
             @media screen and (max-width: 1600px) {
-              margin: 8px 0;
+              margin: 6px 0 0 0;
               font-size: 1rem;
             }
           }
           .box {
-            min-height: 100px;
-            max-height: 130px;
+            min-height: 95px;
+            max-height: 125px;
             border-radius: 8px;
-            border: 1.5px solid #fff;
-            margin: 15px;
+            border: 1.5px solid #ccc;
+            margin: 12px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr;
             @media screen and (max-width: 1600px) {
-              margin: 8px;
+              margin: 7px;
             }
             .child {
+              align-self: center;
               .attr {
-                padding: 5px;
+                padding: 4px;
                 color: #ddd;
                 @media screen and (max-width: 1600px) {
-                  padding: 3px;
+                  padding: 2px;
                 }
               }
             }
@@ -1314,10 +1354,10 @@ export default {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             grid-template-rows: auto;
-            margin: 15px 0;
+            margin: 13px 0 0 0;
             font-size: 1.1em;
             @media screen and (max-width: 1600px) {
-              margin: 8px 0;
+              margin: 6px 0 0 0;
               font-size: 1em;
             }
             .child {
@@ -1373,6 +1413,8 @@ export default {
           .time {
             font-size: 2.5rem;
             align-self: center;
+            color: @primary-color;
+            font-weight: 450;
           }
           .date-info {
             align-self: center;
@@ -1382,32 +1424,6 @@ export default {
             // display: grid;
             // grid-template-columns: 1fr 1fr;
             // grid-template-rows: 1fr;
-          }
-        }
-        .line-content {
-          margin: 15px 0;
-          border-bottom: 1px solid #666;
-          box-sizing: border-box;
-          padding-bottom: 15px;
-          @media screen and (max-width: 1600px) {
-            margin: 8px 0;
-            padding-bottom: 8px;
-          }
-          .sub-title {
-            font-size: 1.3rem;
-            @media screen and (max-width: 1600px) {
-              font-size: 1rem;
-            }
-          }
-          .list {
-            padding-top: 15px;
-            display: grid;
-            grid-template-rows: 1fr;
-            grid-template-columns: 1fr 1fr;
-            font-size: 1.1em;
-            @media screen and (max-width: 1600px) {
-              font-size: 1em;
-            }
           }
         }
         .error-infos {
