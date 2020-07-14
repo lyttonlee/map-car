@@ -29,6 +29,25 @@
         </div>
       </template>
     </div>
+    <div class="unbind-list">
+      <div class="title">未上传信息车辆</div>
+      <div class="list-item">
+        <div>
+          车辆状态
+        </div>
+        <div class="car-oui">定位器SN</div>
+        <div class="car-time">位置</div>
+      </div>
+      <template v-for="(car, index) in unbindCars">
+        <div v-if="car.sn" :class="unbindActiveIndex === index ? 'list-item active' : 'list-item'" @click="showUnbindCarInfo(car, index)" :key="index">
+          <div class="unbind">
+            <zx-icon type="zx-car2"></zx-icon>
+          </div>
+          <div class="car-oui">{{car.sn}}</div>
+          <div class="success">{{car.address}}</div>
+        </div>
+      </template>
+    </div>
   </div>
 </template>
 <script>
@@ -44,6 +63,10 @@ export default {
     cars: {
       type: Array,
       required: true
+    },
+    unbindCars: {
+      type: Array,
+      required: true
     }
   },
   data () {
@@ -55,6 +78,7 @@ export default {
       renderedCars: [],
       search: '', // 要搜索的车架号 模糊匹配
       listActiveIndex: '',
+      unbindActiveIndex: '',
     }
   },
   computed: {
@@ -79,6 +103,7 @@ export default {
     }
   },
   mounted () {
+    // console.log(this.unbindCars)
     this.freshTime = setInterval(() => {
       this.renderedCars = [...this.renderedCars]
     }, 60000)
@@ -204,6 +229,10 @@ export default {
       this.$emit('showCarInfo', car)
       this.listActiveIndex = index
     },
+    showUnbindCarInfo (car, index) {
+      this.$emit('showUnbindCarInfo', car)
+      this.unbindActiveIndex = index
+    },
     clearListActive () {
       // console.log('clear')
       this.listActiveIndex = ''
@@ -254,9 +283,38 @@ export default {
   }
   .list {
     margin-top: 15px;
-    max-height: 90vh;
+    height: 60vh;
+    max-height: 60vh;
     overflow-y: auto;
     .list-item {
+      cursor: pointer;
+      // margin-top: 10px;
+      padding-top: 10px;
+      border-bottom: .5px solid rgba(251, 252, 250, 0.473);
+      display: grid;
+      grid-template-columns: 20% 50% 30%;
+      grid-template-rows: auto;
+      &:hover {
+        background: @page-background;
+        border-bottom: .5px solid rgba(251, 252, 250, 0.699);
+      }
+    }
+    .active {
+      background: @page-background;
+      border-bottom: .5px solid rgba(251, 252, 250, 0.699);
+    }
+  }
+  .unbind-list {
+    height: 30vh;
+    overflow-y: auto;
+    .title {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .list-item {
+      .unbind {
+        color: rgb(122, 118, 118);
+      }
       cursor: pointer;
       // margin-top: 10px;
       padding-top: 10px;

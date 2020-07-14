@@ -8,7 +8,7 @@
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
-      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" />
+      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" :unbindCars="noUploadCars" @showUnbindCarInfo="showUnbindCarInfo" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
     <div class="switch" @click="toggleShowSide">
@@ -39,7 +39,13 @@
         <div class="title">
           PDI在库车详情表
         </div>
-        <div class="action">
+        <div class="select-show">
+          <el-radio-group v-model="showingTable" size="medium">
+            <el-radio-button label="bind">正常在库车辆</el-radio-button>
+            <el-radio-button label="unbind">未上传信息车辆</el-radio-button>
+          </el-radio-group>
+        </div>
+        <div v-show="showingTable === 'bind'" class="action">
           <div class="check">
             <el-checkbox-group style="margin-left: 20px" :min="1" v-model="checkedAreaStatu" @change="checkedAreaChange" >
               <el-checkbox v-for="(map, index) in childMapInfos" :label="map.name" :key="map.id + index + map.name">{{map.name}}</el-checkbox>
@@ -49,7 +55,7 @@
             <el-input v-model="searchParam" size="small" placeholder="请输入车架号" @keyup.enter.native="doSearch" @blur="doSearch" ></el-input>
           </div>
         </div>
-        <div class="table">
+        <div v-show="showingTable === 'bind'" class="table">
           <el-table :data="tableCars" style="width: 100%;background:#fff0" size="small" >
             <el-table-column label="车架号" >
               <template slot-scope="scope">
@@ -96,6 +102,35 @@
             @current-change="pageChanged"
             layout="total, prev, pager, next">
           </el-pagination>
+        </div>
+        <div v-show="showingTable === 'unbind'" class="table">
+          <el-table :data="noUploadCars" style="width: 100%;background:#fff0" size="small" >
+            <el-table-column label="定位器SN" >
+              <template slot-scope="scope">
+                <div>{{scope.row.sn}}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="位置" >
+              <template slot-scope="scope">
+                <div>{{scope.row.address}}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="标签状态" >
+              <template slot-scope="scope">
+                <div>{{scope.row.power > 10 ? '正常' : '低电量'}}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="责任部门" >
+              <template slot-scope="scope">
+                <div>{{scope.row.currentZone}}</div>
+              </template>
+            </el-table-column>
+            <!-- <el-table-column label="检修内容" >
+              <template slot-scope="scope">
+                <div>{{scope.row}}</div>
+              </template>
+            </el-table-column> -->
+          </el-table>
         </div>
       </div>
     </div>
@@ -179,6 +214,7 @@ export default {
       noUpLoadMarkers: [], // 未上传信息的车辆marker数组
       noUploadMap: new Map(), // 定位器ID 与 车辆和marker数组位置的映射关系
       carTotal: '', // 车辆统计
+      showingTable: 'bind',
     }
   },
   created () {
@@ -911,6 +947,33 @@ export default {
       let repairTime = this.$moment().valueOf() - s
       return this.$moment.duration(repairTime / 1000, 's').asHours().toFixed(2)
     },
+    showUnbindCarInfo (car) {
+      const locatorId = car.id
+      // 查询这两车的信息
+      getRepairCarInfo(locatorId).then((res) => {
+        console.log(res)
+        let { code, desc, result } = res
+        if (code === 0) {
+          this.showingCar = result.resultList[0]
+          let currentMarker = this.noUpLoadMarkers.find((item) => item.locatorId === locatorId)
+          // console.log(markerIndex)
+          if (currentMarker) {
+            let isOpenPopup = currentMarker.isPopupOpen()
+            if (!isOpenPopup) {
+              currentMarker.openPopup()
+            }
+          }
+          // this.$refs['carlist'].setUnListActive(locatorId)
+          if (this.isShowing === false) {
+            this.isShowing = true
+          }
+        } else {
+          this.$notify.error({
+            message: desc
+          })
+        }
+      })
+    },
     // 点击marker
     clickMarker (ev) {
       console.log(ev)
@@ -1397,6 +1460,10 @@ export default {
     .car-table {
       margin-top: 20px;
       padding: 0 25px;
+      .select-show {
+        text-align: left;
+        margin: 10px 0;
+      }
       .title {
         font-size: 1.5rem;
         text-align: left;
