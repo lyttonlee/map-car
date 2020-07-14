@@ -177,8 +177,8 @@ export const routes = [
       {
         path: '/fence',
         name: '围栏管理',
-        // component: () => import(/* webpackChunkName: "fence" */ '../views/fence/Fence.vue'),
-        component: () => import(/* webpackChunkName: "fence" */ '../views/Stat.vue'),
+        component: () => import(/* webpackChunkName: "fence" */ '../views/fence/Fence.vue'),
+        // component: () => import(/* webpackChunkName: "fence" */ '../views/Stat.vue'),
         meta: {
           auth: true,
           icon: 'zx-tongji1',

@@ -701,6 +701,7 @@ export default {
     display: grid;
     position: fixed;
     grid-template-columns: 300px auto;
+    grid-template-rows: 1fr;
     width: 600px;
     height: 70vh;
     background: @page-background-opacity;
