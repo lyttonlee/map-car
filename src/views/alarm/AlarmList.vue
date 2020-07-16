@@ -1,5 +1,11 @@
 <template>
   <div class="page">
+    <div class="select-alarm-type">
+      <el-radio-group @change="changeAlarmType" v-model="showAlarmType" size="small">
+        <el-radio-button label="car">车辆告警</el-radio-button>
+        <el-radio-button label="other">其它告警</el-radio-button>
+      </el-radio-group>
+    </div>
     <div class="search">
       <el-input v-model="search" @keyup.enter.native="doSearch" @blur="doSearch" placeholder="请输入车架号"></el-input>
     </div>
@@ -76,10 +82,11 @@
 import {
   queryAlarm,
   disposeAlarm,
+  getShownAlarmType
 } from '../../api/alarm'
 import {
   mapState,
-  mapGetters,
+  // mapGetters,
 } from 'vuex'
 import {
   computeAlarmIcon,
@@ -110,15 +117,54 @@ export default {
       isStatuIndeterminate: false,
       checkAllStatu: true,
       checkedStatu: [1, 2],
-      skipIntro: true
+      skipIntro: true,
+      showAlarmType: 'car',
+      alarmValues: []
     }
   },
   computed: {
     ...mapState(['productLineId', 'alarmConfig']),
-    ...mapGetters(['alarmValues']),
+    // ...mapGetters(['alarmValues']),
   },
   methods: {
     computeAlarmIcon,
+    getInitType () {
+      getShownAlarmType().then((res) => {
+        // console.log(res)
+        const { code, result } = res
+        if (code === 0) {
+          const { car, other } = result
+          this.carAlarm = car
+          this.otherAlarm = other
+          if (this.showAlarmType === 'car') {
+            this.alarmValues = car
+            this.checkedAlarms = car.map((config) => {
+              return config.code
+            })
+            let param = {
+              productLineId: this.productLineId,
+              pageSize: this.pagination.pageSize,
+              currentPage: 1,
+              alarmCodes: this.checkedAlarms
+            }
+            this.queryAlarmList(param)
+          }
+          if (this.showAlarmType === 'other') {
+            this.alarmValues = other
+            this.checkedAlarms = other.map((config) => {
+              return config.code
+            })
+            let param = {
+              productLineId: this.productLineId,
+              pageSize: this.pagination.pageSize,
+              currentPage: 1,
+              alarmCodes: this.checkedAlarms
+            }
+            this.queryAlarmList(param)
+          }
+        }
+      })
+    },
     guide () {
       // console.log(this.$intro)
       this.$intro().setOptions(introOption).start().oncomplete(() => {
@@ -126,6 +172,36 @@ export default {
       }).onexit(() => {
         localStorage.setItem('alarmIntro', true)
       })
+    },
+    changeAlarmType () {
+      // console.log(this.alarmValues)
+      // console.log(this.showAlarmType)
+      if (this.showAlarmType === 'car') {
+        this.alarmValues = this.carAlarm
+        this.checkedAlarms = this.carAlarm.map((config) => {
+          return config.code
+        })
+        let param = {
+          productLineId: this.productLineId,
+          pageSize: this.pagination.pageSize,
+          currentPage: 1,
+          alarmCodes: this.checkedAlarms
+        }
+        this.queryAlarmList(param)
+      }
+      if (this.showAlarmType === 'other') {
+        this.alarmValues = this.otherAlarm
+        this.checkedAlarms = this.otherAlarm.map((config) => {
+          return config.code
+        })
+        let param = {
+          productLineId: this.productLineId,
+          pageSize: this.pagination.pageSize,
+          currentPage: 1,
+          alarmCodes: this.checkedAlarms
+        }
+        this.queryAlarmList(param)
+      }
     },
     // 解析告警类型
     formatAlarmType (code) {
@@ -150,7 +226,7 @@ export default {
         }
       }
       queryAlarm(queryParam).then((res) => {
-        console.log(res)
+        // console.log(res)
         let { code, result } = res
         if (code === 0) {
           this.alarms = result.resultList
@@ -160,7 +236,7 @@ export default {
       })
     },
     pageChanged (ev) {
-      console.log(ev)
+      // console.log(ev)
       let param = {
         productLineId: this.productLineId,
         pageSize: this.pagination.pageSize,
@@ -267,7 +343,7 @@ export default {
     },
     // 计算请求参数
     computeParam () {
-      if (!this.search && this.checkAll && this.checkAllStatu) return null
+      // if (!this.search && this.checkAll && this.checkAllStatu) return null
       let param = {
         productLineId: this.productLineId,
         pageSize: this.pagination.pageSize,
@@ -285,18 +361,20 @@ export default {
         }
         // param.dispose = this.checkedStatu[0] === 2 ? true : false
       }
-      if (!this.checkAll) {
-        param.alarmCodes = this.checkedAlarms
-      }
+      param.alarmCodes = this.checkedAlarms
+      // if (!this.checkAll) {
+      //   param.alarmCodes = this.checkedAlarms
+      // }
       return param
     }
   },
   created () {
-    this.queryAlarmList()
+    // this.queryAlarmList()
+    this.getInitType()
     // console.log(this.alarmValues)
-    this.checkedAlarms = this.alarmValues.map((config) => {
-      return config.code
-    })
+    // this.checkedAlarms = this.alarmValues.map((config) => {
+    //   return config.code
+    // })
     this.skipIntro = localStorage.getItem('alarmIntro') || false
   },
   mounted () {
@@ -315,6 +393,9 @@ export default {
   overflow-y: auto;
   .search {
     margin: 15px 0;
+  }
+  .select-alarm-type {
+    text-align: left;
   }
   .pagination {
     width: 100%;

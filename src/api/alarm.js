@@ -15,3 +15,7 @@ export const disposeAlarm = (param) => {
 export const editAlarm = (param) => {
   return request.post('/api/alarm/v1.0/alarmConfigs', param)
 }
+
+export const getShownAlarmType = () => {
+  return request.get('/api/alarm/v1.0/alarmType/vehicle')
+}
