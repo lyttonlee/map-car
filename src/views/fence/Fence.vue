@@ -69,6 +69,7 @@
         <el-table :data="fences" size="mini" >
           <el-table-column label="围栏名称" prop="name"></el-table-column>
           <el-table-column label="类型" prop="type"></el-table-column>
+          <el-table-column label="角度" prop="angle"></el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
               <el-button-group>

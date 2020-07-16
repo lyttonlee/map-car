@@ -136,7 +136,7 @@ export default {
       // console.log(this.$moment(this.end).format('YYYY-MM-DD HH:mm:ss'))
       // console.log(this.$moment(this.start).format('YYYY-MM-DD HH:mm:ss'))
       // console.log(this.end > this.maxTime)
-      console.log(this.end)
+      // console.log(this.end)
       this.selectDates = []
       this.queryPageData()
     },
@@ -216,6 +216,7 @@ export default {
             broadSeries.push({
               name,
               type: 'line',
+              smooth: true,
               data: days.map((day) => {
                 if (index === 0) {
                   return day.four.toFixed(2) * 100
@@ -233,6 +234,7 @@ export default {
             storeSeries.push({
               name,
               type: 'line',
+              smooth: true,
               data: days.map((day) => {
                 if (index === 0) {
                   return day.inNum

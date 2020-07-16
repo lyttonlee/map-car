@@ -359,15 +359,16 @@ export default {
           // currentMarker.setPopupContent(newPos.y + ' ' + newPos.x)
           // currentMarker.openPopup()
           // 判断是否在特殊区域
-          if (newPos.existenceZone) { // 如果位置点在存在性区域中
+          if (newPos.existenceZone || newPos.otherZone) { // 如果位置点在存在性区域中
             if (!currentMarker.inSpecialArea) { // 如果这个marker以前不在这个区域
               // 去除这个marker 更新数据
-              this.changeSpecialAreaNum(newPos.existenceZone, true)
-              currentMarker.zone = newPos.existenceZone
+              let zone = newPos.existenceZone ? newPos.existenceZone : newPos.otherZone
+              this.changeSpecialAreaNum(zone, true)
+              currentMarker.zone = zone
               currentMarker.inSpecialArea = true
               currentMarker.remove()
             }
-          } else if (newPos.existenceZone === null) { // 如果这个marker不在需检测的存在性区域中
+          } else if (newPos.existenceZone === null && newPos.otherZone === null) { // 如果这个marker不在需检测的存在性区域中
             if (currentMarker.inSpecialArea === true) { // 以前这个marker在存在性区域
               // 将这个marker显示出来
               currentMarker.addTo(this.map)
@@ -376,7 +377,7 @@ export default {
               this.changeSpecialAreaNum(currentMarker.zone, false)
             }
           }
-          if (!newPos.existenceZone && currentMarker.isAddedToMap === true) {
+          if (!newPos.existenceZone && !newPos.otherZone && currentMarker.isAddedToMap === true) {
             currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
           }
           currentMarker.angle = newPos.angle
@@ -391,6 +392,24 @@ export default {
                 this.noUploadCars[curIndex].y = newPos.y
                 this.noUploadCars[curIndex].x = newPos.x
                 let currentMarker = this.noUpLoadMarkers[curIndex]
+                if (newPos.existenceZone || newPos.otherZone) { // 如果位置点在存在性区域中
+                  if (!currentMarker.inSpecialArea) { // 如果这个marker以前不在这个区域
+                    // 去除这个marker 更新数据
+                    let zone = newPos.existenceZone ? newPos.existenceZone : newPos.otherZone
+                    this.changeSpecialAreaNum(zone, true)
+                    currentMarker.zone = zone
+                    currentMarker.inSpecialArea = true
+                    currentMarker.remove()
+                  }
+                } else if (newPos.existenceZone === null && newPos.otherZone === null) { // 如果这个marker不在需检测的存在性区域中
+                  if (currentMarker.inSpecialArea === true) { // 以前这个marker在存在性区域
+                    // 将这个marker显示出来
+                    currentMarker.addTo(this.map)
+                    currentMarker.inSpecialArea = false
+                    // 更新数据
+                    this.changeSpecialAreaNum(currentMarker.zone, false)
+                  }
+                }
                 currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
                 currentMarker.angle = newPos.angle
               }
@@ -997,11 +1016,12 @@ export default {
       marker.bindPopup(`<div>车 架 号: ${car.vehicle.identification}</div><div>标 签 号: ${car.locator.sn}</div><div>位 置 : ${car.locator.address}</div>`)
       // 判断是否是特殊区域点
       // const inSpeacalArea = (existenceZone) => {}
-      if (car.locator.existenceZone) { // 特殊区域点
+      if (car.locator.existenceZone || car.locator.otherZone) { // 特殊区域点
         marker.inSpecialArea = true
-        marker.zone = car.locator.existenceZone
+        let zone = car.locator.existenceZone ? car.locator.existenceZone : car.locator.otherZone
+        marker.zone = zone
         // console.log('do change')
-        this.changeSpecialAreaNum(car.locator.existenceZone, true)
+        this.changeSpecialAreaNum(zone, true)
       } else {
         marker.inSpecialArea = false
         this.map && marker.addTo(this.map)

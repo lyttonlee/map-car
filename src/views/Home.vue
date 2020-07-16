@@ -290,7 +290,7 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const posList = JSON.parse(data).content
-      // console.log(posList)
+      console.log(posList)
       posList.forEach((newPos) => {
         // 找到对应的marker
         let index = this.carMarkerMap[newPos.id]
@@ -298,7 +298,7 @@ export default {
         let markerIndex = index
         // console.log(markerIndex)
         // 移动位置正常逻辑
-        if (this.carMarkerMap.hasOwnProperty(newPos.id) && markerIndex) {
+        if (this.carMarkerMap.hasOwnProperty(newPos.id) && markerIndex > -1) {
           // console.log(this.markers)
           if (!this.markers[markerIndex]) return
           let currentMarker = this.markers[markerIndex].marker
@@ -325,15 +325,16 @@ export default {
           // currentMarker.setPopupContent(newPos.y + ' ' + newPos.x)
           // currentMarker.openPopup()
           // 判断是否在特殊区域
-          if (newPos.existenceZone) { // 如果位置点在存在性区域中
+          if (newPos.existenceZone || newPos.otherZone) { // 如果位置点在存在性区域中
             if (!currentMarker.inSpecialArea) { // 如果这个marker以前不在这个区域
               // 去除这个marker 更新数据
-              this.changeSpecialAreaNum(newPos.existenceZone, true)
-              currentMarker.zone = newPos.existenceZone
+              let zone = newPos.existenceZone ? newPos.existenceZone : newPos.otherZone
+              this.changeSpecialAreaNum(zone, true)
+              currentMarker.zone = zone
               currentMarker.inSpecialArea = true
               currentMarker.remove()
             }
-          } else if (newPos.existenceZone === null) { // 如果这个marker不在需检测的存在性区域中
+          } else if (newPos.existenceZone === null && newPos.otherZone === null) { // 如果这个marker不在需检测的存在性区域中
             if (currentMarker.inSpecialArea === true) { // 以前这个marker在存在性区域
               // 将这个marker显示出来
               currentMarker.addTo(this.map)
@@ -383,6 +384,24 @@ export default {
                 this.noUploadCars[curIndex].y = newPos.y
                 this.noUploadCars[curIndex].x = newPos.x
                 let currentMarker = this.noUpLoadMarkers[curIndex]
+                if (newPos.existenceZone || newPos.otherZone) { // 如果位置点在存在性区域中
+                  if (!currentMarker.inSpecialArea) { // 如果这个marker以前不在这个区域
+                    // 去除这个marker 更新数据
+                    let zone = newPos.existenceZone ? newPos.existenceZone : newPos.otherZone
+                    this.changeSpecialAreaNum(zone, true)
+                    currentMarker.zone = zone
+                    currentMarker.inSpecialArea = true
+                    currentMarker.remove()
+                  }
+                } else if (newPos.existenceZone === null && newPos.otherZone === null) { // 如果这个marker不在需检测的存在性区域中
+                  if (currentMarker.inSpecialArea === true) { // 以前这个marker在存在性区域
+                    // 将这个marker显示出来
+                    currentMarker.addTo(this.map)
+                    currentMarker.inSpecialArea = false
+                    // 更新数据
+                    this.changeSpecialAreaNum(currentMarker.zone, false)
+                  }
+                }
                 currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
                 currentMarker.angle = newPos.angle
                 // 计算区域
@@ -920,11 +939,12 @@ export default {
       marker.on('click', this.clickMarker)
       // 判断是否是特殊区域点
       // const inSpeacalArea = (existenceZone) => {}
-      if (car.locator.existenceZone) { // 特殊区域点
+      if (car.locator.existenceZone || car.locator.otherZone) { // 特殊区域点
         marker.inSpecialArea = true
-        marker.zone = car.locator.existenceZone
-        // console.log('do change')
-        this.changeSpecialAreaNum(car.locator.existenceZone, true)
+        let zone = car.locator.existenceZone ? car.locator.existenceZone : car.locator.otherZone
+        marker.zone = zone
+        console.log('do change')
+        this.changeSpecialAreaNum(zone, true)
       } else {
         marker.inSpecialArea = false
         this.map && marker.addTo(this.map)
@@ -1087,7 +1107,7 @@ export default {
     },
     // 改变特殊区域的数量
     changeSpecialAreaNum (name, isAdd) {
-      // console.log(name)
+      console.log(name)
       for (let i = 0; i < this.specalAreas.length; i++) {
         // console.log(this.specalAreas[i].name)
         // console.log(typeof name)
