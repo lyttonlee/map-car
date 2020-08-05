@@ -89,47 +89,27 @@
           </div>
           <div class="error-infos">
             <div class="sub-title">在库异常信息</div>
-            <div class="list-item">
-              <div class="item-row">
-                <div class="name">发生时间</div>
-                <div class="val">08：31：22</div>
-              </div>
-              <div class="item-row">
-                <div class="name">数量</div>
-                <div class="val">12</div>
-              </div>
-              <div class="item-row">
-                <div class="name">异常内容</div>
-                <div class="val">车辆脱离监管区域</div>
-              </div>
-            </div>
-            <div class="list-item">
-              <div class="item-row">
-                <div class="name">发生时间</div>
-                <div class="val">08：31：22</div>
-              </div>
-              <div class="item-row">
-                <div class="name">数量</div>
-                <div class="val">78</div>
-              </div>
-              <div class="item-row">
-                <div class="name">异常内容</div>
-                <div class="val">车辆维修时间超1.5小时</div>
-              </div>
-            </div>
-            <div class="list-item">
-              <div class="item-row">
-                <div class="name">发生时间</div>
-                <div class="val">08：31：22</div>
-              </div>
-              <div class="item-row">
-                <div class="name">数量</div>
-                <div class="val">25</div>
-              </div>
-              <div class="item-row">
-                <div class="name">异常内容</div>
-                <div class="val">设备电量低</div>
-              </div>
+            <div class="list-content">
+              <template v-for="(log, index) in importantLogs">
+                <div class="list-item" :key="index">
+                  <div class="item-row">
+                    <div class="name">发生时间</div>
+                    <div class="val">{{moment(log.time).format('YYYY-MM-DD hh:mm:ss')}}</div>
+                  </div>
+                  <div class="item-row">
+                    <div class="name">车架号</div>
+                    <div class="val">{{log.vin}}</div>
+                  </div>
+                  <div class="item-row">
+                    <div class="name">异常内容</div>
+                    <div class="val">{{log.content}}</div>
+                  </div>
+                  <div class="item-row">
+                    <div class="name">位置</div>
+                    <div class="val">{{log.position}}</div>
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -578,17 +558,18 @@ export default {
     // 获取重要事件
     getImportantSummary () {
       querySummary().then((res) => {
-        // console.log(res)
+        console.log(res)
         let { code, result } = res
         if (code === 0) {
+          this.importantLogs = result
           // console.log(result)
-          for (let index = 0; index < result.length; index += 5) {
-            // console.log(index)
-            // let item = result.slice(index, index + 5)
-            let item = result.slice(index, index + 5)
-            // console.log(item)
-            this.importantLogs.push(item)
-          }
+          // for (let index = 0; index < result.length; index += 5) {
+          //   // console.log(index)
+          //   // let item = result.slice(index, index + 5)
+          //   let item = result.slice(index, index + 5)
+          //   // console.log(item)
+          //   this.importantLogs.push(item)
+          // }
           // console.log(this.importantLogs)
         }
       })
@@ -1447,36 +1428,43 @@ export default {
           }
         }
         .error-infos {
+          box-sizing: border-box;
           .sub-title {
             font-size: 1.3rem;
+            // margin-top: 10px;
+            padding-top: 10px;
             @media screen and (max-width: 1600px) {
               font-size: 1rem;
             }
           }
-          .list-item {
-            // ..
-            margin: 15px;
-            .item-row {
-              display: grid;
-              grid-template-columns: 25% 75%;
-              grid-template-rows: auto;
-              color: #ddd;
-              .name {
-                border: 1px solid #aaa;
-                padding: 10px 0;
-                // border-bottom: none;
-                &:nth-last-child(1) {
-                  border-bottom: 1px solid #aaa;
+          .list-content {
+            height: calc(58vh - 60px);
+            overflow-y: auto;
+            .list-item {
+              // ..
+              margin: 15px;
+              .item-row {
+                display: grid;
+                grid-template-columns: 25% 75%;
+                grid-template-rows: auto;
+                color: #ddd;
+                .name {
+                  border: 1px solid #aaa;
+                  padding: 10px 0;
+                  // border-bottom: none;
+                  &:nth-last-child(1) {
+                    border-bottom: 1px solid #aaa;
+                  }
+                  @media screen and (max-width: 1600px) {
+                    padding: 5px 0;
+                  }
                 }
-                @media screen and (max-width: 1600px) {
-                  padding: 5px 0;
-                }
-              }
-              .val {
-                border: 1px solid #aaa;
-                padding: 10px 0;
-                @media screen and (max-width: 1600px) {
-                  padding: 5px 0;
+                .val {
+                  border: 1px solid #aaa;
+                  padding: 10px 0;
+                  @media screen and (max-width: 1600px) {
+                    padding: 5px 0;
+                  }
                 }
               }
             }
