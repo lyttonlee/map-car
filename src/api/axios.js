@@ -9,20 +9,24 @@ const request = axios.create({
 })
 
 const err = (error) => {
-  console.log(error)
+  // console.log(error)
   // console.log(error.response)
   if (error.response && error.response.status === 401) {
     const isLoginPage = () => router.history.current.path === '/login'
     // console.log(401)
     if (!isLoginPage()) {
       Notification.error({
-        message: '鉴权失败,请重新登录!'
+        message: '鉴权失败,请重新登录!',
       })
       router.push('/login')
     }
+  } else if (error.response && error.response.status === 408) {
+    Notification.error({
+      message: '网络连接超时，请检查您的网络!'
+    })
   } else {
     Notification.error({
-      message: '很抱歉！您老的网络连接可能断开了，请稍后再试！！'
+      message: '服务器异常，请联系管理员！'
     })
   }
   return Promise.reject(error)

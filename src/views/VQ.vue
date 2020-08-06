@@ -558,7 +558,7 @@ export default {
     // 获取重要事件
     getImportantSummary () {
       querySummary().then((res) => {
-        console.log(res)
+        // console.log(res)
         let { code, result } = res
         if (code === 0) {
           this.importantLogs = result
