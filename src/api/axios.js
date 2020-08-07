@@ -9,7 +9,7 @@ const request = axios.create({
 })
 
 const err = (error) => {
-  // console.log(error)
+  // console.log(error.message)
   // console.log(error.response)
   if (error.response && error.response.status === 401) {
     const isLoginPage = () => router.history.current.path === '/login'
@@ -20,14 +20,16 @@ const err = (error) => {
       })
       router.push('/login')
     }
-  } else if (error.response && error.response.status === 408) {
-    Notification.error({
-      message: '网络连接超时，请检查您的网络!'
-    })
   } else {
-    Notification.error({
-      message: '服务器异常，请联系管理员！'
-    })
+    if (error.message && error.message.includes('timeout')) {
+      Notification.error({
+        message: '网络连接超时，请检查您的网络!'
+      })
+    } else {
+      Notification.error({
+        message: '服务器异常，请联系管理员！'
+      })
+    }
   }
   return Promise.reject(error)
 }
