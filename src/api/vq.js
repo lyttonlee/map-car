@@ -58,3 +58,8 @@ export const getStatisticCarTotal = () => {
 export const getRepairCarInfo = (locatorId) => {
   return request.post('/api/vehicle/v1.0/repair/query', locatorId)
 }
+
+// 在修车辆查询
+export const getCarsByType = (param) => {
+  return request.post('/api/monitor/v1.0/statistic/data/detail', param)
+}
