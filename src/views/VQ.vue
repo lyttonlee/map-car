@@ -65,18 +65,6 @@
             <el-input v-model="searchParam" @blur="onSearch" @keyup.native.enter="onSearch" size="small" placeholder="请输入车架号"></el-input>
           </div>
         </div>
-        <div class="map">
-          <div id="map-small" class="page-map"></div>
-          <div class="percent">
-            <template v-for="(item, index) in percentData">
-              <div :key="index" class="percent-item">
-                <div class="text">{{item.title}}</div>
-                <el-progress :show-text="false" :stroke-width="8" :percentage="item.percent" :color="item.color"></el-progress>
-                <div class="number">{{item.percent}}% ({{item.num}}辆)</div>
-              </div>
-            </template>
-          </div>
-        </div>
       </div>
       <div class="item">
         <div class="total-right">
@@ -114,9 +102,13 @@
           </div>
         </div>
       </div>
-      <div class="item chart" id="pie-total"></div>
-      <div class="item chart" id="line-time"></div>
       <div class="item chart" id="line-node"></div>
+      <div class="item chart" id="line-time"></div>
+      <div class="item chart" id="pie-total">
+        <div class="map">
+          <div id="map-small" class="page-map"></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -651,50 +643,50 @@ export default {
     renderCharts () {
       // console.log('start')
       // 饼图 维修时长分段统计数据
-      const pieTotal = echart.init(document.getElementById('pie-total'))
+      // const pieTotal = echart.init(document.getElementById('pie-total'))
       // 线图 按小时的在库数量趋势
       const lineTime = echart.init(document.getElementById('line-time'))
       // 线图 各节点实时台数
       const lineNode = echart.init(document.getElementById('line-node'))
       // console.log('start')
-      pieTotal.setOption({
-        color: ['#00d2ff', '#fcff00', 'red', '#6e7074', '#546570', '#c4ccd3'],
-        tooltip: {
-          trigger: 'item',
-          formatter: '{b}: {c}台  ({d}%)',
-          axisPointer: {
-            type: 'cross',
-            label: {
-              backgroundColor: '#6a7985'
-            }
-          }
-        },
-        textStyle: {
-          color: '#fefefe'
-        },
-        legend: {
-          // type: 'scroll',
-          orient: 'vertical',
-          right: '1%',
-          bottom: 'center',
-          data: ['超1.5h', '超8h', '超3天'],
-          textStyle: {
-            color: '#fefefe'
-          }
-        },
-        series: [
-          {
-            type: 'pie',
-            radius: ['40%', '60%'],
-            center: ['45%', '50%'],
-            data: [
-              { value: this.info.timeoutTable.timeout1, name: '超1.5h' },
-              { value: this.info.timeoutTable.timeout2, name: '超8h' },
-              { value: this.info.timeoutTable.timeout3, name: '超3天' },
-            ],
-          }
-        ],
-      })
+      // pieTotal.setOption({
+      //   color: ['#00d2ff', '#fcff00', 'red', '#6e7074', '#546570', '#c4ccd3'],
+      //   tooltip: {
+      //     trigger: 'item',
+      //     formatter: '{b}: {c}台  ({d}%)',
+      //     axisPointer: {
+      //       type: 'cross',
+      //       label: {
+      //         backgroundColor: '#6a7985'
+      //       }
+      //     }
+      //   },
+      //   textStyle: {
+      //     color: '#fefefe'
+      //   },
+      //   legend: {
+      //     // type: 'scroll',
+      //     orient: 'vertical',
+      //     right: '1%',
+      //     bottom: 'center',
+      //     data: ['超1.5h', '超8h', '超3天'],
+      //     textStyle: {
+      //       color: '#fefefe'
+      //     }
+      //   },
+      //   series: [
+      //     {
+      //       type: 'pie',
+      //       radius: ['40%', '60%'],
+      //       center: ['45%', '50%'],
+      //       data: [
+      //         { value: this.info.timeoutTable.timeout1, name: '超1.5h' },
+      //         { value: this.info.timeoutTable.timeout2, name: '超8h' },
+      //         { value: this.info.timeoutTable.timeout3, name: '超3天' },
+      //       ],
+      //     }
+      //   ],
+      // })
       // console.log(pieTotal)
       const timeOption = {
         title: {
@@ -859,14 +851,14 @@ export default {
       const lineTimeOption = Object.assign(baseChartOption, timeOption)
       lineTime.setOption(lineTimeOption)
       window.addEventListener('resize', () => {
-        pieTotal.resize()
+        // pieTotal.resize()
         lineNode.resize()
         lineTime.resize()
       })
       bus.$on('menuSizeChanged', (statu) => {
         // console.log('resize')
         setTimeout(() => {
-          pieTotal.resize()
+          // pieTotal.resize()
           lineNode.resize()
           lineTime.resize()
         }, 500)
@@ -1385,9 +1377,10 @@ export default {
         }
       }
       .map {
-        height: calc(100% - 60px);
+        // height: calc(100% - 60px);
+        height: 100%;
         display: grid;
-        grid-template-columns: 80% 15%;
+        grid-template-columns: 95% 1%;
         grid-template-rows: 1fr;
         // grid-gap: 10;
         // align-items: center;

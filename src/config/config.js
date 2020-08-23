@@ -6,9 +6,9 @@ export const initMapZoom = 9
 
 export const initCarScale = 0.7
 
-export const vqMapZoom = 8.5
+export const vqMapZoom = 7
 
-export const vqCarScale = 0.5
+export const vqCarScale = 0.3
 
 export const introOption = {
   prevLabel: '上一步',
