@@ -8,7 +8,7 @@
         <!-- <div class="car-oui">位置</div> -->
         <div class="car-oui">位置</div>
         <div class="car-time">维修时长</div>
-        <div class="car-oui">SN</div>
+        <div class="car-oui">定位器编号</div>
       </div>
       <template v-for="(car, index) in repair">
         <div :class="listActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index, 'repair')" :key="index">
@@ -27,7 +27,7 @@
         <!-- <div class="car-oui">位置</div> -->
         <div class="car-oui">位置</div>
         <div class="car-time">维修时长</div>
-        <div class="car-oui">SN</div>
+        <div class="car-oui">定位器编号</div>
       </div>
       <template v-for="(car, index) in pending">
         <div :class="pendingActiveIndex === index ? 'list-item active' : 'list-item'" @click="showCarInfo(car, index, 'pending')" :key="index">
