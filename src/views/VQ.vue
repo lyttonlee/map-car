@@ -140,7 +140,7 @@
             <div class="sub-title">
               <div>{{exceptionTitle}}</div>
               <div @click="onCloseException" class="close-icon">
-                <zx-icon type="zx-guanbi1"></zx-icon>
+                <zx-icon style="color: red" type="zx-guanbi1"></zx-icon>
               </div>
             </div>
             <div class="list-content">
@@ -1634,7 +1634,7 @@ export default {
               position: absolute;
               cursor: pointer;
               top: 10px;
-              right: 20px;
+              right: 30px;
               font-size: 1rem;
             }
           }
