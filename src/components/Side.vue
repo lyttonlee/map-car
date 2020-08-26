@@ -96,8 +96,8 @@ export default {
     margin: 100px 0 20px 0;
     // border-bottom: 1px solid #fff;
     .avatar-menu {
-      width: 80px;
-      border-radius: 50%;
+      width: 160px;
+      // border-radius: 50%;
       // border: 1px solid @primary-color;
       margin-bottom: 8px;
     }
