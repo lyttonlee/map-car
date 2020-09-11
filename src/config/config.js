@@ -32,3 +32,10 @@ export const introPages = [
   'userIntro',
   'officeIntro'
 ]
+
+export const fenceStyles = {
+  WE: '#567',
+  AF: '#976',
+  PQ: '#378',
+  PA: '#502'
+}

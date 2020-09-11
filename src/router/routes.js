@@ -31,8 +31,18 @@ export const routes = [
         component: Home,
         meta: {
           auth: true,
-          icon: 'zx-map',
+          icon: 'zx-cheliang',
           role: ['SuperAdmin', 'VQ', 'PC']
+        }
+      },
+      {
+        path: '/change',
+        name: '区域管理',
+        component: () => import('../views/ChangeMap.vue'),
+        meta: {
+          auth: true,
+          icon: 'zx-map',
+          role: ['VQ', 'PC']
         }
       },
       {
