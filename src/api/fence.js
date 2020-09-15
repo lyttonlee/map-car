@@ -60,3 +60,28 @@ export const createSmallMap = (param) => {
 export const deleteSmallMap = (params) => {
   return request.delete('/api/superAdmin/v1.0/delete/mapPartition', { params })
 }
+
+// 添加vq车场地图区域块
+// param: {
+//   points: string[],
+//   type: string,  => 'AF WE PA PQ'
+// }
+
+// 删除vq车场地图区域块
+// params: {
+//   id: number
+// }
+
+// 。。
+// 请求转发
+
+export const transRequest = (param, url) => {
+  return request.post('/common/v1.0/transfer', {
+    param,
+    url
+  })
+}
+
+export const getParksByType = (params) => {
+  return request.get('/api/map/v1.0/zone/specifiy', { params })
+}
