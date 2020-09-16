@@ -11,8 +11,8 @@
     <div class="total" v-intro="'统计区域会显示今日该科室到目前共完成了多少辆车的维修任务，同时也会计算维修每一辆车的平均耗时'" v-intro-step="3">
       <div class="item">
         <div class="key">
-          <zx-icon type="zx-xiuli"></zx-icon>
-          <span>今日已修</span>
+          <zx-icon type="zx-zhouqi"></zx-icon>
+          <span>待复检</span>
         </div>
         <div class="value">
           <CountTo :to="repairedCarsNum" uid="today-repaired" className="value" />
@@ -20,13 +20,29 @@
       </div>
       <div class="item">
         <div class="key">
-          <zx-icon type="zx-zhouqi"></zx-icon>
-          <span>平均耗时</span>
+          <zx-icon type="zx-iconset0328"></zx-icon>
+          <span>已通过</span>
         </div>
         <div class="value">
-          <CountTo :to="averageTime" suffix="h" :decimalPlaces="2" uid="today-average-time" className="value" />
+          <CountTo :to="repairedCarsNum" uid="today-repaired-extra" className="value" />
         </div>
       </div>
+      <div class="item">
+        <div class="key">
+          <zx-icon type="zx-xiuli"></zx-icon>
+          <span>在修</span>
+        </div>
+        <div class="value">
+          <CountTo :to="averageTime" uid="today-average-time" className="value" />
+        </div>
+      </div>
+    </div>
+    <div class="area-select">
+      <template v-for="(item, index) in menus">
+        <div :key="index" class="item">
+          <div @click="changeMap(item.id)" :class="`btn ${currentMapInfo.id === item.id ? 'active' : ''}`" >{{item.name}}</div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -84,6 +100,7 @@ export default {
       isShowing: false,
       // 绑定
       bindCars: [],
+      menus: [],
       markers: [],
       showingCar: {},
       specalAreas: [],
@@ -127,7 +144,7 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const posList = JSON.parse(data).content
-      console.log(posList)
+      // console.log(posList)
       posList.forEach((newPos) => {
         // 找到对应的marker
         let markerIndex = this.markers.findIndex((item) => item.locatorId === newPos.id)
@@ -684,33 +701,6 @@ export default {
         // console.log(this.bindCars)
         this.currentMapInfo = currentMapInfo
         this.currentMapPoints = mapPoints
-        if (currentMapInfo.id === this.mapInfo.id) {
-          this.showingCars = this.bindCars
-          // this.markers.forEach((item) => {
-          //   if (item.marker.isAddedToMap === true) {
-          //     this.setCarScaleAndRotate(item.marker, this.carScale, item.marker.angle)
-          //   }
-          // })
-        } else {
-          this.showingCars = this.bindCars.filter((car) => {
-            let point = [car.locator.y / this.pointScale, car.locator.x / this.pointScale]
-            let inArea = isInPolygon(point, this.currentMapPoints)
-            // let currentMarker = this.markers.find((item) => item.id === car.vehicle.id).marker
-            // if (!inArea) { // 不在区域中的车，找出对应的marker并隐藏
-            //   currentMarker.remove()
-            //   currentMarker.isAddedToMap = false
-            // } else {
-            //   if (currentMarker.isAddedToMap === false) {
-            //     currentMarker.addTo(this.map)
-            //     currentMarker.isAddedToMap = true
-            //     // 改变车的大小和方向
-            //     // console.log(currentMapInfo.carScale)
-            //     // this.setCarScaleAndRotate(currentMarker, currentMapInfo.carScale, currentMarker.angle)
-            //   }
-            // }
-            return inArea
-          })
-        }
       }
     }
   },
@@ -768,7 +758,7 @@ export default {
     }
   },
   created () {
-    this.skipIntro = localStorage.getItem('officeIntro') || false
+    this.skipIntro = localStorage.getItem('officeIntro') || true
   },
   mounted () {
     this.getMapInfo().then(() => {
@@ -826,6 +816,7 @@ export default {
       this.imageOverlay = L.imageOverlay(imgUrl, imgBounds)
       this.imageOverlay.addTo(map)
       this.map = map
+      this.menus = [this.mapInfo, this.childMapInfos.find((map) => map.name === this.officeName)]
       this.currentMapInfo = mapInfo
       // 获取区域信息
       let params = {
@@ -898,6 +889,30 @@ export default {
   position: relative;
   display: flex;
   padding: 0;
+  .area-select {
+    position: absolute;
+    top: 40%;
+    left: 20px;
+    z-index: 2500;
+    .item {
+      margin: 15px 0;
+      .btn {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        background: @page-background;
+        border: .5px solid #222;
+        box-sizing: border-box;
+        // box-shadow: @shadow-base;
+        box-shadow: 1px 3px 3px #000;
+        cursor: pointer;
+      }
+      .active {
+        color: @primary-color;
+        background: @base-background-opacity;
+      }
+    }
+  }
   .map {
     height: 100%;
     width: 70%;
@@ -911,10 +926,10 @@ export default {
     justify-content: space-around;
     z-index: 2001;
     .item {
-      width: 400px;
-      height: 100px;
-      line-height: 100px;
-      font-size: 2rem;
+      width: 250px;
+      height: 80px;
+      line-height: 80px;
+      font-size: 1.5rem;
       background: @base-background;
       box-shadow: @shadow-base;
       border-radius: 15px;
@@ -922,17 +937,17 @@ export default {
       // align-items: center;
       justify-content: center;
       @media screen and (max-width: 1600px) {
-        width: 300px;
-        font-size: 1.5rem;
-        height: 80px;
-        line-height: 80px;
+        width: 200px;
+        font-size: 1.2rem;
+        height: 70px;
+        line-height: 70px;
       }
       .value {
         margin-left: 20px;
-        font-size: 3rem;
+        font-size: 2rem;
         color: @primary-color;
         @media screen and (max-width: 1600px) {
-          font-size: 2rem;
+          font-size: 1.5rem;
         }
       }
     }
