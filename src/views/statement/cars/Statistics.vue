@@ -539,7 +539,7 @@ export default {
         this.queryPageData()
       }
     })
-    this.skipIntro = localStorage.getItem('statementIntro') || false
+    this.skipIntro = localStorage.getItem('statementIntro') || true
   },
   mounted () {
     this.createCharts()

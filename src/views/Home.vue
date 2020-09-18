@@ -20,6 +20,9 @@
     <div class="global-map" v-show="showGlobalMap">
       <img :src="mapInfo.twoDFilePath" @click="changeMap(mapInfo.id)" alt="">
     </div>
+    <div class="park-color">
+      <PrakColor />
+    </div>
     <el-button round type="primary" @click="changePage" class="fix-button">列表模式</el-button>
     <div v-if="!isShowingMapPage" class="select-page">
       <el-button @click="changePage" class="fix-button" round type="primary" >地图模式</el-button>
@@ -170,6 +173,9 @@ import {
 import CarInfo from '@/components/CarInfo'
 import CarList from '@/components/CarList'
 import SmallMap from '@/components/SmallMap'
+import { getParksByType } from '../api/fence'
+import { renderPark } from '../utils/map'
+import PrakColor from '../components/ParkColor'
 export default {
   name: 'home',
   components: {
@@ -179,6 +185,7 @@ export default {
     CarList,
     CarInfo,
     SmallMap,
+    PrakColor,
   },
   data () {
     return {
@@ -218,7 +225,7 @@ export default {
     }
   },
   created () {
-    this.skipIntro = localStorage.getItem('homeIntro') || false
+    this.skipIntro = localStorage.getItem('homeIntro') || true
     this.getCarTotal()
   },
   computed: {
@@ -1395,6 +1402,16 @@ export default {
           this.specalAreas = specalAreas
         }
       })
+      // 渲染车位
+      getParksByType({ id: mapInfo.id, type: 4 }).then((res) => {
+        const { code, result } = res
+        // console.log(result)
+        if (code === 0) {
+          result.forEach((item) => {
+            renderPark(item).addTo(this.map)
+          })
+        }
+      })
     }).catch((err) => {
       console.log(err)
       this.$notify.error({
@@ -1419,6 +1436,7 @@ export default {
   // grid-template-columns: auto 300px 350px;
   display: flex;
   padding: 0;
+  height: 100vh;
   .fix-button {
     display: block;
     position: absolute;
@@ -1528,6 +1546,11 @@ export default {
       width: 100px;
       cursor: pointer;
     }
+  }
+  .park-color {
+    position: absolute;
+    width: 50%;
+    bottom: 10px;
   }
   .list {
     // position: absolute;

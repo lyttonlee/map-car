@@ -182,14 +182,14 @@ export default new Vuex.Store({
       queryLocatorStatus().then((res) => {
         let { code, result } = res
         if (code === 0) {
-          console.log(result)
+          // console.log(result)
           commit(LOCATORSTATUS, result)
         }
       })
       queryCarStatus().then((res) => {
         let { code, result } = res
         if (code === 0) {
-          console.log(result)
+          // console.log(result)
           commit(CARSTATUS, result)
         }
       })
@@ -199,14 +199,14 @@ export default new Vuex.Store({
       queryAlarmConfig(params).then((res) => {
         let { code, result } = res
         if (code === 0) {
-          console.log(result)
+          // console.log(result)
           commit(ALARMCONFIG, result)
         }
       })
       getCarNodes().then((res) => {
         let { code, result } = res
         if (code === 0) {
-          console.log(result)
+          // console.log(result)
           commit(CARNODES, result)
         }
       })
@@ -220,7 +220,7 @@ export default new Vuex.Store({
         queryMap(params).then((res) => {
           let { code, result, desc } = res
           if (code === 0) {
-            console.log(result)
+            // console.log(result)
             let mapInfo = result[0].buildings[0].floors.find((mapInfo) => mapInfo.parentId === null)
             let childMapInfo = result[0].buildings[0].floors.filter((child) => child.parentId === mapInfo.id)
             commit(MAPINFO, mapInfo)

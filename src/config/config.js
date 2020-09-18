@@ -6,9 +6,9 @@ export const initMapZoom = 9
 
 export const initCarScale = 0.7
 
-export const vqMapZoom = 7
+export const vqMapZoom = 9
 
-export const vqCarScale = 0.2
+export const vqCarScale = 0.7
 
 export const introOption = {
   prevLabel: '上一步',
@@ -34,8 +34,11 @@ export const introPages = [
 ]
 
 export const fenceStyles = {
-  WE: '#567',
+  WE: '#9a7',
   AF: '#976',
-  PQ: '#378',
-  PA: '#502'
+  PQ: '#348',
+  PA: '#502',
+  VQ: '#9C2'
 }
+
+export const enumOffices = ['WE', 'AF', 'PQ', 'PA', 'VQ']

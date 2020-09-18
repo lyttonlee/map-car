@@ -4,100 +4,127 @@
       <div class="item table">
         <div class="total-left">
           <div class="head">
-            <div class="child title">{{'今日在库 ' + info.totalNum + '台'}}</div>
-            <div class="child title">{{'今日入库 ' + info.vqCheckNum + '台'}}</div>
-            <div class="child title">{{'今日出库 ' + info.totalOut + '台'}}</div>
+            <div class="child title">{{'在库 ' + info.keepNum + '台'}}</div>
+            <div class="child title">{{'返修中 ' + info.repairing + '台'}}</div>
+            <div class="child title">{{'线外滞留 ' + info.outLine + '台'}}</div>
           </div>
           <div class="item-content">
-            <!-- <div class="title">VQ返修复检: {{info.vqCheckNum}}台</div> -->
-            <div class="vq-table">
-              <el-table :data="tableData" :header-cell-style="{textAlign: 'center'}" header-cell-class-name="header-cell" cell-class-name="cell-table" row-class-name="row-table" style="width: 100%;background:#fff0;" >
-                <el-table-column label="维修时长" width="160" >
-                  <template slot-scope="scope">
-                    <div class="cell">{{scope.row.name}}</div>
-                  </template>
-                </el-table-column>
-                <el-table-column label="AF" min-width="60" >
-                  <template slot-scope="scope">
-                    <div @click="showCarList(scope)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`" >{{scope.row.af}}</div>
-                  </template>
-                </el-table-column>
-                <el-table-column label="PA"  min-width="60">
-                  <template slot-scope="scope">
-                    <div @click="showCarList(scope)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.pa}}</div>
-                  </template>
-                </el-table-column>
-                <el-table-column label="PQ" min-width="60" >
-                  <template slot-scope="scope">
-                    <div @click="showCarList(scope)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.pq}}</div>
-                  </template>
-                </el-table-column>
-                <el-table-column label="WE" min-width="60" >
-                  <template slot-scope="scope">
-                    <div @click="showCarList(scope)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.we}}</div>
-                  </template>
-                </el-table-column>
-                <el-table-column label="DHEC" min-width="60" >
-                  <template slot-scope="scope">
-                    <div @click="showCarList(scope)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.dhec}}</div>
-                  </template>
-                </el-table-column>
-                <el-table-column label="待复检" min-width="60" >
-                  <template slot-scope="scope">
-                    <div @click="showCarList(scope)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.reCheck}}</div>
-                  </template>
-                </el-table-column>
-                <el-table-column label="待出荷" min-width="60" >
-                  <template slot-scope="scope">
-                    <div @click="showCarList(scope)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.delivery}}</div>
-                  </template>
-                </el-table-column>
-                <el-table-column label="VQ解析" min-width="60" >
-                  <template slot-scope="scope">
-                    <div @click="showCarList(scope)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.vqCheck}}</div>
-                  </template>
-                </el-table-column>
-              </el-table>
+            <div class="tabs">
+              <template v-for="(menu, index) in tabs">
+                <div @click="activeTabIndex = index" :key="index" :class="activeTabIndex === index ? 'tab tab-active' : 'tab'">{{menu}}</div>
+              </template>
             </div>
-            <!-- <div class="title-sub success">超1.5h(未达8h): {{info.timeout1}}台</div>
-            <div v-if="info.timeoutDetail1" class="box">
-              <div class="child">
-                <template v-for="(item, index) in officeMap">
-                  <div class="attr" :key="index">{{item.name + ' : ' + info.timeoutDetail1[item.key] + '台'}}</div>
-                </template>
+            <transition
+              mode="out-in"
+              enter-active-class="animated zoomIn"
+              leave-active-class="animated zoomOut"
+              :duration = "{ entry: 500, leave: 500 }"
+              >
+              <div :key="0" v-if="activeTabIndex === 0" class="vq-table">
+                <el-table :data="belongTable" :header-cell-style="{textAlign: 'center'}" header-cell-class-name="header-cell" cell-class-name="cell-table" row-class-name="row-table" style="width: 100%;background:#fff0;" >
+                  <el-table-column label="科室" width="160" >
+                    <template slot-scope="scope">
+                      <div class="cell">{{scope.row.k}}</div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="室内" min-width="60" >
+                    <template slot-scope="scope">
+                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`" >{{scope.row.v.indoor}}</div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="室外"  min-width="60">
+                    <template slot-scope="scope">
+                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.outdoor}}</div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="超4小时" min-width="60" >
+                    <template slot-scope="scope">
+                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.gtFour}}</div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="超8小时" min-width="60" >
+                    <template slot-scope="scope">
+                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.gtEight}}</div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="室内外合计" min-width="60" >
+                    <template slot-scope="scope">
+                      <div :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{sumBelong(scope)}}</div>
+                    </template>
+                  </el-table-column>
+                </el-table>
               </div>
-              <div class="child">
-                <template v-for="(item, index) in nodeMap">
-                  <div class="attr" :key="index">{{item.name + ' : ' + info.timeoutDetail1[item.key] + '台'}}</div>
-                </template>
+              <div :key="1" v-if="activeTabIndex === 1" class="vq-table">
+                <el-table :data="areaTable" :header-cell-style="{textAlign: 'center'}" header-cell-class-name="header-cell" cell-class-name="cell-table" row-class-name="row-table" style="width: 100%;background:#fff0;" >
+                  <el-table-column label="区域" width="160" >
+                    <template slot-scope="scope">
+                      <div class="cell">{{scope.row.k}}</div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="超四小时" min-width="60" >
+                    <template slot-scope="scope">
+                      <div @click="showCarList(scope, 2)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.gtFour}}</div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="超八小时" min-width="60" >
+                    <template slot-scope="scope">
+                      <div @click="showCarList(scope, 2)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.gtEight}}</div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="合计" min-width="60" >
+                    <template slot-scope="scope">
+                      <div :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.all}}</div>
+                    </template>
+                  </el-table-column>
+                </el-table>
+                <div v-if="info.outOfBatch" class="line-content">
+                  <div class="sub-title">线内脱批: {{info.outOfBatch.oneDay + info.outOfBatch.threeDay}}台</div>
+                  <div class="list">
+                    <div class="warn">超一天(未达3天): {{info.outOfBatch.oneDay}}台</div>
+                    <div class="error">超三天: {{info.outOfBatch.threeDay}}台</div>
+                  </div>
+                </div>
+                <div v-if="info.afOutLine" class="title-sub">AF线外返修: {{info.afOutLine.threeHour + info.afOutLine.oneDay + info.afOutLine.threeDay}}台</div>
+                <div v-if="info.afOutLine" class="out-line">
+                  <div class="child success">超3h: {{info.afOutLine.threeHour}}</div>
+                  <div class="child warn">超1天: {{info.afOutLine.oneDay}}</div>
+                  <div class="child error">超3天: {{info.afOutLine.threeDay}}</div>
+                </div>
               </div>
-            </div>
-            <div class="title-sub warn">超8h: {{info.timeout2}}台</div>
-            <div v-if="info.timeoutDetail2" class="box">
-              <div class="child">
-                <template v-for="(item, index) in officeMap">
-                  <div class="attr" :key="index">{{item.name + ' : ' + info.timeoutDetail2[item.key] + '台'}}</div>
-                </template>
+              <div :key="2" v-if="activeTabIndex === 2" class="vq-table">
+                <div class="outline-total">
+                  <div class="item">合计: <span>{{info.outLineStatistic.items.length || 0}}</span> 台</div>
+                  <div class="item">超一天: <span>{{outline.oneDay || 0}}</span> 台</div>
+                  <div class="item">超三天: <span>{{outline.threeDay || 0}}</span> 台</div>
+                </div>
+                <el-table :data="outlineTable" :header-cell-style="{textAlign: 'center'}" header-cell-class-name="header-cell" cell-class-name="cell-table" row-class-name="row-table" style="width: 100%;background:#fff0;" >
+                  <el-table-column label="VIN" width="250" >
+                    <template slot-scope="scope">
+                      <div class="cell">{{scope.row.k}}</div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="滞留开始时间" min-width="60" >
+                    <template slot-scope="scope">
+                      <div :class="'cell cell-warn'" >{{moment(scope.row.v).format('YYYY-MM-DD HH:mm:ss')}}</div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="滞留时长"  min-width="60">
+                    <template slot-scope="scope">
+                      <div :class="'cell cell-error'" >{{getHours(scope)}}</div>
+                    </template>
+                  </el-table-column>
+                </el-table>
+                <el-pagination
+                  class="pagination"
+                  :hide-on-single-page="true"
+                  :total="pagination.total"
+                  :page-size="pagination.pageSize"
+                  :current-page="pagination.current"
+                  @current-change="pageChanged"
+                  layout="total, prev, pager, next">
+                </el-pagination>
               </div>
-              <div class="child">
-                <template v-for="(item, index) in nodeMap">
-                  <div class="attr" :key="index">{{item.name + ' : ' + info.timeoutDetail2[item.key] + '台'}}</div>
-                </template>
-              </div>
-            </div> -->
-            <div v-if="info.outOfBatch" class="line-content">
-              <div class="sub-title">线内脱批: {{info.outOfBatch.oneDay + info.outOfBatch.threeDay}}台</div>
-              <div class="list">
-                <div class="warn">超一天(未达3天): {{info.outOfBatch.oneDay}}台</div>
-                <div class="error">超三天: {{info.outOfBatch.threeDay}}台</div>
-              </div>
-            </div>
-            <div v-if="info.afOutLine" class="title-sub">AF线外返修: {{info.afOutLine.threeHour + info.afOutLine.oneDay + info.afOutLine.threeDay}}台</div>
-            <div v-if="info.afOutLine" class="out-line">
-              <div class="child success">超3h: {{info.afOutLine.threeHour}}</div>
-              <div class="child warn">超1天: {{info.afOutLine.oneDay}}</div>
-              <div class="child error">超3天: {{info.afOutLine.threeDay}}</div>
-            </div>
+            </transition>
           </div>
         </div>
       </div>
@@ -111,32 +138,15 @@
               <div class="child week">{{moment(date).format('dddd')}}</div>
             </div>
           </div>
-          <div v-if="showException" class="error-infos">
-            <div class="sub-title">在库异常信息</div>
-            <div class="list-content">
-              <template v-for="(log, index) in importantLogs">
-                <div class="list-item" :key="index">
-                  <div class="item-row">
-                    <div class="name">发生时间</div>
-                    <div class="val">{{moment(log.time).format('YYYY-MM-DD hh:mm:ss')}}</div>
-                  </div>
-                  <div class="item-row">
-                    <div class="name">车架号</div>
-                    <div class="val">{{log.vin}}</div>
-                  </div>
-                  <div class="item-row">
-                    <div class="name">异常内容</div>
-                    <div class="val">{{log.content}}</div>
-                  </div>
-                  <div class="item-row">
-                    <div class="name">位置</div>
-                    <div class="val">{{log.position}}</div>
-                  </div>
-                </div>
-              </template>
+          <div class="error-infos">
+            <div class="map">
+              <div id="map-small" class="page-map"></div>
+            </div>
+            <div class="park-color">
+              <ParkColor />
             </div>
           </div>
-          <div v-else class="error-infos">
+          <div v-if="showException" class="error-infos car-list">
             <div class="sub-title">
               <div>{{exceptionTitle}}</div>
               <div @click="onCloseException" class="close-icon">
@@ -176,11 +186,11 @@
       </div>
       <div class="item chart bar" id="line-node"></div>
       <div class="item chart line" id="line-time"></div>
-      <div class="item chart car" id="pie-total">
+      <!-- <div class="item chart car" id="pie-total">
         <div class="map">
           <div id="map-small" class="page-map"></div>
         </div>
-      </div>
+      </div> -->
     </div>
     <CarInfo :car="showingCar"  @close="closeInfo" v-if="isShowing" />
   </div>
@@ -188,6 +198,7 @@
 <script>
 // import ShowTime from '@/components/showTime'
 import CarInfo from '../components/CarInfo'
+import ParkColor from '../components/ParkColor'
 import {
   initCarSize
 } from '../config/config'
@@ -202,7 +213,7 @@ import moment from 'moment'
 // import SeamLessScroll from 'vue-seamless-scroll'
 import {
   // getRealTimeData,
-  getStatisticData,
+  // getStatisticData,
   getBindList,
   getAlarmList,
   queryStore,
@@ -213,6 +224,12 @@ import {
   getCarsByType,
   queryCars
 } from '../api/vq'
+import {
+  getParksByType
+} from '../api/fence'
+import {
+  renderPark
+} from '../utils/map'
 import alarmCar from '../assets/img/car-red.png'
 import overtimeCar from '../assets/img/car-yellow.png'
 import normalCar from '../assets/img/car-blue.png'
@@ -222,11 +239,20 @@ import {
   mapActions,
   mapGetters,
 } from 'vuex'
+import {
+  formatTime as getDuration
+} from '../utils/utils'
 export default {
   data () {
     return {
-      showException: true,
+      outline: {},
+      activeTabIndex: 0,
+      showVqTable: true,
+      showException: false,
       tableData: [],
+      belongTable: [],
+      areaTable: [],
+      outlineTable: [],
       exceptionTitle: '',
       isShowing: false,
       showingCar: '',
@@ -250,6 +276,7 @@ export default {
       noUploadMap: new Map(), // 定位器ID 与 车辆和marker数组位置的映射关系
       date: '',
       info: '',
+      tabs: ['归属统计', '区域统计', '线外滞留'],
       officeMap: [
         { key: 'we', name: 'WE' },
         { key: 'af', name: 'AF' },
@@ -265,14 +292,20 @@ export default {
         { key: 'vqCheck', name: 'VQ解析' }
       ],
       searchParam: '',
+      pagination: {
+        pageSize: 6,
+        total: 0,
+        current: 1,
+      },
     }
   },
   components: {
-    CarInfo
+    CarInfo,
     // ShowTime
     // SeamLessScroll
     // CountTo: () => import('../components/CountTo'),
     // TotalItem: () => import('../components/TotalItem'),
+    ParkColor,
   },
   computed: {
     ...mapState(['carScale', 'productLineId', 'pointScale', 'initMapZoom', 'vqMapZoom', 'vqCarScale']),
@@ -575,9 +608,36 @@ export default {
         }
       }
     },
-    showCarList (scope) {
+    sum (scope) {
+      const range = ['af', 'pa', 'we', 'pq', 'dhec']
+      return range.reduce((pre, cur) => {
+        return pre + scope.row[cur]
+      }, 0)
+    },
+    sumBelong (scope) {
+      let res = 0
+      Object.keys(scope.row.v).forEach((key) => {
+        if (key === 'indoor' || key === 'outdoor') {
+          res += scope.row.v[key]
+        }
+      })
+      return res
+    },
+    getHours (scope) {
+      return getDuration(moment().unix() - scope.row.v / 1000)
+      // return moment.duration(moment().valueOf() - scope.row.v, 'ms').asHours() + ' 小时'
+    },
+    pageChanged (ev) {
+      // console.log(ev)
+      // console.log(this.info.outLineStatistic.items)
+      this.outlineTable = this.info.outLineStatistic.items.slice(6 * (ev - 1), 6 * ev)
+      // console.log(this.outlineTable)
+      this.pagination.current = ev
+    },
+    showCarList (scope, index) {
       console.log(scope)
-      if (scope.$index === 4) return false // 点击合计无效
+      if (scope.$index === 5) return false // 点击合计无效
+      if (scope.column.label === '合计') return false
       // 请求
       const label = scope.column.label
       const map = {
@@ -586,31 +646,49 @@ export default {
         PQ: 3,
         PA: 4,
         DHEC: 5,
-        '待复检': 8,
-        'VQ解析': 7,
-        '待出荷': 6
+        'STATISTIC': 7,
+        'VQ': 6
       }
-      const param = {
-        timeType: scope.$index + 1,
-        type: map[label]
+      const typeMap = {
+        '超4小时': 1,
+        '超8小时': 2,
+        '室外': 3,
+        '室内': 4,
       }
+      let param
+      if (index === 1) {
+        param = {
+          type: map[scope.row.k],
+          timeType: typeMap[label],
+        }
+      } else {
+        param = {
+          type: 7,
+          areaName: scope.row.k
+        }
+      }
+      // const param = {
+      //   timeType: scope.$index + 1,
+      //   type: map[label]
+      // }
       getCarsByType(param).then((res) => {
         const { code, result } = res
         if (code === 0) {
           // console.log(result)
           this.showCars = result
-          this.exceptionTitle = scope.column.label + ' ' + scope.row.name + '车辆'
-          this.showException = false
+          this.exceptionTitle = scope.row.k + ' ' + scope.column.label + '车辆'
+          this.showException = true
         }
       })
     },
     onCloseException () {
       this.isShowing = false
-      this.showException = true
+      this.showException = false
       this.exceptionTitle = ''
     },
     closeInfo () {
       this.isShowing = false
+      // this.showException = false
     },
     showCarInfo (car) {
       const param = {
@@ -703,7 +781,7 @@ export default {
     },
     // 获取过往统计数据
     getChartData () {
-      getStatisticData().then((res) => {
+      getStatistic().then((res) => {
         // console.log(res)
         if (res.code === 0) {
           this.charts = res.result
@@ -764,26 +842,71 @@ export default {
       getStatistic().then((res) => {
         console.log(res)
         if (res.code === 0) {
+          const sum = (items, key) => {
+            return items.reduce((pre, cur) => {
+              return pre + cur.v[key]
+            }, 0)
+          }
+          const createObj = (items) => {
+            let temObj = {}
+            Object.keys(items[0].v).forEach((key) => {
+              temObj[key] = sum(items, key)
+            })
+            return temObj
+          }
           this.info = res.result
-          const { timeoutDetail1, timeoutDetail2, timeoutDetail3, timeoutDetail4 } = this.info
-          timeoutDetail1.name = '1.5小时内'
-          timeoutDetail2.name = '1.5小时至4小时'
-          timeoutDetail3.name = '4小时至8小时'
-          timeoutDetail4.name = '超8小时'
-          // 组装table数据
-          const tableData = []
-          const total = {}
-          Object.keys(timeoutDetail1).forEach((key) => {
-            key === 'name' ? total[key] = '合计' : total[key] = timeoutDetail1[key] + timeoutDetail2[key] + timeoutDetail3[key] + timeoutDetail4[key]
-            // key === 'name' ? total[key] = '合计' : total[key] = timeoutDetail1[key] + timeoutDetail2[key]
+          this.info.belongStatistic.items.push({
+            k: '合计',
+            v: createObj(this.info.belongStatistic.items)
           })
-          tableData.push(timeoutDetail1)
-          tableData.push(timeoutDetail2)
-          tableData.push(timeoutDetail3)
-          tableData.push(timeoutDetail4)
-          tableData.push(total)
-          this.tableData = tableData
-          console.log(this.tableData)
+          this.belongTable = this.info.belongStatistic.items
+          this.info.areaStatistic.items.push({
+            k: '合计',
+            v: createObj(this.info.areaStatistic.items)
+          })
+          // console.log(this.belongTable)
+          this.areaTable = this.info.areaStatistic.items
+          this.outlineTable = this.info.outLineStatistic.items.slice(0, 6)
+          this.pagination.total = this.info.outLineStatistic.items.length
+          let outline = {
+            oneDay: 0,
+            threeDay: 0
+          }
+          this.info.outLineStatistic.items.forEach((item) => {
+            if (moment().valueOf() - item.v > 24 * 3600 * 1000) {
+              // console.log(1)
+              // this.info.gtOneDay ? this.info.gtOneDay += 1 : this.info.gtOneDay = 1
+              outline.oneDay++
+            }
+            if (moment().valueOf() - item.v > 3 * 24 * 3600 * 1000) {
+              // console.log(3)
+              // this.info.gtThreeDay ? this.info.gtOneDay += 1 : this.info.gtOneDay = 1
+              outline.threeDay++
+            }
+          })
+          this.outline = outline
+          console.log(this.info)
+          // this.info.gtOneDay = 1
+
+          // const { timeoutDetail1, timeoutDetail2, timeoutDetail3, timeoutDetail4 } = this.info
+          // timeoutDetail1.name = '1.5小时内'
+          // timeoutDetail2.name = '1.5小时至4小时'
+          // timeoutDetail3.name = '4小时至8小时'
+          // timeoutDetail4.name = '超8小时'
+          // // 组装table数据
+          // const tableData = []
+          // // const total = {}
+          // // Object.keys(timeoutDetail1).forEach((key) => {
+          // //   key === 'name' ? total[key] = '合计' : total[key] = timeoutDetail1[key] + timeoutDetail2[key] + timeoutDetail3[key] + timeoutDetail4[key]
+          // //   // key === 'name' ? total[key] = '合计' : total[key] = timeoutDetail1[key] + timeoutDetail2[key]
+          // // })
+          // tableData.push(timeoutDetail1)
+          // tableData.push(timeoutDetail2)
+          // tableData.push(timeoutDetail3)
+          // tableData.push(timeoutDetail4)
+          // // tableData.push(total)
+          // this.tableData = tableData
+          // console.log(this.tableData)
           // this.pageLoading = false
           this.$nextTick().then(() => {
             this.renderCharts()
@@ -802,46 +925,6 @@ export default {
       const lineTime = echart.init(document.getElementById('line-time'))
       // 线图 各节点实时台数
       const lineNode = echart.init(document.getElementById('line-node'))
-      // console.log('start')
-      // pieTotal.setOption({
-      //   color: ['#00d2ff', '#fcff00', 'red', '#6e7074', '#546570', '#c4ccd3'],
-      //   tooltip: {
-      //     trigger: 'item',
-      //     formatter: '{b}: {c}台  ({d}%)',
-      //     axisPointer: {
-      //       type: 'cross',
-      //       label: {
-      //         backgroundColor: '#6a7985'
-      //       }
-      //     }
-      //   },
-      //   textStyle: {
-      //     color: '#fefefe'
-      //   },
-      //   legend: {
-      //     // type: 'scroll',
-      //     orient: 'vertical',
-      //     right: '1%',
-      //     bottom: 'center',
-      //     data: ['超1.5h', '超8h', '超3天'],
-      //     textStyle: {
-      //       color: '#fefefe'
-      //     }
-      //   },
-      //   series: [
-      //     {
-      //       type: 'pie',
-      //       radius: ['40%', '60%'],
-      //       center: ['45%', '50%'],
-      //       data: [
-      //         { value: this.info.timeoutTable.timeout1, name: '超1.5h' },
-      //         { value: this.info.timeoutTable.timeout2, name: '超8h' },
-      //         { value: this.info.timeoutTable.timeout3, name: '超3天' },
-      //       ],
-      //     }
-      //   ],
-      // })
-      // console.log(pieTotal)
       const timeOption = {
         title: {
           text: '今日在库变化趋势',
@@ -1352,6 +1435,16 @@ export default {
           this.specalAreas = specalAreas
         }
       })
+      // 渲染车位
+      getParksByType({ id: mapInfo.id, type: 4 }).then((res) => {
+        const { code, result } = res
+        // console.log(result)
+        if (code === 0) {
+          result.forEach((item) => {
+            renderPark(item).addTo(this.map)
+          })
+        }
+      })
     }).catch((err) => {
       console.log(err)
       this.$notify.error({
@@ -1376,14 +1469,14 @@ export default {
 .page {
 
   .layout {
-    height: 90vh;
+    height: 95vh;
     margin-top: 5px;
     box-sizing: border-box;
     display: grid;
-    grid-template-columns: 27% 45% 27%;
+    grid-template-columns: 25% 35% 40%;
     grid-template-rows: 70% 30%;
     grid-template-areas: "table table exception-"
-                         "bar line car";
+                         "bar line exception-";
     grid-gap: 10px;
     // grid-auto-flow: column dense;
     .table {
@@ -1416,7 +1509,7 @@ export default {
       .total-left {
         .head {
           height: 60px;
-          padding: 10px;
+          padding: 0;
           border-bottom: 1px solid #666;
           display: grid;
           grid-template-rows: auto;
@@ -1425,6 +1518,8 @@ export default {
           .child {
             align-self: center;
             justify-self: center;
+            height: 60px;
+            line-height: 60px;
           }
           .icon {
             font-size: 1.4rem;
@@ -1439,15 +1534,59 @@ export default {
             font-weight: bold;
             color: @primary-color;
           }
+          .pointer {
+            cursor: pointer;
+          }
+          .active {
+            border-bottom: 2px solid @primary-color;
+            // height: 60px;
+            box-sizing: border-box;
+          }
         }
         .item-content {
           padding: 12px 0;
           @media screen and (max-width: 1600px) {
             padding: 5px 0;
           }
-          .vq-table {
-            padding: 5px 15px;
+          .tabs {
+            display: flex;
+            align-items: center;
+            // justify-content: space-around;
+            height: 45px;
+            line-height: 45px;
+            font-size: 1.05rem;
+            font-weight: 400;
+            // color: @primary-color;
+            border-bottom: 1px solid #666;
             box-sizing: border-box;
+            .tab {
+              padding: 0 20px;
+              cursor: pointer;
+            }
+            .tab-active {
+              border-bottom: 2px solid @primary-color;
+              box-sizing: border-box;
+              color: @primary-color;
+              font-weight: bold;
+            }
+          }
+          .vq-table {
+            padding: 15px;
+            box-sizing: border-box;
+            .outline-total {
+              display: flex;
+              align-items: center;
+              padding-bottom: 15px;
+              padding-left: 5px;
+              .item {
+                margin-right: 20px;
+                span {
+                  font-size: 1.2rem;
+                  color: @warning;
+                  font-weight: bold;
+                }
+              }
+            }
             .el-table {
               border: 1px solid #fff;
               border-radius: 10px;
@@ -1464,6 +1603,9 @@ export default {
             }
             .cell-warn {
               color: @warning;
+            }
+            .cell-error {
+              color: @danger;
             }
           }
           .line-content {
@@ -1596,6 +1738,7 @@ export default {
         }
       }
       .total-right {
+        position: relative;
         .date {
           height: 60px;
           // padding: 10px;
@@ -1622,6 +1765,7 @@ export default {
         }
         .error-infos {
           box-sizing: border-box;
+          height: calc(90vh - 60px);
           .sub-title {
             font-size: 1.3rem;
             // margin-top: 10px;
@@ -1639,7 +1783,7 @@ export default {
             }
           }
           .list-content {
-            height: calc(58vh - 60px);
+            // height: calc(58vh - 60px);
             overflow-y: auto;
             .list-item {
               // ..
@@ -1670,6 +1814,14 @@ export default {
               }
             }
           }
+        }
+        .car-list {
+          position: absolute;
+          right: 0;
+          top: 60px;
+          background: @base-background-opacity;
+          z-index: 3000;
+          width: 70%;
         }
       }
       .no-data {

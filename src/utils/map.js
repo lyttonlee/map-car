@@ -7,6 +7,9 @@ import {
 import {
   Notification
 } from 'element-ui'
+import {
+  transRequest
+} from '../api/fence'
 export const initMap = async (opts) => {
   try {
     const mapInfo = await store.dispatch('getMapInfo')
@@ -47,9 +50,52 @@ export const initMap = async (opts) => {
   }
 }
 
+// 渲染一个车位
+/**
+ *
+ *
+ * @export
+ * @param {object} item
+ * @return {object} park L.polygon
+ */
+export function renderPark (item) {
+  const name = getOfficeNameById(item.fenceId)
+  // console.log(name)
+  const points = item.points.split(';').map((pointStr) => {
+    const [x, y] = pointStr.split('_')
+    return [y / store.state.pointScale, x / store.state.pointScale]
+  })
+  // console.log(points)
+  const park = L.polygon(points, {
+    fillColor: fenceStyles[name] || '#689',
+    fillOpacity: 0.4,
+    stroke: false
+  })
+  return park
+}
+
+function getBindId (type) {
+  if (type && type !== 'VQ') {
+    return store.state.childMapInfos.find((map) => map.name === type).id
+  } else {
+    return null
+  }
+}
+
+export function getOfficeNameById (id) {
+  // console.log(id)
+  if (id) {
+    return store.state.childMapInfos.find((map) => map.id === id).name
+  } else {
+    return 'VQ'
+  }
+}
+
 let points = []
 let fenceType = ''
 let polygon = null
+let bindType = ''
+let isOrigin = false
 
 function computePolygonPath (p1, p2) {
   const points = [
@@ -72,6 +118,31 @@ function clickMap (ev) {
     // console.log(grab)
     grab.style.cursor = 'grab'
     this.customPolygon = polygon
+    // console.log(points)
+    const param = {
+      leftPoint: {
+        x: points[0][1] * store.state.pointScale,
+        y: points[0][0] * store.state.pointScale
+      },
+      rightPoint: {
+        x: points[1][1] * store.state.pointScale,
+        y: points[1][0] * store.state.pointScale
+      },
+      bindId: getBindId(bindType),
+      mapInfoId: store.state.mapInfo.id,
+      origin: isOrigin
+    }
+    const url = '/fenceDate/v1.0/bind/type4'
+    transRequest(param, url).then((res) => {
+      // console.log(res)
+      this.customPolygon.remove()
+      const { code, result } = res
+      if (code === 0) {
+        if (result.code === 0) {
+          this.$resolve(result.result)
+        }
+      }
+    })
   }
 }
 
@@ -95,29 +166,36 @@ function mousemoveMap (ev) {
   }
 }
 
-export const createFence = (map, type) => {
-  // console.log(map)
-  // map.style.cursor = 'pointer'
-  const grab = document.querySelector('.leaflet-grab')
-  // console.log(grab)
-  grab.style.cursor = 'pointer'
-  // console.log(type)
-  points = []
-  if (polygon) {
-    polygon.remove()
-    polygon = null
-  }
-  map.customPolygon = null
-  if (!type) {
-    return
-  }
-  fenceType = type
-  map.on('click', clickMap)
-  map.on('mousemove', mousemoveMap)
+export const createFence = (map, type, origin) => {
+  return new Promise((resolve) => {
+    // console.log(map)
+    // map.style.cursor = 'pointer'
+    const grab = document.querySelector('.leaflet-grab')
+    // console.log(grab)
+    grab.style.cursor = 'pointer'
+    // console.log(type)
+    points = []
+    if (polygon) {
+      polygon.remove()
+      polygon = null
+    }
+    map.customPolygon = null
+    if (!type) {
+      bindType = ''
+      isOrigin = false
+      return
+    }
+    fenceType = type
+    bindType = type
+    isOrigin = origin
+    map.$resolve = resolve
+    map.on('click', clickMap)
+    map.on('mousemove', mousemoveMap)
+  })
 }
 
 export const renderFence = (map, fences) => {
-  console.log(fences)
+  // console.log(fences)
   fences.forEach((fence) => {
     const name = fence.name
     const mapPoints = [

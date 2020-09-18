@@ -42,7 +42,7 @@ export const routes = [
         meta: {
           auth: true,
           icon: 'zx-map',
-          role: ['VQ', 'PC']
+          role: ['VQ', 'SuperAdmin', 'PC']
         }
       },
       {

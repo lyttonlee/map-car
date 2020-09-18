@@ -24,7 +24,7 @@
         <a class="a-link" href="/app-doc.html" target="_blank">PDA操作手册</a>
       </div>
       <!-- <div>PDA操作手册</div> -->
-      <div @click="resetGuide">系统操作指引</div>
+      <!-- <div @click="resetGuide">系统操作指引</div> -->
     </div>
   </div>
 </template>
@@ -62,7 +62,7 @@ export default {
     }
   },
   created () {
-    console.log(this.$router.options.routes)
+    // console.log(this.$router.options.routes)
     let index = this.$router.options.routes.findIndex((route) => route.path === '/')
     let renderConstantRoutes = this.$router.options.routes[index].children
     // if (!this.hasAdded) {

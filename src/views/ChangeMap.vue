@@ -9,12 +9,18 @@
           </div>
         </template>
         <div class="item" key="clear">
-          <div class="btn" @click="draw()" >重画</div>
+          <div class="btn" @click="reset()" >重置</div>
         </div>
-        <div class="item" key="submit">
-          <!-- <el-button type="danger" size="small" @click="submit()">提交</el-button> -->
+        <i v-if="roles === 'SuperAdmin'">
+          <template v-for="(value, key, index) in fenceStyles">
+            <div class="item" :key="index">
+              <div :class="activeKey === key && roles === 'SuperAdmin' ? 'btn active' : 'btn'" @click="draw(key, true)" >设置默认{{ key }}车位</div>
+            </div>
+          </template>
+        </i>
+        <!-- <div class="item" key="submit">
           <div class="btn submit" @click="submit()" >提交</div>
-        </div>
+        </div> -->
       </div>
       <div class="tags">
         <template v-for="(value, key, index) in fenceStyles">
@@ -31,22 +37,20 @@
         <p>1. 请先选择需要添加车位的科室</p>
         <p>2. 请将鼠标移动到VQ停车场，点击左键选择停车场的起点</p>
         <p>3. 移动鼠标会自动绘制出矩形区域，再次点击鼠标左键完成绘制</p>
-        <p>4. 点击确认添加按钮完成车位添加</p>
+        <p>4. 系统通过计算后会获得最新的车位结果</p>
         <h3>注意事项</h3>
-        <p>1. 如果需要绘制多个位置区域，为保证系统内部对车辆位置计算的准确性请保证区域之间没有重合部分</p>
-        <p>2. 如果发现绘制区域不符合实际使用，可以点击清除按钮重新绘制</p>
-        <p>3. 对已绘制提交的区域，点击对应的删除按钮可以删除</p>
-        <p>4. 请只在VQ车场范围内进行绘制</p>
+        <p>1. 请只在VQ车场范围内进行绘制</p>
+        <p>2. 如果发现绘制区域不符合实际使用，点击重置按钮可以恢复到默认的分配方案</p>
       </div>
       <div class="parks">
-        <h3>新增区域</h3>
+        <h3>车位统计</h3>
         <el-table :data="officeParks" size="mini" >
           <el-table-column label="科室" prop="name"></el-table-column>
-          <el-table-column label="默认车位数" prop="default"></el-table-column>
-          <el-table-column label="当前持有车位数" prop="cur"></el-table-column>
-          <el-table-column label="变化对比">
+          <!-- <el-table-column label="默认车位数" prop="default"></el-table-column> -->
+          <el-table-column label="车位数" prop="num"></el-table-column>
+          <el-table-column label="颜色">
             <template slot-scope="scope">
-              <div :class="scope.row.default - scope.row.cur < 0 ? 'success' : 'error'">{{Math.abs(scope.row.default - scope.row.cur)}}</div>
+              <div :style="{background: scope.row.color, width: '40px', height: '20px'}"></div>
             </template>
           </el-table-column>
         </el-table>
@@ -58,59 +62,127 @@
 import {
   initMap,
   createFence,
-  renderFence
+  // renderFence,
+  renderPark,
+  getOfficeNameById
 } from '../utils/map'
 import {
+  enumOffices,
   fenceStyles
 } from '../config/config'
 import {
   mapState
 } from 'vuex'
+import {
+  // queryFence
+  getParksByType, transRequest
+} from '../api/fence'
 export default {
   data () {
     return {
       // ..
       fenceStyles,
       activeKey: '',
-      officeParks: [
-        {
-          name: 'WE',
-          default: 135,
-          cur: 210,
-        },
-        {
-          name: 'AF',
-          default: 150,
-          cur: 95,
-        },
-      ],
-      map: null
+      officeParks: [],
+      map: null,
+      parks: {},
+      parkMap: new Map()
     }
   },
   computed: {
-    ...mapState(['pointScale', 'childMapInfos'])
+    ...mapState(['pointScale', 'childMapInfos', 'productLineId', 'roles'])
   },
   methods: {
     deleteFence (row) {
       console.log(row)
     },
-    draw (key) {
+    async draw (key, origin = false) {
       this.activeKey = key
-      createFence(this.map, key)
-    },
-    submit () {
-      console.log(this.map.customPolygon)
-      const points = this.map.customPolygon.getLatLngs()[0].map((point) => {
-        return `${point.lng * this.pointScale}_${point.lat * this.pointScale}_0`
+      const res = await createFence(this.map, key, origin)
+      // console.log(res)
+      res.forEach((item) => {
+        const name = getOfficeNameById(item.fenceId)
+        this.parks[item.id].setStyle({
+          fillColor: fenceStyles[name] || '#689',
+          fillOpacity: 0.4,
+          stroke: false
+        })
       })
-      console.log(points)
-      console.log(this.map.customPolygon.getLatLngs())
-      // request {}
-      const param = {
-        points,
-        type: this.activeKey
+      const params = {
+        id: this.mapInfo.id,
+        type: 4
       }
-      console.log(param)
+      const parkRes = await getParksByType(params)
+      const { code, result } = parkRes
+      if (code === 0) {
+        this.parkMap = new Map()
+        result.forEach((item) => {
+          // 计算vq及科室的车位数量
+          if (item.fenceId) {
+            const name = getOfficeNameById(item.fenceId)
+            this.parkMap.has(name) ? this.parkMap.set(name, this.parkMap.get(name) + 1) : this.parkMap.set(name, 1)
+          } else {
+            this.parkMap.has('VQ') ? this.parkMap.set('VQ', this.parkMap.get('VQ') + 1) : this.parkMap.set('VQ', 1)
+          }
+        })
+        this.officeParks = enumOffices.map((office) => {
+          return {
+            name: office,
+            num: this.parkMap.get(office) || 0,
+            color: this.fenceStyles[office]
+          }
+        })
+      }
+      this.activeKey = ''
+    },
+    // 重置为默认
+    async reset () {
+      // 。。
+      const res = await transRequest({}, '/fenceDate/v1.0/origin/type')
+      // console.log(res)
+      if (res.code === 0 && res.result.code === 0) {
+        this.init()
+      }
+    },
+    async init () {
+      // console.log(this.parks)
+      Object.values(this.parks).forEach((park) => {
+        if (park) {
+          park.remove()
+        }
+      })
+      this.parks = {}
+      this.parkMap = new Map()
+      // 获取所有车位信息
+      const params = {
+        id: this.mapInfo.id,
+        type: 4
+      }
+      const res = await getParksByType(params)
+      // console.log(res)
+      const { code, result } = res
+      if (code === 0) {
+        result.forEach((item) => {
+          const park = renderPark(item)
+          park.addTo(this.map)
+          this.parks[item.id] = park
+          // 计算vq及科室的车位数量
+          if (item.fenceId) {
+            const name = getOfficeNameById(item.fenceId)
+            this.parkMap.has(name) ? this.parkMap.set(name, this.parkMap.get(name) + 1) : this.parkMap.set(name, 1)
+          } else {
+            this.parkMap.has('VQ') ? this.parkMap.set('VQ', this.parkMap.get('VQ') + 1) : this.parkMap.set('VQ', 1)
+          }
+        })
+        // console.log(this.parkMap)
+        this.officeParks = enumOffices.map((office) => {
+          return {
+            name: office,
+            num: this.parkMap.get(office) || 0,
+            color: this.fenceStyles[office]
+          }
+        })
+      }
     }
   },
   async mounted () {
@@ -119,10 +191,11 @@ export default {
       maxZoom: 13
     }
     const { map, mapInfo, mapPoints } = await initMap(opts)
-    renderFence(map, this.childMapInfos)
+    // renderFence(map, this.childMapInfos)
     this.map = map
     this.mapInfo = mapInfo
     this.mapPoints = mapPoints
+    this.init()
   }
 }
 </script>

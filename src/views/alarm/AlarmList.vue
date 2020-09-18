@@ -375,7 +375,7 @@ export default {
     // this.checkedAlarms = this.alarmValues.map((config) => {
     //   return config.code
     // })
-    this.skipIntro = localStorage.getItem('alarmIntro') || false
+    this.skipIntro = localStorage.getItem('alarmIntro') || true
   },
   mounted () {
     // this.$nextTick().then(() => {
