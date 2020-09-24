@@ -2,13 +2,13 @@ export const initCarSize = [15, 31]
 
 export const initPointScale = 100
 
-export const initMapZoom = 9
+export const initMapZoom = 8.7
 
-export const initCarScale = 0.7
+export const initCarScale = 0.65
 
-export const vqMapZoom = 9
+export const vqMapZoom = 8.7
 
-export const vqCarScale = 0.7
+export const vqCarScale = 0.65
 
 export const introOption = {
   prevLabel: '上一步',
