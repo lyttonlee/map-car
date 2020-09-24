@@ -143,7 +143,8 @@
               <div id="map-small" class="page-map"></div>
             </div>
             <div class="park-color">
-              <ParkColor />
+              <!-- <ParkColor /> -->
+              <CarTypes />
             </div>
           </div>
           <div v-if="showException" class="error-infos car-list">
@@ -198,7 +199,8 @@
 <script>
 // import ShowTime from '@/components/showTime'
 import CarInfo from '../components/CarInfo'
-import ParkColor from '../components/ParkColor'
+// import ParkColor from '../components/ParkColor'
+import CarTypes from '../components/CarTypes'
 import {
   initCarSize
 } from '../config/config'
@@ -305,7 +307,8 @@ export default {
     // SeamLessScroll
     // CountTo: () => import('../components/CountTo'),
     // TotalItem: () => import('../components/TotalItem'),
-    ParkColor,
+    // ParkColor,
+    CarTypes,
   },
   computed: {
     ...mapState(['carScale', 'productLineId', 'pointScale', 'initMapZoom', 'vqMapZoom', 'vqCarScale']),
@@ -1008,7 +1011,7 @@ export default {
       const nodeOption = {
         color: ['rgba(27, 212, 141, 0.9)'],
         title: {
-          text: '个节点实时生产台数',
+          text: '各节点实时生产台数',
           textStyle: {
             color: '#fefefe'
           },
