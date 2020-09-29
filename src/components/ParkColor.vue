@@ -23,12 +23,13 @@ export default {
 <style lang="less" scoped>
 .tags {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
   padding: 20px 10px;
   box-sizing: border-box;
   .item {
     display: flex;
+    margin: 0 10px;
     .bolck {
       display: inline-block;
       width: 60px;

@@ -33,6 +33,7 @@
         <el-button @click="addFence">ADD Fence</el-button>
         <el-button @click="transAddress">Test Address</el-button>
         <el-button @click="drawCarport">Add Car Port</el-button>
+        <el-button @click="drawCarportByPoints">Add Car Port By Points</el-button>
         <input type="file" @change="upload">
         <el-button @click="drawTwoPoints">通过矩形删除围栏</el-button>
         <el-input placeholder="缩放marker 就是车" v-model="carScale" @change="changeCarScale"></el-input>
@@ -64,11 +65,32 @@
           <el-input placeholder="角度" v-model="portAngle"></el-input>
           <el-button :disabled="!canDraw" @click="submitCarport">submit</el-button>
         </div>
+        <div v-if="isCreateCarportByPoints">
+          <!-- <template v-for="(point, index) in fencePoints">
+            <div :key="index">{{point}}</div>
+          </template> -->
+          <el-input placeholder="车位点" v-model="portPoints"></el-input>
+          <el-input placeholder="车位名字" v-model="carportName"></el-input>
+          <el-input placeholder="X偏移" v-model="xOffset"></el-input>
+          <el-input placeholder="Y偏移" v-model="yOffset"></el-input>
+          <el-input placeholder="数量" v-model="offsetNum"></el-input>
+          <el-input placeholder="角度" v-model="portAngle"></el-input>
+          <el-button :disabled="!canDraw" @click="submitCarport">submitByPoints</el-button>
+        </div>
       </div>
       <div class="content">
         <el-table :data="fences" size="mini" >
           <el-table-column label="围栏名称" prop="name"></el-table-column>
-          <el-table-column label="类型" prop="type"></el-table-column>
+          <el-table-column
+            label="类型"
+            prop="type"
+            column-key="type"
+            :filters="[
+              {text: 'type3', value: 3},
+              {text: 'type4', value: 4}
+            ]"
+            :filter-method="filterType"
+          ></el-table-column>
           <el-table-column label="角度" prop="angle"></el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
@@ -113,6 +135,7 @@ export default {
   // ..
   data () {
     return {
+      portPoints: '',
       showAboutFence: true,
       showPickMap: false,
       mapInfo: '',
@@ -131,6 +154,7 @@ export default {
       carportName: '',
       portAngle: '',
       isDeleteParks: false,
+      isCreateCarportByPoints: false,
       carScale: initCarScale,
       carRotate: '',
       pickMapInfo: {
@@ -139,6 +163,17 @@ export default {
       },
       pickedMapPoints: [],
       pickedMapPolygon: '',
+    }
+  },
+  watch: {
+    portPoints (newVal, oldVal) {
+      console.log(newVal)
+      // console.log(oldVal)
+      const points = newVal.split(';')
+      if (points.length === 4) {
+        this.fencePoints = points
+        console.log(this.fencePoints)
+      }
     }
   },
   computed: {
@@ -185,6 +220,13 @@ export default {
     changeMapZoom (zoom) {
       console.log(zoom)
       this.map.setZoom(zoom)
+    },
+    // 按类型筛选围栏
+    filterType (value, row, col) {
+      console.log(row)
+      const attr = col['property']
+      console.log(attr)
+      return row[attr] === value
     },
     resetPoints () {
       this.pickedMapPoints = []
@@ -514,6 +556,7 @@ export default {
       let polyline
       this.isCreating = false
       this.isCreateCarport = true
+      this.isCreateCarportByPoints = false
       this.map && this.map.on('click', (ev) => {
         // console.log(ev)
         let point = [ ev.latlng.lat, ev.latlng.lng ]
@@ -528,6 +571,28 @@ export default {
           polyline.addLatLng(point)
         }
       })
+    },
+    drawCarportByPoints () {
+      this.clearMap()
+      // let points = []l
+      // let polyline
+      this.isCreating = false
+      this.isCreateCarport = false
+      this.isCreateCarportByPoints = true
+      // this.map && this.map.on('click', (ev) => {
+      //   // console.log(ev)
+      //   let point = [ ev.latlng.lat, ev.latlng.lng ]
+      //   points.push(point)
+      //   this.fencePoints.push(`${ev.latlng.lng * this.pointScale}_${ev.latlng.lat * this.pointScale}_0`)
+      //   if (points.length === 2) {
+      //     polyline = L.polygon(points, { color: 'red' })
+      //     polyline.addTo(this.map)
+      //     this.fenceLayers.push(polyline)
+      //   } else if (points.length > 2) {
+      //     // console.log(polyline)
+      //     polyline.addLatLng(point)
+      //   }
+      // })
     },
     submitCarport () {
       console.log('do something')
@@ -703,7 +768,7 @@ export default {
     position: fixed;
     grid-template-columns: 300px auto;
     grid-template-rows: 1fr;
-    width: 600px;
+    width: 700px;
     height: 70vh;
     background: @page-background-opacity;
     box-shadow: @shadow-base;

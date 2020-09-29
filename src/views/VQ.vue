@@ -143,7 +143,7 @@
               <div id="map-small" class="page-map"></div>
             </div>
             <div class="park-color">
-              <!-- <ParkColor /> -->
+              <ParkColor />
               <CarTypes />
             </div>
           </div>
@@ -199,7 +199,7 @@
 <script>
 // import ShowTime from '@/components/showTime'
 import CarInfo from '../components/CarInfo'
-// import ParkColor from '../components/ParkColor'
+import ParkColor from '../components/ParkColor'
 import CarTypes from '../components/CarTypes'
 import {
   initCarSize
@@ -307,7 +307,7 @@ export default {
     // SeamLessScroll
     // CountTo: () => import('../components/CountTo'),
     // TotalItem: () => import('../components/TotalItem'),
-    // ParkColor,
+    ParkColor,
     CarTypes,
   },
   computed: {
@@ -473,7 +473,7 @@ export default {
           }
           currentMarker.angle = newPos.angle
         } else {
-          if (newPos.statisticZone !== 'bind') { // 不是在绑定点，实际已绑定但未上传绑定信息的车辆
+          if (!(newPos.statisticZone && newPos.statisticZone.include('chain'))) { // 不是在绑定点，实际已绑定但未上传绑定信息的车辆
             // 1.判断是否已存在于 noUploadCars 里面
             if (this.noUploadMap.has(newPos.id)) { // 已存在
               //  已存在，判断位置是否相同, 不一样就移动车辆 计算位置区域
@@ -1768,7 +1768,7 @@ export default {
         }
         .error-infos {
           box-sizing: border-box;
-          height: calc(90vh - 60px);
+          height: calc(90vh - 120px);
           .sub-title {
             font-size: 1.3rem;
             // margin-top: 10px;

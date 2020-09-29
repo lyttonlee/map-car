@@ -39,6 +39,10 @@ toc:
 
 <!-- @import "workshop.md" -->
 
+### 车位分配
+
+<!-- @import "park.md" -->
+
 ### 告警
 
 <!-- @import "alarm.md" -->

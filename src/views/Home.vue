@@ -21,6 +21,9 @@
       <img :src="mapInfo.twoDFilePath" @click="changeMap(mapInfo.id)" alt="">
     </div>
     <div class="park-color">
+      <CarTypes />
+    </div>
+    <div class="car-type">
       <PrakColor />
     </div>
     <el-button round type="primary" @click="changePage" class="fix-button">列表模式</el-button>
@@ -176,6 +179,7 @@ import SmallMap from '@/components/SmallMap'
 import { getParksByType } from '../api/fence'
 import { renderPark } from '../utils/map'
 import PrakColor from '../components/ParkColor'
+import CarTypes from '../components/CarTypes'
 export default {
   name: 'home',
   components: {
@@ -186,6 +190,7 @@ export default {
     CarInfo,
     SmallMap,
     PrakColor,
+    CarTypes
   },
   data () {
     return {
@@ -379,7 +384,7 @@ export default {
             this.carMapNum = new Map([...this.carMapNum])
           }
         } else {
-          if (newPos.statisticZone !== 'bind') { // 不是在绑定点，实际已绑定但未上传绑定信息的车辆
+          if (!(newPos.statisticZone && newPos.statisticZone.include('chain'))) { // 不是在绑定点，实际已绑定但未上传绑定信息的车辆
             // 1.判断是否已存在于 noUploadCars 里面
             // console.log(this.noUploadMap)
             if (this.noUploadMap.has(newPos.id)) { // 已存在
@@ -1551,6 +1556,12 @@ export default {
     position: absolute;
     width: 50%;
     bottom: 10px;
+  }
+  .car-type {
+    position: absolute;
+    width: 50%;
+    bottom: 70px;
+    height: 60px;
   }
   .list {
     // position: absolute;
