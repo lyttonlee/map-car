@@ -29,27 +29,27 @@
                   </el-table-column>
                   <el-table-column label="室内" min-width="60" >
                     <template slot-scope="scope">
-                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`" >{{scope.row.v.indoor}}</div>
+                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`" >{{scope.row.v.indoor}}</div>
                     </template>
                   </el-table-column>
                   <el-table-column label="室外"  min-width="60">
                     <template slot-scope="scope">
-                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.outdoor}}</div>
+                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.outdoor}}</div>
                     </template>
                   </el-table-column>
                   <el-table-column label="超4小时" min-width="60" >
                     <template slot-scope="scope">
-                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.gtFour}}</div>
+                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.gtFour}}</div>
                     </template>
                   </el-table-column>
                   <el-table-column label="超8小时" min-width="60" >
                     <template slot-scope="scope">
-                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.gtEight}}</div>
+                      <div @click="showCarList(scope, 1)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.gtEight}}</div>
                     </template>
                   </el-table-column>
                   <el-table-column label="室内外合计" min-width="60" >
                     <template slot-scope="scope">
-                      <div :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{sumBelong(scope)}}</div>
+                      <div :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{sumBelong(scope)}}</div>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -63,17 +63,17 @@
                   </el-table-column>
                   <el-table-column label="超四小时" min-width="60" >
                     <template slot-scope="scope">
-                      <div @click="showCarList(scope, 2)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.gtFour}}</div>
+                      <div @click="showCarList(scope, 2)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.gtFour}}</div>
                     </template>
                   </el-table-column>
                   <el-table-column label="超八小时" min-width="60" >
                     <template slot-scope="scope">
-                      <div @click="showCarList(scope, 2)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.gtEight}}</div>
+                      <div @click="showCarList(scope, 2)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.gtEight}}</div>
                     </template>
                   </el-table-column>
                   <el-table-column label="合计" min-width="60" >
                     <template slot-scope="scope">
-                      <div :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click cell-success' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click cell-warn'}`">{{scope.row.v.all}}</div>
+                      <div :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.all}}</div>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -282,9 +282,9 @@ export default {
       officeMap: [
         { key: 'we', name: 'WE' },
         { key: 'af', name: 'AF' },
+        { key: 'dhec', name: 'DHEC' },
         { key: 'pq', name: 'PQ' },
         { key: 'pa', name: 'PA' },
-        { key: 'dhec', name: 'DHEC' }
       ],
       nodeMap: [
         { key: 'delivery', name: '待 出 荷' },
@@ -473,7 +473,7 @@ export default {
           }
           currentMarker.angle = newPos.angle
         } else {
-          if (!(newPos.statisticZone && newPos.statisticZone.include('chain'))) { // 不是在绑定点，实际已绑定但未上传绑定信息的车辆
+          if (!(newPos.statisticZone && newPos.statisticZone.includes('chain'))) { // 不是在绑定点，实际已绑定但未上传绑定信息的车辆
             // 1.判断是否已存在于 noUploadCars 里面
             if (this.noUploadMap.has(newPos.id)) { // 已存在
               //  已存在，判断位置是否相同, 不一样就移动车辆 计算位置区域
@@ -638,7 +638,7 @@ export default {
       this.pagination.current = ev
     },
     showCarList (scope, index) {
-      console.log(scope)
+      // console.log(scope)
       if (scope.$index === 5) return false // 点击合计无效
       if (scope.column.label === '合计') return false
       // 请求
@@ -843,7 +843,7 @@ export default {
     // 获取统计信息 （新版UI）
     queryStatistic () {
       getStatistic().then((res) => {
-        console.log(res)
+        // console.log(res)
         if (res.code === 0) {
           const sum = (items, key) => {
             return items.reduce((pre, cur) => {
@@ -888,29 +888,7 @@ export default {
             }
           })
           this.outline = outline
-          console.log(this.info)
-          // this.info.gtOneDay = 1
-
-          // const { timeoutDetail1, timeoutDetail2, timeoutDetail3, timeoutDetail4 } = this.info
-          // timeoutDetail1.name = '1.5小时内'
-          // timeoutDetail2.name = '1.5小时至4小时'
-          // timeoutDetail3.name = '4小时至8小时'
-          // timeoutDetail4.name = '超8小时'
-          // // 组装table数据
-          // const tableData = []
-          // // const total = {}
-          // // Object.keys(timeoutDetail1).forEach((key) => {
-          // //   key === 'name' ? total[key] = '合计' : total[key] = timeoutDetail1[key] + timeoutDetail2[key] + timeoutDetail3[key] + timeoutDetail4[key]
-          // //   // key === 'name' ? total[key] = '合计' : total[key] = timeoutDetail1[key] + timeoutDetail2[key]
-          // // })
-          // tableData.push(timeoutDetail1)
-          // tableData.push(timeoutDetail2)
-          // tableData.push(timeoutDetail3)
-          // tableData.push(timeoutDetail4)
-          // // tableData.push(total)
-          // this.tableData = tableData
-          // console.log(this.tableData)
-          // this.pageLoading = false
+          // console.log(this.info)
           this.$nextTick().then(() => {
             this.renderCharts()
           })
@@ -1143,6 +1121,49 @@ export default {
         if (res.code === 0) {
           this.info = res.result
           this.updateCharts()
+          const sum = (items, key) => {
+            return items.reduce((pre, cur) => {
+              return pre + cur.v[key]
+            }, 0)
+          }
+          const createObj = (items) => {
+            let temObj = {}
+            Object.keys(items[0].v).forEach((key) => {
+              temObj[key] = sum(items, key)
+            })
+            return temObj
+          }
+          this.info.belongStatistic.items.push({
+            k: '合计',
+            v: createObj(this.info.belongStatistic.items)
+          })
+          this.belongTable = this.info.belongStatistic.items
+          this.info.areaStatistic.items.push({
+            k: '合计',
+            v: createObj(this.info.areaStatistic.items)
+          })
+          // console.log(this.belongTable)
+          this.areaTable = this.info.areaStatistic.items
+          this.outlineTable = this.info.outLineStatistic.items.slice(0, 6)
+          this.pagination.total = this.info.outLineStatistic.items.length
+          let outline = {
+            oneDay: 0,
+            threeDay: 0
+          }
+          this.info.outLineStatistic.items.forEach((item) => {
+            if (moment().valueOf() - item.v > 24 * 3600 * 1000) {
+              // console.log(1)
+              // this.info.gtOneDay ? this.info.gtOneDay += 1 : this.info.gtOneDay = 1
+              outline.oneDay++
+            }
+            if (moment().valueOf() - item.v > 3 * 24 * 3600 * 1000) {
+              // console.log(3)
+              // this.info.gtThreeDay ? this.info.gtOneDay += 1 : this.info.gtOneDay = 1
+              outline.threeDay++
+            }
+          })
+          // console.log('update')
+          this.outline = outline
         }
       })
     },
@@ -1263,7 +1284,7 @@ export default {
         // this.getBoradData()
         // this.getStoreData()
         this.updatePage()
-      }, 10000)
+      }, 3000)
     },
     intervalSummary () {
       this.summaryTime = setInterval(() => {

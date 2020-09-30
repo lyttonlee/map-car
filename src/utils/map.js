@@ -59,7 +59,8 @@ export const initMap = async (opts) => {
  * @return {object} park L.polygon
  */
 export function renderPark (item) {
-  const name = getOfficeNameById(item.fenceId)
+  // console.log(item)
+  const name = getOfficeNameById(item.bindMapId)
   // console.log(name)
   const points = item.points.split(';').map((pointStr) => {
     const [x, y] = pointStr.split('_')
@@ -110,6 +111,9 @@ function computePolygonPath (p1, p2) {
 function clickMap (ev) {
   // console.log(ev)
   const { lng, lat } = ev.latlng
+  if (lat * store.state.pointScale < 75) {
+    return
+  }
   points.push([lat, lng])
   if (points.length === 2) {
     this.off('click', clickMap)
@@ -129,6 +133,7 @@ function clickMap (ev) {
         y: points[1][0] * store.state.pointScale
       },
       bindId: getBindId(bindType),
+      // bindMapId: getBindId(bindType),
       mapInfoId: store.state.mapInfo.id,
       origin: isOrigin
     }
@@ -148,6 +153,7 @@ function clickMap (ev) {
 
 function mousemoveMap (ev) {
   // console.log(ev)
+  if (ev.latlng.lat * store.state.pointScale < 75) return
   if (points.length === 1) {
     const { lng, lat } = ev.latlng
     let temPoints = computePolygonPath(points[0], [lat, lng])
@@ -210,5 +216,11 @@ export const renderFence = (map, fences) => {
       stroke: false
     })
     fencePolygon.addTo(map)
+  })
+}
+
+export const changeCarScale = (map, initScale) => {
+  map.onZoom((ev) => {
+    console.log(ev)
   })
 }

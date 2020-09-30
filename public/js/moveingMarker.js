@@ -161,6 +161,7 @@ L.Marker.MovingMarker = L.Marker.extend({
   },
 
   setRotation: function (deg) {
+    if (!this._icon) return
     this._icon.style[L.DomUtil.TRANSFORM + "Origin"] = this.options.rotationOrigin;
     // this._icon.style[L.DomUtil.TRANSFORM] += " rotateZ(" +
     //   (this.options.initialRotationAngle + deg) +
@@ -256,7 +257,7 @@ L.Marker.MovingMarker = L.Marker.extend({
   },
 
   _updateRotation: function () {
-    if (this._rotationAngle) {
+    if (this._rotationAngle && this._icon) {
       this._icon.style[
         L.DomUtil.TRANSFORM + "Origin"
       ] = this.options.rotationOrigin;

@@ -30,7 +30,7 @@
       </template>
     </div>
     <div class="unbind-list">
-      <div class="title">未上传信息车辆</div>
+      <div class="title">未绑定车辆</div>
       <div class="list-item">
         <div>
           车辆状态

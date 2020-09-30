@@ -7,6 +7,9 @@
         <el-button round @click="toggleShowPickMap">关闭/显示截取地图</el-button>
       </el-button-group>
     </div>
+    <div class="tips">
+      <img src="../../assets/img/fence-tips.png" alt="">
+    </div>
     <div v-show="showPickMap" class="pick-map">
       <h5>科室地图截取</h5>
       <el-table :data="childMapInfos" size="mini" >
@@ -743,6 +746,12 @@ export default {
 <style lang="less" scoped>
 @import '../../assets/less/color.less';
 .page {
+  .tips {
+    position: fixed;
+    left: 200px;
+    top: 35%;
+    width: 200px;
+  }
   .action {
     position: fixed;
     left: 30%;

@@ -48,7 +48,7 @@
         <div class="select-show">
           <el-radio-group v-model="showingTable" size="medium">
             <el-radio-button label="bind">正常在库车辆</el-radio-button>
-            <el-radio-button label="unbind">未上传信息车辆</el-radio-button>
+            <el-radio-button label="unbind">未绑定车辆</el-radio-button>
           </el-radio-group>
         </div>
         <div v-show="showingTable === 'bind'" class="action">
@@ -384,7 +384,7 @@ export default {
             this.carMapNum = new Map([...this.carMapNum])
           }
         } else {
-          if (!(newPos.statisticZone && newPos.statisticZone.include('chain'))) { // 不是在绑定点，实际已绑定但未上传绑定信息的车辆
+          if (!(newPos.statisticZone && newPos.statisticZone.includes('chain'))) { // 不是在绑定点，实际已绑定但未上传绑定信息的车辆
             // 1.判断是否已存在于 noUploadCars 里面
             // console.log(this.noUploadMap)
             if (this.noUploadMap.has(newPos.id)) { // 已存在
@@ -1142,7 +1142,7 @@ export default {
         html: specalArea.sum
       })
       let center = [specalArea.center.y / this.pointScale, specalArea.center.x / this.pointScale]
-      console.log(center)
+      // console.log(center)
       let divMarker = L.marker(center, { icon: myIcon })
       divMarker.name = specalArea.name
       divMarker.id = specalArea.id
@@ -1213,7 +1213,7 @@ export default {
           animate: false // 开启动画的话会导致会有时间延迟，会导致不好控制车辆方向
         })
         this.map.setMinZoom(zoom)
-        this.map.setMaxZoom(zoom)
+        this.map.setMaxZoom(zoom + 2)
         // 替换图片边界和url
         const imgBounds = [[currentMapInfo.coordinateDown / this.pointScale, currentMapInfo.coordinateLeft / this.pointScale], [currentMapInfo.coordinateUpper / this.pointScale, currentMapInfo.coordinateRight / this.pointScale]]
         this.imageOverlay.setUrl(currentMapInfo.twoDFilePath)
@@ -1326,7 +1326,9 @@ export default {
         maxZoom: this.initMapZoom,
         doubleClickZoom: false,
         zoomControl: false, // 默认不显示缩放按钮
-        attributionControl: false // 不显示leaflet 图标logo
+        attributionControl: false, // 不显示leaflet 图标logo
+        // markerZoomAnimation: false,
+        // zoomAnimation: false,
       })
       // console.log(mapInfo)
       const imgUrl = mapInfo.twoDFilePath
@@ -1357,6 +1359,10 @@ export default {
       this.imageOverlay = L.imageOverlay(imgUrl, imgBounds)
       this.imageOverlay.addTo(map)
       this.map = map
+      // this.map.setZoom(this.initMapZoom)
+      // map.on('zoom', (ev) => {
+      //   console.log(ev.target._zoom)
+      // })
       this.currentMapInfo = mapInfo
       // 获取区域信息
       let params = {

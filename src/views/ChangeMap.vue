@@ -9,7 +9,7 @@
           </div>
         </template>
         <div class="item" key="clear">
-          <div class="btn" @click="reset()" >重置</div>
+          <div :class="canReset === true ? 'btn' : 'btn disabled'" @click="reset()" >重置</div>
         </div>
         <i v-if="roles === 'SuperAdmin'">
           <template v-for="(value, key, index) in fenceStyles">
@@ -86,7 +86,8 @@ export default {
       officeParks: [],
       map: null,
       parks: {},
-      parkMap: new Map()
+      parkMap: new Map(),
+      canReset: true
     }
   },
   computed: {
@@ -101,7 +102,7 @@ export default {
       const res = await createFence(this.map, key, origin)
       // console.log(res)
       res.forEach((item) => {
-        const name = getOfficeNameById(item.fenceId)
+        const name = getOfficeNameById(item.bindMapId)
         this.parks[item.id].setStyle({
           fillColor: fenceStyles[name] || '#689',
           fillOpacity: 0.4,
@@ -118,8 +119,8 @@ export default {
         this.parkMap = new Map()
         result.forEach((item) => {
           // 计算vq及科室的车位数量
-          if (item.fenceId) {
-            const name = getOfficeNameById(item.fenceId)
+          if (item.bindMapId) {
+            const name = getOfficeNameById(item.bindMapId)
             this.parkMap.has(name) ? this.parkMap.set(name, this.parkMap.get(name) + 1) : this.parkMap.set(name, 1)
           } else {
             this.parkMap.has('VQ') ? this.parkMap.set('VQ', this.parkMap.get('VQ') + 1) : this.parkMap.set('VQ', 1)
@@ -138,10 +139,19 @@ export default {
     // 重置为默认
     async reset () {
       // 。。
-      const res = await transRequest({}, '/fenceDate/v1.0/origin/type')
-      // console.log(res)
-      if (res.code === 0 && res.result.code === 0) {
-        this.init()
+      if (!this.canReset) return
+      // console.log('reset')
+      this.canReset = false
+      try {
+        const res = await transRequest({}, '/fenceDate/v1.0/origin/type')
+        // console.log(res)
+        if (res.code === 0 && res.result.code === 0) {
+          this.canReset = true
+          // console.log('back')
+          this.init()
+        }
+      } catch (error) {
+        this.canReset = true
       }
     },
     async init () {
@@ -167,8 +177,8 @@ export default {
           park.addTo(this.map)
           this.parks[item.id] = park
           // 计算vq及科室的车位数量
-          if (item.fenceId) {
-            const name = getOfficeNameById(item.fenceId)
+          if (item.bindMapId) {
+            const name = getOfficeNameById(item.bindMapId)
             this.parkMap.has(name) ? this.parkMap.set(name, this.parkMap.get(name) + 1) : this.parkMap.set(name, 1)
           } else {
             this.parkMap.has('VQ') ? this.parkMap.set('VQ', this.parkMap.get('VQ') + 1) : this.parkMap.set('VQ', 1)
@@ -228,6 +238,11 @@ export default {
           // box-shadow: @shadow-base;
           box-shadow: 1px 3px 3px #000;
           cursor: pointer;
+        }
+        .disabled {
+          cursor: not-allowed;
+          background: #999;
+          color: #222;
         }
         .submit {
           // background: rgba(46, 6, 6, 0.507);

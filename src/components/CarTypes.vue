@@ -31,7 +31,7 @@ export default {
           img: overtimeCar
         },
         offline: {
-          name: '信息缺失',
+          name: '未绑定',
           img: offlineCar
         },
       }
