@@ -227,6 +227,7 @@ export default {
       noUploadMap: new Map(), // 定位器ID 与 车辆和marker数组位置的映射关系
       carTotal: '', // 车辆统计
       showingTable: 'bind',
+      curScale: 0
     }
   },
   created () {
@@ -1177,6 +1178,9 @@ export default {
     // 缩放车的大小和方向
     setCarScaleAndRotate (carMarker, scale, rotate) {
       let icon = carMarker.getIcon()
+      // if (this.curScale !== 0 && scale !== this.curScale) {
+      //   scale = this.curScale
+      // }
       let size = initCarSize.map((pixe) => {
         return pixe * scale
       })
@@ -1321,9 +1325,9 @@ export default {
       const map = L.map('map', {
         // center: [0, 0],
         center,
-        zoom: this.initMapZoom,
         minZoom: this.initMapZoom,
         maxZoom: this.initMapZoom,
+        zoom: this.initMapZoom,
         doubleClickZoom: false,
         zoomControl: false, // 默认不显示缩放按钮
         attributionControl: false, // 不显示leaflet 图标logo
@@ -1360,9 +1364,6 @@ export default {
       this.imageOverlay.addTo(map)
       this.map = map
       // this.map.setZoom(this.initMapZoom)
-      // map.on('zoom', (ev) => {
-      //   console.log(ev.target._zoom)
-      // })
       this.currentMapInfo = mapInfo
       // 获取区域信息
       let params = {
