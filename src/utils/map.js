@@ -2,7 +2,8 @@ import store from '../store'
 import {
   initPointScale as pointScale,
   initMapZoom,
-  fenceStyles
+  fenceStyles,
+  initCarSize
 } from '../config/config'
 import {
   Notification
@@ -219,8 +220,20 @@ export const renderFence = (map, fences) => {
   })
 }
 
-export const changeCarScale = (map, initScale) => {
-  map.onZoom((ev) => {
-    console.log(ev)
+export const changeMarkerScale = (marker, curScale) => {
+  let icon = marker.getIcon()
+  let size = initCarSize.map((pixe) => {
+    return pixe * curScale
   })
+  let anchor = initCarSize.map((pixe) => {
+    return pixe * curScale / 2
+  })
+  let newIcon = L.icon({
+    iconUrl: icon.options.iconUrl,
+    iconAnchor: anchor,
+    iconSize: size
+  })
+  // console.log(newIcon)
+  marker.setIcon(newIcon)
+  marker.setRotation(marker.angle || 180)
 }
