@@ -1,4 +1,5 @@
 const webpack = require('webpack')
+const CompressPlugin = require('compression-webpack-plugin')
 module.exports = {
   assetsDir: 'static',
   lintOnSave: true,
@@ -10,6 +11,11 @@ module.exports = {
       new webpack.ProvidePlugin({
         // other modules
         introJs: ['intro.js', 'introJs']
+      }),
+      new CompressPlugin({
+        test: /\.js$|\.html$|\.css/,
+        threshold: 10240,
+        deleteOriginalAssets: false
       })
     ],
   },
