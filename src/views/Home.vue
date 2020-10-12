@@ -1069,6 +1069,23 @@ export default {
         }
       })
     },
+    // freshPage
+    freshPage () {
+      this.isLoadOK = false
+      this.bindCars = []
+      this.markers.forEach((item) => item.marker.remove())
+      this.markers = []
+      this.specalAreas = []
+      this.divMarkers.forEach((item) => item.remove())
+      this.divMarkers = []
+      this.showingCars = []
+      this.carMarkerMap = {}
+      this.noUploadCars = [] // 未上传信息的车辆列表
+      this.noUpLoadMarkers.forEach((marker) => marker.remove())
+      this.noUpLoadMarkers = []
+      this.noUploadMap = new Map() // 定位器ID 与 车辆和marker数组位置的映射关系
+      this.getBindCars(true)
+    },
     // 改变地图上要显示的车
     changeShowingMarkers (carIds) {
       // console.log(carIds)
@@ -1430,6 +1447,13 @@ export default {
         message: '获取地图数据失败[失望脸]'
       })
     })
+    // 浏览器切换tab窗口事件
+    // 禁用切换TAB 刷新功能
+    // document.addEventListener('visibilitychange', (ev) => {
+    //   if (document.hidden === false) {
+    //     this.freshPage()
+    //   }
+    // })
     // this.getCarInfo()
     // this.renderChart()
   },
