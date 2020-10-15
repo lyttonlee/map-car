@@ -458,12 +458,14 @@ export default {
               currentMarker.zone = zone
               currentMarker.inSpecialArea = true
               currentMarker.remove()
+              currentMarker.isAddedToMap = false
             }
           } else if (newPos.existenceZone === null && newPos.otherZone === null) { // 如果这个marker不在需检测的存在性区域中
-            if (currentMarker.inSpecialArea === true) { // 以前这个marker在存在性区域
+            if (currentMarker.inSpecialArea === true && currentMarker.isAddedToMap === false) { // 以前这个marker在存在性区域
               // 将这个marker显示出来
               currentMarker.addTo(this.map)
               currentMarker.inSpecialArea = false
+              currentMarker.isAddedToMap = true
               // 更新数据
               this.changeSpecialAreaNum(currentMarker.zone, false)
             }
