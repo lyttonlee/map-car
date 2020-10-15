@@ -416,7 +416,7 @@ export default {
       // console.log('接收到position事件推送')
       // console.log(data)
       const posList = JSON.parse(data).content
-      // console.log(posList)
+      console.log(posList)
       posList.forEach((newPos) => {
         // 找到对应的marker
         let index = this.carMarkerMap[newPos.id]
@@ -468,7 +468,9 @@ export default {
               this.changeSpecialAreaNum(currentMarker.zone, false)
             }
           }
+          console.log(currentMarker)
           if (!newPos.existenceZone && !newPos.otherZone && currentMarker.isAddedToMap === true) {
+            console.log('move')
             currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
           }
           currentMarker.angle = newPos.angle
@@ -1259,6 +1261,7 @@ export default {
       } else {
         marker.inSpecialArea = false
         this.map && marker.addTo(this.map)
+        marker.isAddedToMap = true
       }
       this.markers.push({
         marker,
