@@ -355,7 +355,12 @@ L.Marker.MovingMarker = L.Marker.extend({
       // 有角度就旋转角度
       if (this._deg || this._deg == 0) {
         // console.log('旋转角度')
-        this.setRotation(this._deg)
+        // 延迟3秒执行旋转方向，如果三秒后任然是结束状态，就旋转为应该旋转的方向
+        setTimeout(() => {
+          if (this.isEnded()) {
+            this.setRotation(this._deg)
+          }
+        }, 3000)
       } else {
         this._updateRotation()
       }
