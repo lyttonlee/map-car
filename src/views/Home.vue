@@ -303,7 +303,7 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const posList = JSON.parse(data).content
-      console.log(posList)
+      // console.log(posList)
       posList.forEach((newPos) => {
         // 找到对应的marker
         let index = this.carMarkerMap[newPos.id]
@@ -323,8 +323,8 @@ export default {
           // if (!newPos.existenceZone && currentMarker.isAddedToMap === true) {
           //   currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
           // }
-          currentMarker.setRotation(newPos.angle)
-          currentMarker.angle = newPos.angle
+          // currentMarker.setRotation(newPos.angle)
+          // currentMarker.angle = newPos.angle
           if (currentCarIndex !== -1) {
             // console.log(this.bindCars[currentCarIndex])
             if (this.bindCars[currentCarIndex].locator.x === newPos.x && this.bindCars[currentCarIndex].locator.y === newPos.y) return
@@ -367,6 +367,7 @@ export default {
             currentMarker.isAddedToMap = true
           }
           if (!newPos.existenceZone && currentMarker.isAddedToMap === true) {
+            // console.log(newPos.angle)
             currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
           }
           currentMarker.angle = newPos.angle

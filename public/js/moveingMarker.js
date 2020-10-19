@@ -356,8 +356,10 @@ L.Marker.MovingMarker = L.Marker.extend({
       if (this._deg || this._deg == 0) {
         // console.log('旋转角度')
         this.setRotation(this._deg)
+      } else {
+        this._updateRotation()
       }
-      return;
+      return
     }
 
     if (elapsedTime != null) {
