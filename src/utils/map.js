@@ -73,6 +73,7 @@ export function renderPark (item) {
     fillOpacity: 0.4,
     stroke: false
   })
+  park.mapId = item.bindMapId
   return park
 }
 

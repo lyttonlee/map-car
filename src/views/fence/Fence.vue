@@ -82,15 +82,18 @@
         </div>
       </div>
       <div class="content">
-        <el-table :data="fences" size="mini" >
+        <el-table :data="fences" size="mini" @clearFilter="clearFilter">
           <el-table-column label="围栏名称" prop="name"></el-table-column>
           <el-table-column
             label="类型"
             prop="type"
             column-key="type"
             :filters="[
+              {text: 'type2', value: 2},
               {text: 'type3', value: 3},
-              {text: 'type4', value: 4}
+              {text: 'type4', value: 4},
+              {text: 'type6', value: 6},
+              {text: 'type7', value: 7}
             ]"
             :filter-method="filterType"
           ></el-table-column>
@@ -166,6 +169,8 @@ export default {
       },
       pickedMapPoints: [],
       pickedMapPolygon: '',
+      fenceMap: new Map(),
+      shownType: 'all'
     }
   },
   watch: {
@@ -176,6 +181,18 @@ export default {
       if (points.length === 4) {
         this.fencePoints = points
         console.log(this.fencePoints)
+      }
+    },
+    shownType (newVal, oldVal) {
+      if (newVal !== 'all') {
+        this.fenceMap.forEach((item) => {
+          // console.log(item)
+          if (item.type === newVal && item.added === true) {
+            item.fenceLayer.remove()
+            // this.fenceMap.set()
+            item.added = false
+          }
+        })
       }
     }
   },
@@ -226,10 +243,30 @@ export default {
     },
     // 按类型筛选围栏
     filterType (value, row, col) {
-      console.log(row)
+      // console.log(row)
       const attr = col['property']
-      console.log(attr)
+      // console.log(attr)
+      if (this.shownType !== value) {
+        this.shownType = value
+      }
+      // this.fenceMap.forEach((item) => {
+      //   console.log(item)
+      // })
+      // console.log(this.fenceMap.values())
+      // this.fenceMap.values().forEach((lvalue) => {
+      //   console.log(lvalue)
+      // })
       return row[attr] === value
+    },
+    // 重置筛选
+    clearFilter () {
+      console.log('reset')
+      this.fenceMap.forEach((value, key) => {
+        if (value.added === false) {
+          value.fenceLayer.addTo(this.map)
+          value.added = true
+        }
+      })
     },
     resetPoints () {
       this.pickedMapPoints = []
@@ -365,6 +402,11 @@ export default {
       // polygon.openPopup()
       polygon.bindTooltip(fence.name + '  ' + 'type' + fence.type + ' ' + 'angle' + fence.angle)
       this.fenceLayers.push(polygon)
+      this.fenceMap.set(fence.id, {
+        type: fence.type,
+        fenceLayer: polygon,
+        added: true
+      })
       this.map && polygon.addTo(this.map)
       // console.log(this.fenceLayers)
     },
@@ -460,6 +502,7 @@ export default {
         layer.remove()
       })
       this.fenceLayers = []
+      this.fenceMap = new Map()
       // this.map.removeLayer()
       this.getAllFences()
     },

@@ -41,19 +41,22 @@ module.exports = {
     proxy: {
       '/api': {
         // target: 'http://cdzyyc.xicp.io:7578',
+        // target: 'http://10.110.73.208:8089',
         target: 'http://192.168.1.50:8089',
         // target: 'http://192.168.1.247:8089',
         changeOrigin: true
       },
       '/common': {
         // target: 'http://cdzyyc.xicp.io:7578',
+        // target: 'http://10.110.73.208:8089',
         target: 'http://192.168.1.50:8089',
         // target: 'http://192.168.1.247:8089',
         changeOrigin: true
       },
       '/auth': {
-        target: 'http://192.168.1.50:8089',
+        // target: 'http://10.110.73.208:8089',
         // target: 'http://192.168.1.247:8089',
+        target: 'http://192.168.1.50:8089',
         // target: 'http://cdzyyc.xicp.io:7578',
         changeOrigin: true
       }

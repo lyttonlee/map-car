@@ -16,8 +16,8 @@
             </div>
             <transition
               mode="out-in"
-              enter-active-class="animated zoomIn"
-              leave-active-class="animated zoomOut"
+              enter-active-class="animated fadeInLeft"
+              leave-active-class="animated fadeOutLeft"
               :duration = "{ entry: 500, leave: 500 }"
               >
               <div :key="0" v-if="activeTabIndex === 0" class="vq-table">
@@ -61,6 +61,11 @@
                       <div class="cell">{{scope.row.k}}</div>
                     </template>
                   </el-table-column>
+                  <el-table-column label="区域合计" min-width="60" >
+                    <template slot-scope="scope">
+                      <div :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.all}}</div>
+                    </template>
+                  </el-table-column>
                   <el-table-column label="超四小时" min-width="60" >
                     <template slot-scope="scope">
                       <div @click="showCarList(scope, 2)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.gtFour}}</div>
@@ -69,11 +74,6 @@
                   <el-table-column label="超八小时" min-width="60" >
                     <template slot-scope="scope">
                       <div @click="showCarList(scope, 2)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.gtEight}}</div>
-                    </template>
-                  </el-table-column>
-                  <el-table-column label="合计" min-width="60" >
-                    <template slot-scope="scope">
-                      <div :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.all}}</div>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -165,10 +165,10 @@
                     <div class="name">车架号</div>
                     <div class="val">{{car.vehicle.identification}}</div>
                   </div>
-                  <div class="item-row">
+                  <!-- <div class="item-row">
                     <div class="name">车辆故障</div>
                     <div class="val">{{car.vehicle.flawDetail}}</div>
-                  </div>
+                  </div> -->
                   <div class="item-row">
                     <div class="name">位置</div>
                     <div class="val">{{car.locator.address}}</div>

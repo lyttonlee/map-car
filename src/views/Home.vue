@@ -227,7 +227,8 @@ export default {
       noUploadMap: new Map(), // 定位器ID 与 车辆和marker数组位置的映射关系
       carTotal: '', // 车辆统计
       showingTable: 'bind',
-      curScale: 0
+      curScale: 0,
+      parks: [],
     }
   },
   created () {
@@ -1220,6 +1221,7 @@ export default {
     // 改变显示的地图
     changeMap (id) {
       // console.log(id)
+      if (this.currentMapInfo.id === id) return
       this.map.setMinZoom(1)
       this.map.setMaxZoom(20)
       // 找到需要改变到的mapInfo
@@ -1235,7 +1237,7 @@ export default {
           animate: false // 开启动画的话会导致会有时间延迟，会导致不好控制车辆方向
         })
         this.map.setMinZoom(zoom)
-        this.map.setMaxZoom(zoom + 2)
+        this.map.setMaxZoom(zoom)
         // 替换图片边界和url
         const imgBounds = [[currentMapInfo.coordinateDown / this.pointScale, currentMapInfo.coordinateLeft / this.pointScale], [currentMapInfo.coordinateUpper / this.pointScale, currentMapInfo.coordinateRight / this.pointScale]]
         this.imageOverlay.setUrl(currentMapInfo.twoDFilePath)
@@ -1251,14 +1253,16 @@ export default {
         // console.log(this.bindCars)
         this.currentMapInfo = currentMapInfo
         this.currentMapPoints = mapPoints
-        if (currentMapInfo.id === this.mapInfo.id) {
+        if (currentMapInfo.id === this.mapInfo.id) { // 广本地图
           this.showingCars = this.bindCars
+          this.parks.length > 0 && this.parks.forEach((park) => park.addTo(this.map))
           // this.markers.forEach((item) => {
           //   if (item.marker.isAddedToMap === true) {
           //     this.setCarScaleAndRotate(item.marker, this.carScale, item.marker.angle)
           //   }
           // })
         } else {
+          this.parks.length > 0 && this.parks.forEach((park) => park.remove())
           this.showingCars = this.bindCars.filter((car) => {
             let point = [car.locator.y / this.pointScale, car.locator.x / this.pointScale]
             let inArea = isInPolygon(point, this.currentMapPoints)
@@ -1438,7 +1442,10 @@ export default {
         // console.log(result)
         if (code === 0) {
           result.forEach((item) => {
-            renderPark(item).addTo(this.map)
+            const park = renderPark(item)
+            // this.parks[park.mapId] = park
+            this.parks.push(park)
+            park.addTo(this.map)
           })
         }
       })
@@ -1579,9 +1586,11 @@ export default {
     position: absolute;
     left: 25px;
     bottom: 80px;
+    z-index: 6500;
     img {
       width: 100px;
       cursor: pointer;
+      // z-index: 6500;
     }
   }
   .park-color {
