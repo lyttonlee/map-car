@@ -56,7 +56,8 @@ import warnCar from '../assets/img/car-yellow.png'
 import offlineCar from '../assets/img/car-offline.png'
 import {
   initCarSize,
-  introOption
+  introOption,
+  initCarScale,
 } from '../config/config'
 import {
   getWorkShopCars,
@@ -430,7 +431,8 @@ export default {
       // eslint-disable-next-line no-undef
       // console.log(carImg)
       // console.log()
-      let carScale = computeCarScale(this.currentMapInfo.zoom)
+      let carScale = this.currentMapInfo.zoom ? computeCarScale(this.currentMapInfo.zoom) : initCarScale
+      // console.log(carScale)
       const icon = L.icon({
         iconUrl: carImg,
         iconAnchor: [initCarSize[0] * carScale / 2, initCarSize[1] * carScale / 2],
@@ -457,7 +459,7 @@ export default {
     },
     // 渲染车辆点到地图上
     renderMarker (car) {
-      console.log(car)
+      // console.log(car)
       // let bindTime = car.vehicleDeliverStatus.bindTime
       // console.log(bindTime)
       // console.log(this.formatTime(bindTime))
@@ -470,6 +472,7 @@ export default {
       // }
       // let carPos = mercatorTolnglat(mercatorPoint)
       let icon = this.createPointMarker(iconType)
+      // console.log(icon)
       // const marker = L.Marker.movingMarker([carPos.lat, carPos.lng], [], {
       const marker = L.Marker.movingMarker([carPos], [], {
         rotate: true,
@@ -584,8 +587,8 @@ export default {
         if (item.marker.isAddedToMap === true) {
           // let carScale = this.currentMapInfo.carScale || this.carScale
           let carScale = this.currentMapInfo.zoom ? computeCarScale(this.currentMapInfo.zoom) : initCarScale
-          console.log(carScale)
-          console.log(this.currentMapInfo)
+          // console.log(carScale)
+          // console.log(this.currentMapInfo)
           this.setCarScaleAndRotate(item.marker, carScale, item.marker.angle)
         }
       })
@@ -670,6 +673,7 @@ export default {
     // 改变显示的地图
     changeMap (id) {
       // console.log(id)
+      if (this.currentMapInfo.id === id) return // 过滤点击自己
       this.map.setMinZoom(1)
       this.map.setMaxZoom(20)
       // 找到需要改变到的mapInfo
@@ -701,6 +705,14 @@ export default {
         // console.log(this.bindCars)
         this.currentMapInfo = currentMapInfo
         this.currentMapPoints = mapPoints
+        // console.log(this.markers)
+        let carScale = this.currentMapInfo.zoom ? computeCarScale(this.currentMapInfo.zoom) : initCarScale
+        // console.log(carScale)
+        // console.log(this.currentMapInfo)
+        this.markers.forEach((item) => {
+          // console.log(item)
+          this.setCarScaleAndRotate(item.marker, carScale, item.marker.angle)
+        })
       }
     }
   },
@@ -742,7 +754,7 @@ export default {
     },
     currentMapInfo: {
       handler: function (newVal) {
-        console.log(newVal)
+        // console.log(newVal)
         if (newVal.parentId === null && !this.map.listens('dblclick')) { // 是原始全局地图
           // this.map.off
           this.map.on('dblclick', this.dbClickToChangeMap)
@@ -764,7 +776,8 @@ export default {
     this.getMapInfo().then(() => {
       // console.log(this.childMapInfos)
       // console.log(this.officeName)
-      let mapInfo = this.childMapInfos.find((mapInfo) => mapInfo.name === this.officeName)
+      // let mapInfo = this.childMapInfos.find((mapInfo) => mapInfo.name === this.officeName)
+      let mapInfo = this.mapInfo
       if (!mapInfo) {
         this.$notify.error({
           message: '没有找到合适的地图数据'
@@ -780,9 +793,12 @@ export default {
       const map = L.map('map', {
         // center: [0, 0],
         center,
-        zoom: mapInfo.zoom,
-        minZoom: mapInfo.zoom,
-        maxZoom: mapInfo.zoom,
+        // zoom: mapInfo.zoom,
+        // minZoom: mapInfo.zoom,
+        // maxZoom: mapInfo.zoom,
+        minZoom: this.initMapZoom,
+        maxZoom: this.initMapZoom,
+        zoom: this.initMapZoom,
         doubleClickZoom: false,
         zoomControl: false, // 默认不显示缩放按钮
         attributionControl: false // 不显示leaflet 图标logo
