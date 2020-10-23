@@ -866,12 +866,12 @@ export default {
             return temObj
           }
           this.info = res.result
-          this.info.belongStatistic.items.push({
+          this.info.belongStatistic.items.length > 0 && this.info.belongStatistic.items.push({
             k: '合计',
             v: createObj(this.info.belongStatistic.items)
           })
           this.belongTable = this.info.belongStatistic.items
-          this.info.areaStatistic.items.push({
+          this.info.areaStatistic.items.length > 0 && this.info.areaStatistic.items.push({
             k: '合计',
             v: createObj(this.info.areaStatistic.items)
           })
@@ -1141,12 +1141,12 @@ export default {
             })
             return temObj
           }
-          this.info.belongStatistic.items.push({
+          this.info.belongStatistic.items.length > 0 && this.info.belongStatistic.items.push({
             k: '合计',
             v: createObj(this.info.belongStatistic.items)
           })
           this.belongTable = this.info.belongStatistic.items
-          this.info.areaStatistic.items.push({
+          this.info.areaStatistic.items.length > 0 && this.info.areaStatistic.items.push({
             k: '合计',
             v: createObj(this.info.areaStatistic.items)
           })
