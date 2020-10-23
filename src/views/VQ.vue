@@ -14,12 +14,12 @@
                 <div @click="activeTabIndex = index" :key="index" :class="activeTabIndex === index ? 'tab tab-active' : 'tab'">{{menu}}</div>
               </template>
             </div>
-            <transition
+            <!-- <transition
               mode="out-in"
               enter-active-class="animated fadeInLeft"
               leave-active-class="animated fadeOutLeft"
               :duration = "{ entry: 500, leave: 500 }"
-              >
+              > -->
               <div :key="0" v-if="activeTabIndex === 0" class="vq-table">
                 <el-table :data="belongTable" :header-cell-style="{textAlign: 'center'}" header-cell-class-name="header-cell" cell-class-name="cell-table" row-class-name="row-table" style="width: 100%;background:#fff0;" >
                   <el-table-column label="科室" width="160" >
@@ -61,17 +61,17 @@
                       <div class="cell">{{scope.row.k}}</div>
                     </template>
                   </el-table-column>
-                  <el-table-column label="区域合计" min-width="60" >
+                  <el-table-column label="所有" min-width="60" >
                     <template slot-scope="scope">
-                      <div :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.all}}</div>
+                      <div @click="showCarList(scope, 2)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.all}}</div>
                     </template>
                   </el-table-column>
-                  <el-table-column label="超四小时" min-width="60" >
+                  <el-table-column label="超4小时" min-width="60" >
                     <template slot-scope="scope">
                       <div @click="showCarList(scope, 2)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.gtFour}}</div>
                     </template>
                   </el-table-column>
-                  <el-table-column label="超八小时" min-width="60" >
+                  <el-table-column label="超8小时" min-width="60" >
                     <template slot-scope="scope">
                       <div @click="showCarList(scope, 2)" :class="`${scope.$index === 0 || scope.$index === 1 ? 'cell cell-click' : scope.$index === 4 ? 'cell cell-click' : 'cell cell-click'}`">{{scope.row.v.gtEight}}</div>
                     </template>
@@ -124,7 +124,7 @@
                   layout="total, prev, pager, next">
                 </el-pagination>
               </div>
-            </transition>
+            <!-- </transition> -->
           </div>
         </div>
       </div>
@@ -642,9 +642,10 @@ export default {
       this.pagination.current = ev
     },
     showCarList (scope, index) {
-      // console.log(scope)
+      console.log(scope)
       if (scope.$index === 5) return false // 点击合计无效
       if (scope.column.label === '合计') return false
+      if (index === 2 && scope.row.k === '合计') return
       // 请求
       const label = scope.column.label
       const map = {
@@ -661,6 +662,7 @@ export default {
         '超8小时': 2,
         '室外': 3,
         '室内': 4,
+        '所有': 5
       }
       let param
       if (index === 1) {
@@ -671,13 +673,15 @@ export default {
       } else {
         param = {
           type: 7,
-          areaName: scope.row.k
+          areaName: scope.row.k,
+          timeType: typeMap[label]
         }
       }
       // const param = {
       //   timeType: scope.$index + 1,
       //   type: map[label]
       // }
+      // console.log(param)
       getCarsByType(param).then((res) => {
         const { code, result } = res
         if (code === 0) {
