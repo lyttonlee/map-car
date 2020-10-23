@@ -10,6 +10,7 @@
           总时长: {{ car.bindTime ? formatTime($moment().unix() - car.bindTime / 1000) : '未知'}}
         </div>
         <div class="item">车架号码: {{car.vehicleIdentification || '---'}}</div>
+        <div v-if="car.vehicleIdentification && hasPermission()" @click="doUnbindCar" class="unbind-btn">解绑</div>
         <div class="item">定 位 器: {{car.locatorSn}}<span><zx-icon customClass="icon-power" :type="computePowerIcon(car.power)"></zx-icon>{{car.power ? car.power > 100 ? '充电中..' : car.power + '%' : '1%'}}</span></div>
         <div class="item">当前位置: {{address}}</div>
         <div class="item">当前状态: {{car.status && car.bindTime ? computedCarStatu(car.status, car.bindTime) : '---'}}<span v-if="car.status && car.bindTime"><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('超时')" type="zx-chaoshigaojing1"></zx-icon><zx-icon customClass="icon-power error" v-if="computedCarStatu(car.status, car.bindTime).includes('告警')" type="zx-alarm"></zx-icon></span></div>
@@ -59,12 +60,15 @@ import {
   queryLocatorAddress
 } from '../api/common'
 import {
+  unbindCar
+} from '../api/pdi'
+import {
   computedCarNode,
   computePowerIcon,
   formatTime,
 } from '../utils/utils'
 import {
-  mapGetters,
+  mapGetters, mapState,
 } from 'vuex'
 export default {
   components: {
@@ -88,12 +92,32 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['overtime'])
+    ...mapGetters(['overtime']),
+    ...mapState(['roles'])
   },
   methods: {
     computedCarNode,
     computePowerIcon,
     formatTime,
+    hasPermission () {
+      if (this.roles === 'SuperAdmin' || this.roles === 'PC' || this.roles === 'VQ') return true
+      return false
+    },
+    doUnbindCar () {
+      const param = {
+        vehicleIdentification: this.car.vehicleIdentification
+      }
+      unbindCar(param).then((res) => {
+        console.log(res)
+        const { code, desc } = res
+        if (code === 0) {
+          this.closeInfo()
+          this.$notify.success({
+            message: desc
+          })
+        }
+      })
+    },
     showDetail () {
       this.showProcess = !this.showProcess
     },
@@ -217,6 +241,16 @@ export default {
         font-size: 1.3rem;
         font-weight: bold;
         color: @primary-color;
+      }
+      .unbind-btn {
+        border: .5px solid #222;
+        box-shadow: 1px 3px 3px #000;
+        width: 80px;
+        text-align: center;
+        padding: 3px 0;
+        cursor: pointer;
+        border-radius: 5px;
+        background: @base-background-opacity;
       }
       .item {
         // margin: 12px 0 6px 0;

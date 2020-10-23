@@ -59,7 +59,14 @@ module.exports = {
         target: 'http://192.168.1.50:8089',
         // target: 'http://cdzyyc.xicp.io:7578',
         changeOrigin: true
-      }
+      },
+      '/mobile': {
+        // target: 'http://10.110.73.208:8089',
+        // target: 'http://192.168.1.247:8089',
+        target: 'http://192.168.1.50:8089',
+        // target: 'http://cdzyyc.xicp.io:7578',
+        changeOrigin: true
+      },
     }
   },
 }

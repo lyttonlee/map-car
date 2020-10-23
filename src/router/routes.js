@@ -46,6 +46,16 @@ export const routes = [
         }
       },
       {
+        path: '/pdi',
+        name: 'PDA操作',
+        component: () => import('../views/PDI.vue'),
+        meta: {
+          auth: true,
+          icon: 'zx-iconset0328',
+          role: ['VQ', 'SuperAdmin', 'PC']
+        }
+      },
+      {
         path: '/workshop',
         name: '维修科室',
         component: () => import(/* webpackChunkName: "workshop" */ '../views/WorkShop.vue'),
