@@ -15,7 +15,7 @@
           <span>待复检</span>
         </div>
         <div class="value">
-          <CountTo :to="repairedCarsNum" uid="today-repaired" className="value" />
+          <CountTo :to="repairedCarsNum.recheck" uid="today-repaired" className="value" />
         </div>
       </div>
       <div class="item">
@@ -24,7 +24,7 @@
           <span>已通过</span>
         </div>
         <div class="value">
-          <CountTo :to="repairedCarsNum" uid="today-repaired-extra" className="value" />
+          <CountTo :to="repairedCarsNum.pass" uid="today-repaired-extra" className="value" />
         </div>
       </div>
       <div class="item">
@@ -33,7 +33,7 @@
           <span>在修</span>
         </div>
         <div class="value">
-          <CountTo :to="averageTime" uid="today-average-time" className="value" />
+          <CountTo :to="repairedCarsNum.repairing" uid="today-average-time" className="value" />
         </div>
       </div>
     </div>
@@ -112,7 +112,7 @@ export default {
       repairCars: [],
       pendingCars: [],
       showingCarType: '',
-      repairedCarsNum: 0,
+      repairedCarsNum: {},
       averageTime: 0,
       skipIntro: true
     }
@@ -302,11 +302,12 @@ export default {
         // console.log(res)
         let { code, result } = res
         if (code === 0) {
-          this.repairedCarsNum = result.count
-          // console.log(result.totalTime)
-          let hours = result.totalTime / 1000 / 60 / 60
-          // console.log(hours)
-          this.averageTime = hours / this.repairedCarsNum
+          // this.repairedCarsNum = result.count
+          // // console.log(result.totalTime)
+          // let hours = result.totalTime / 1000 / 60 / 60
+          // // console.log(hours)
+          // this.averageTime = hours / this.repairedCarsNum
+          this.repairedCarsNum = result
         }
       })
     },
