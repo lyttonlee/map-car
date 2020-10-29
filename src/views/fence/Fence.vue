@@ -82,7 +82,7 @@
         </div>
       </div>
       <div class="content">
-        <el-table :data="fences" size="mini" @clearFilter="clearFilter">
+        <el-table :data="fences" size="mini" @filter-change="clearFilter">
           <el-table-column label="围栏名称" prop="name"></el-table-column>
           <el-table-column
             label="类型"
@@ -187,10 +187,13 @@ export default {
       if (newVal !== 'all') {
         this.fenceMap.forEach((item) => {
           // console.log(item)
-          if (item.type === newVal && item.added === true) {
+          if (item.type !== newVal && item.added === true) {
             item.fenceLayer.remove()
             // this.fenceMap.set()
             item.added = false
+          } else if (item.type === newVal && item.added === false) {
+            item.fenceLayer.addTo(this.map)
+            item.added = true
           }
         })
       }
@@ -259,14 +262,17 @@ export default {
       return row[attr] === value
     },
     // 重置筛选
-    clearFilter () {
-      console.log('reset')
-      this.fenceMap.forEach((value, key) => {
-        if (value.added === false) {
-          value.fenceLayer.addTo(this.map)
-          value.added = true
-        }
-      })
+    clearFilter (ev) {
+      // console.log('reset')
+      // console.log(ev)
+      if (ev.type.length === 0) { // 没有对类型筛选，说明是重置
+        this.fenceMap.forEach((value, key) => {
+          if (value.added === false) {
+            value.fenceLayer.addTo(this.map)
+            value.added = true
+          }
+        })
+      }
     },
     resetPoints () {
       this.pickedMapPoints = []
