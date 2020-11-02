@@ -66,6 +66,26 @@ export const routes = [
         }
       },
       {
+        path: '/spebind',
+        name: '绑定区域',
+        component: () => import(/* webpackChunkName: "map" */ '../views/SpeBind.vue'),
+        meta: {
+          auth: true,
+          icon: 'zx-map',
+          role: ['SuperAdmin', 'SPECIAL_bind']
+        }
+      },
+      {
+        path: '/speunbind',
+        name: '解绑区域',
+        component: () => import(/* webpackChunkName: "map" */ '../views/SpeUnbind.vue'),
+        meta: {
+          auth: true,
+          icon: 'zx-map',
+          role: ['SuperAdmin', 'SPECIAL_unbind']
+        }
+      },
+      {
         path: '/alarm',
         name: '告警管理',
         component: () => import(/* webpackChunkName: "alarm" */ '../views/alarm/Alarm.vue'),

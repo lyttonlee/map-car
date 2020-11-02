@@ -11,6 +11,7 @@ import {
   CARNODES,
   CHILDMAPINFO,
   OFFICENAME,
+  SPEICALMAPINFO,
 } from './types'
 import router from '../router'
 import {
@@ -65,6 +66,7 @@ export default new Vuex.Store({
     carNodes: '',
     pointScale: initPointScale,
     childMapInfos: [],
+    speicalMapInfo: [],
     initMapZoom,
     vqMapZoom,
     vqCarScale,
@@ -121,6 +123,9 @@ export default new Vuex.Store({
     [OFFICENAME]: (state, name) => {
       state.officeName = name
     },
+    [SPEICALMAPINFO]: (state, childMap) => {
+      state.speicalMapInfo = childMap
+    }
   },
   actions: {
     // 获取用户角色枚举
@@ -155,7 +160,18 @@ export default new Vuex.Store({
             commit(LOGIN, result)
             resolve(result)
             if (result.officeName) {
-              router.push('/workshop')
+              switch (result.officeName) {
+                case 'SPECIAL_bind':
+                  router.push('/spebind')
+                  break
+                case 'SPECIAL_unbind':
+                  router.push('speunbind')
+                  break
+                default:
+                  router.push('/workshop')
+                  break
+              }
+              // router.push('/workshop')
               localStorage.setItem('officeName', result.officeName)
               commit(OFFICENAME, result.officeName)
             } else {
@@ -222,9 +238,11 @@ export default new Vuex.Store({
           if (code === 0) {
             // console.log(result)
             let mapInfo = result[0].buildings[0].floors.find((mapInfo) => mapInfo.parentId === null)
-            let childMapInfo = result[0].buildings[0].floors.filter((child) => child.parentId === mapInfo.id)
+            let childMapInfo = result[0].buildings[0].floors.filter((child) => child.parentId === mapInfo.id && !child.name.includes('SPECIAL'))
+            let speicalMapInfo = result[0].buildings[0].floors.filter((child) => child.parentId === mapInfo.id && child.name.includes('SPECIAL'))
             commit(MAPINFO, mapInfo)
             commit(CHILDMAPINFO, childMapInfo)
+            commit(SPEICALMAPINFO, speicalMapInfo)
             resolve(mapInfo)
           } else {
             let err = new Error(desc)
