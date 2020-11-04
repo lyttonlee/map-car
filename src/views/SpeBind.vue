@@ -1,5 +1,11 @@
 <template>
   <div class="page home">
+    <div class="box">
+      <TableItem key="title" :attrs="['序号', 'VIN', '电量']" />
+      <template v-for="(car, index) in bindList">
+        <TableItem :key="index" :big="index === 0" :attrs="[index + 1, car.vehicle.identification, car.locator.power + '%']" />
+      </template>
+    </div>
     <div id="map-spe1" class="map"></div>
   </div>
 </template>
@@ -15,16 +21,22 @@ import {
   createCar,
   createVMCar,
   updatePosition,
-  createTooltip,
-  drawLine
+  // createTooltip,
+  drawLine,
+  createNumTooltip
 } from '../utils/spe'
+import TableItem from '../components/TableItem'
 export default {
+  components: {
+    TableItem
+  },
   // ..
   data () {
     return {
       // ..
       bindMap: new Map(),
       unbindMap: [],
+      bindList: []
     }
   },
   computed: {
@@ -37,6 +49,7 @@ export default {
       if (code === 0) {
         // console.log(result)
         const { bindList, unbindList } = result
+        this.bindList = bindList
         this.updateBindCar(bindList)
         this.freshUnbindCars(unbindList)
       } else {
@@ -60,17 +73,17 @@ export default {
         bindList.forEach((car, index) => {
           // ..
           const vin = car.vehicle.identification
-          const power = car.locator.power
+          // const power = car.locator.power
           if (this.bindMap.has(vin)) {
-            updatePosition(this.bindMap.get(vin), car)
+            updatePosition(this.bindMap.get(vin), car, index, this.mapInfo.carScale)
           } else {
-            const marker = createCar(car, this.mapInfo.carScale)
+            const marker = createCar(car, this.mapInfo.carScale, index)
             this.bindMap.set(vin, marker)
             marker.addTo(this.map)
             marker.setRotation(270)
             // marker.bindTooltip(...createVinTooltip(vin, index)).openTooltip()
-            marker.bindTooltip(...createTooltip(vin, power, index === 0)).openTooltip()
-            console.log(marker.getTooltip())
+            marker.bindTooltip(...createNumTooltip(index)).openTooltip()
+            // console.log(marker.getTooltip())
           }
         })
       }
@@ -86,7 +99,7 @@ export default {
         this.unbindMap.push(marker)
         marker.addTo(this.map)
         marker.setRotation(270)
-        marker.bindTooltip(...createTooltip(vin, null, false)).openTooltip()
+        // marker.bindTooltip(...createTooltip(vin, null, false)).openTooltip()
       })
       // console.log(this.unbindMap)
     },
@@ -156,8 +169,14 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  .box {
+    height: 35vh;
+    width: 100%;
+    overflow-y: auto;
+  }
   .map {
-    height: 100%;
+    height: 60%;
     width: 100%;
   }
 }

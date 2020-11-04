@@ -5,6 +5,7 @@ import successCar from '../assets/img/car-blue.png'
 import errorCar from '../assets/img/car-red.png'
 import warnCar from '../assets/img/car-yellow.png'
 import offlineCar from '../assets/img/car-offline.png'
+import speCar from '../assets/img/car-spe.png'
 import {
   initCarSize
 } from '../config/config'
@@ -16,8 +17,8 @@ const getvmPos = (index = 0) => {
 }
 
 const vmLinePoints = [
-  [16 / pointScale, 83.77 / pointScale],
-  [37 / pointScale, 83.77 / pointScale]
+  [20 / pointScale, 83.77 / pointScale],
+  [31 / pointScale, 83.77 / pointScale]
 ]
 
 const createPointMarker = (statu, carScale) => {
@@ -35,6 +36,9 @@ const createPointMarker = (statu, carScale) => {
     case 'offline':
       carImg = offlineCar
       break
+    case 'spe':
+      carImg = speCar
+      break
     default:
       carImg = successCar
       break
@@ -47,9 +51,9 @@ const createPointMarker = (statu, carScale) => {
   return icon
 }
 
-export const createCar = (car, carScale) => {
+export const createCar = (car, carScale, index) => {
   const carPos = [car.locator.y / pointScale, car.locator.x / pointScale]
-  let icon = createPointMarker('normal', carScale)
+  let icon = createPointMarker(index === 0 ? 'spe' : 'normal', carScale)
   const marker = L.Marker.movingMarker([carPos], [], {
     rotate: true,
     icon,
@@ -58,7 +62,11 @@ export const createCar = (car, carScale) => {
   return marker
 }
 
-export const updatePosition = (marker, car) => {
+export const updatePosition = (marker, car, index, carScale) => {
+  if (index === 0) {
+    const speIcon = createPointMarker('spe', carScale)
+    marker.setIcon(speIcon)
+  }
   const target = [car.locator.y / pointScale, car.locator.x / pointScale]
   marker.moveTo(target, 500)
 }
@@ -73,6 +81,25 @@ export const createVMCar = (vin, carScale, index) => {
     initialRotationAngle: 0,
   })
   return marker
+}
+
+export const createNumTooltip = (index = null) => {
+  let styleName = 'tooltip-circle'
+  if (index === 0) {
+    styleName = 'tooltip-circle-first'
+  }
+  const content = `<div class="${styleName}">${index + 1}</div>`
+  const option = {
+    // Anchor: [10, 10],
+    // tooltipAnchor: [20, 20],
+    offset: [0, 35],
+    direction: 'bottom',
+    permanent: true,
+    // sticky: true,
+    className: 'custom-tooltip',
+    opacity: 0.8
+  }
+  return [content, option]
 }
 
 export const createTooltip = (vin, power, big = false) => {

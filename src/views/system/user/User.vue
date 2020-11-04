@@ -277,7 +277,7 @@ export default {
           this.users = result
           this.pc = this.users.filter((user) => user.roles[0].id === 2)
           this.vq = this.users.filter((user) => user.roles[0].id === 3 || user.roles[0].id === 4)
-          this.section = this.users.filter((user) => user.roles[0].id >= 5 && user.roles[0].id <= 8)
+          this.section = this.users.filter((user) => user.roles[0].id >= 5)
         }
       })
     },
