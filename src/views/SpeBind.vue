@@ -2,8 +2,8 @@
   <div class="page home">
     <div class="box">
       <TableItem key="title" :attrs="['序号', 'VIN', '电量']" />
-      <template v-for="(car, index) in bindList">
-        <TableItem :key="index" :big="index === 0" :attrs="[index + 1, car.vehicle.identification, car.locator.power + '%']" />
+      <template v-for="(car, index) in renderList">
+        <TableItem :key="index" :big="index === 0" :attrs="[index + 1, car ? car.vehicle.identification : '', car ? car.locator.power + '%' : '']" />
       </template>
     </div>
     <div id="map-spe1" class="map"></div>
@@ -36,7 +36,8 @@ export default {
       // ..
       bindMap: new Map(),
       unbindMap: [],
-      bindList: []
+      bindList: [],
+      renderList: new Array(3).fill(null)
     }
   },
   computed: {
@@ -49,7 +50,14 @@ export default {
       if (code === 0) {
         // console.log(result)
         const { bindList, unbindList } = result
-        this.bindList = bindList
+        for (let i = 0; i < 2; i++) {
+          if (bindList[i]) {
+            this.renderList[i] = bindList[i]
+          } else {
+            this.renderList[i] = null
+          }
+        }
+        this.renderList = [...this.renderList]
         this.updateBindCar(bindList)
         this.freshUnbindCars(unbindList)
       } else {
@@ -64,7 +72,7 @@ export default {
         this.bindMap.forEach((marker, vin) => {
           // console.log(vin)
           if (!bindList.find((car) => car.vehicle.identification === vin)) {
-            console.log('remove')
+            // console.log('remove')
             marker.remove()
             this.bindMap.delete(vin)
           }

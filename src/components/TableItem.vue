@@ -1,7 +1,7 @@
 <template>
   <div class="item">
     <template v-for="(attr, index) in attrs">
-      <div :class="big ? 'cell big' : 'cell'" :key="attr + index">
+      <div :class="big ? 'cell big' : 'cell'" :key="attr + index + Math.random()">
         {{attr}}
       </div>
     </template>
@@ -17,9 +17,12 @@ export default {
 </script>
 <style lang="less" scoped>
 .item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  // display: flex;
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr auto;
+  grid-template-rows: auto;
+  // justify-content: center;
+  // align-items: center;
   flex-wrap: nowrap;
   border-radius: 8px;
   // width: 60vw;
@@ -30,7 +33,7 @@ export default {
     padding: 15px;
     min-width: 150px;
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1.5rem;
     &:last-child {
       border-right: .5px solid rgb(218, 214, 214);
     }
@@ -40,7 +43,7 @@ export default {
   }
   .big {
     // color: rgb(199, 137, 21);
-    font-size: 1.5rem;
+    font-size: 3.5rem;
     background: rgba(223, 112, 8, 0.836);
   }
 }
