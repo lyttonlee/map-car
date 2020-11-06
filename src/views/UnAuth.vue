@@ -2,23 +2,29 @@
   <div class="no-auth">
     <h1>很抱歉您没有权利访问该页面！</h1>
     <div class="action" @click="goBack">返回浏览!</div>
-    <div class="action" @click="goHome">回到主页!</div>
+    <div class="action" @click="goLogin">重新登录!</div>
   </div>
 </template>
 <script>
 import {
-  mapState
+  mapState,
+  mapActions
 } from 'vuex'
 export default {
   computed: {
     ...mapState(['officeName'])
   },
   methods: {
+    ...mapActions(['logout']),
     goBack () {
-      this.$router.go(-1)
+      this.$router.go(-2)
     },
     goHome () {
       this.officeName ? this.$router.push('/workshop') : this.$router.push('/vq')
+    },
+    async goLogin () {
+      await this.logout()
+      this.$router.push('/login')
     }
   }
 }
