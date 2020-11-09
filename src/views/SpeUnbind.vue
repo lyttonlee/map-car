@@ -6,7 +6,12 @@
         <TableItem :key="index" :big="index === 0" :attrs="[index + 1, car ? car.vehicle.identification : '', car ? car.locator.id : '', car ? car.locator.power + '%' : '']" />
       </template>
     </div>
-    <div id="map-spe1" class="map"></div>
+    <div id="map-spe1" class="map">
+      <div class="fixed-tip">
+        <div class="big">{{alarmNum}}</div>
+        <zx-icon class="big" type="zx-zhouqi"></zx-icon>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -15,7 +20,8 @@ import {
   mapActions,
 } from 'vuex'
 import {
-  getBindSpeCars
+  // getBindSpeCars
+  getUnbindCars
 } from '../api/special'
 import {
   createCar,
@@ -37,7 +43,8 @@ export default {
       bindMap: new Map(),
       unbindMap: [],
       bindList: [],
-      renderList: new Array(3).fill(null)
+      renderList: new Array(3).fill(null),
+      alarmNum: 0
     }
   },
   computed: {
@@ -46,10 +53,10 @@ export default {
   methods: {
     ...mapActions(['getMapInfo']),
     async getCars () {
-      const { result, code, desc } = await getBindSpeCars()
+      const { result, code, desc } = await getUnbindCars()
       if (code === 0) {
         // console.log(result)
-        const { bindList } = result
+        const { bindList, alarmNum } = result
         for (let i = 0; i < 2; i++) {
           if (bindList[i]) {
             this.renderList[i] = bindList[i]
@@ -59,6 +66,7 @@ export default {
         }
         this.renderList = [...this.renderList]
         this.updateBindCar(bindList)
+        this.alarmNum = alarmNum
       } else {
         this.$notify.error(desc)
       }
@@ -170,6 +178,18 @@ export default {
   .map {
     height: 60%;
     width: 100%;
+    position: relative;
+    .fixed-tip {
+      position: absolute;
+      left: 80px;
+      top: 10px;
+      z-index: 3000;
+      // background: rgba(0, 0, 0, 0.192);
+      .big {
+        font-size: 4rem;
+        color: red;
+      }
+    }
   }
 }
 </style>
