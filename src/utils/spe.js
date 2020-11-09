@@ -53,7 +53,7 @@ const createPointMarker = (statu, carScale) => {
 
 export const createCar = (car, carScale, index) => {
   const carPos = [car.locator.y / pointScale, car.locator.x / pointScale]
-  let icon = createPointMarker(index === 0 ? 'spe' : 'normal', carScale)
+  let icon = createPointMarker(index === 0 ? 'spe' : car.vehicle.status, carScale)
   const marker = L.Marker.movingMarker([carPos], [], {
     rotate: true,
     icon,
@@ -126,4 +126,24 @@ export const drawLine = () => {
     color: '#578'
   })
   return line
+}
+
+export const getInitPagePath = (officeName) => {
+  if (officeName) {
+    let path = ''
+    switch (officeName) {
+      case 'SPECIAL_bind':
+        path = '/spebind'
+        break
+      case 'SPECIAL_unbind':
+        path = '/speunbind'
+        break
+      default:
+        path = '/workshop'
+        break
+    }
+    return path
+  } else {
+    return '/unauth'
+  }
 }

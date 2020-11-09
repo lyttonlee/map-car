@@ -1,5 +1,8 @@
 import Home from '../views/Home.vue'
 import Layout from '@/layout/Layout'
+import {
+  getInitPagePath
+} from '../utils/spe'
 export const routes = [
   {
     path: '/login',
@@ -13,7 +16,7 @@ export const routes = [
     path: '/',
     name: 'pages',
     component: Layout,
-    redirect: localStorage.getItem('officeName') ? '/workshop' : '/home', // 如果时科室人员默认让他访问workshop 否则 默认访问 /home
+    redirect: localStorage.getItem('officeName') ? getInitPagePath(localStorage.getItem('officeName')) : '/home', // 如果时科室人员默认让他访问workshop 否则 默认访问 /home
     children: [
       {
         path: '/vq',
