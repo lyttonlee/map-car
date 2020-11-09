@@ -8,8 +8,7 @@
     </div>
     <div id="map-spe1" class="map">
       <div class="fixed-tip">
-        <div class="big">{{alarmNum}}</div>
-        <zx-icon class="big" type="zx-alarm"></zx-icon>
+        <zx-icon class="big" type="zx-alarm"></zx-icon><span class="num">{{alarmNum}}</span>
       </div>
     </div>
   </div>
@@ -181,12 +180,16 @@ export default {
     position: relative;
     .fixed-tip {
       position: absolute;
-      left: 80px;
-      top: 10px;
+      right: 20px;
+      bottom: 10px;
       z-index: 3000;
       // background: rgba(0, 0, 0, 0.192);
       .big {
         font-size: 4rem;
+        color: red;
+      }
+      .num {
+        font-size: 3rem;
         color: red;
       }
     }
