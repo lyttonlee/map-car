@@ -9,7 +9,7 @@
     <div id="map-spe1" class="map">
       <div class="fixed-tip">
         <div class="big">{{alarmNum}}</div>
-        <zx-icon class="big" type="zx-zhouqi"></zx-icon>
+        <zx-icon class="big" type="zx-alarm"></zx-icon>
       </div>
     </div>
   </div>
