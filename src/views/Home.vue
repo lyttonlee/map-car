@@ -310,11 +310,7 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const posList = JSON.parse(data).content
-      console.log(posList)
-      if (this.oldTime) {
-        console.log('与上次位置的时间差为：' + (posList[0].positionTime - this.oldTime) / 1000 + '秒')
-      }
-      this.oldTime = posList[0].positionTime
+      // console.log(posList)
       posList.forEach((newPos) => {
         // 找到对应的marker
         let index = this.carMarkerMap[newPos.id]
@@ -527,11 +523,11 @@ export default {
       let shownCarIndex = this.showingCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
       // 移除数据
       if (carIndex !== -1 && shownCarIndex !== -1) { // 存在这辆车
-        // console.log(this.carMarkerMap)
+        console.log(this.carMarkerMap)
         delete this.carMarkerMap[removeCar.locatorId]
-        // console.log(this.carMapNum)
+        console.log(this.carMapNum)
         this.carMapNum.set(this.mapInfo.id, this.carMapNum.get(this.mapInfo.id) - 1)
-        // console.log(this.carMapNum)
+        console.log(this.carMapNum)
         if (this.bindCars[carIndex].areaId !== -1) {
           this.carMapNum.set(this.bindCars[carIndex].areaId, this.carMapNum.get(this.bindCars[carIndex].areaId) - 1)
         }
