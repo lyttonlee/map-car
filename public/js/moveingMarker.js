@@ -57,6 +57,8 @@ L.Marker.MovingMarker = L.Marker.extend({
     this._animRequested = false;
     this._currentLine = [];
     this._stations = {};
+
+    this._rotationTime = null // 延迟旋转方向
   },
 
   isRunning: function () {
@@ -354,9 +356,13 @@ L.Marker.MovingMarker = L.Marker.extend({
       // no need to animate
       // 有角度就旋转角度
       if (this._deg || this._deg == 0) {
+        this._updateRotation()
         // console.log('旋转角度')
         // 延迟3秒执行旋转方向，如果三秒后任然是结束状态，就旋转为应该旋转的方向
-        setTimeout(() => {
+        if (this._rotationTime) { // 如果已有上一次待旋转方向没完成，则清除上一次行为，重新定时旋转任务
+          clearTimeout(this._rotationTime)
+        }
+        this._rotationTime = setTimeout(() => {
           if (this.isEnded()) {
             this.setRotation(this._deg)
           }

@@ -311,6 +311,10 @@ export default {
       // console.log(this.bindCars)
       const posList = JSON.parse(data).content
       console.log(posList)
+      if (this.oldTime) {
+        console.log('与上次位置的时间差为：' + (posList[0].positionTime - this.oldTime) / 1000 + '秒')
+      }
+      this.oldTime = posList[0].positionTime
       posList.forEach((newPos) => {
         // 找到对应的marker
         let index = this.carMarkerMap[newPos.id]
