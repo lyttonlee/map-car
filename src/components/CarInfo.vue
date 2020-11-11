@@ -111,7 +111,8 @@ export default {
         console.log(res)
         const { code, desc } = res
         if (code === 0) {
-          this.closeInfo()
+          // this.closeInfo()
+          this.$emit('close')
           this.$notify.success({
             message: desc
           })

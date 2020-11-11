@@ -83,7 +83,8 @@ export default {
           const vin = car.vehicle.identification
           // const power = car.locator.power
           if (this.bindMap.has(vin)) {
-            updatePosition(this.bindMap.get(vin), car, index, this.mapInfo.carScale)
+            updatePosition(this.bindMap.get(vin), car, index, this.mapInfo.carScale, true)
+            this.bindMap.get(vin).setTooltipContent(...createNumTooltip(index))
           } else {
             const marker = createCar(car, this.mapInfo.carScale, index)
             this.bindMap.set(vin, marker)
@@ -94,6 +95,11 @@ export default {
             // console.log(marker.getTooltip())
           }
         })
+      } else {
+        this.bindMap.forEach((marker) => {
+          marker.remove()
+        })
+        this.bindMap = new Map()
       }
     },
     freshUnbindCars (unbindList = []) {

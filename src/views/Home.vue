@@ -265,7 +265,13 @@ export default {
       console.log(newAlarm)
       // 改变对应marker的状态
       // 找到对应的marker
-      let markerIndex = this.markers.findIndex((item) => item.locatorId === newAlarm.locatorId)
+      let markerIndex = this.markers.findIndex((item) => {
+        if (item && item.locatorId) {
+          return item.locatorId === newAlarm.locatorId
+        } else {
+          return false
+        }
+      })
       // 改变marker以及数据状态
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker
@@ -304,7 +310,7 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const posList = JSON.parse(data).content
-      // console.log(posList)
+      console.log(posList)
       posList.forEach((newPos) => {
         // 找到对应的marker
         let index = this.carMarkerMap[newPos.id]
@@ -517,20 +523,28 @@ export default {
       let shownCarIndex = this.showingCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
       // 移除数据
       if (carIndex !== -1 && shownCarIndex !== -1) { // 存在这辆车
-        console.log(this.carMarkerMap)
+        // console.log(this.carMarkerMap)
         delete this.carMarkerMap[removeCar.locatorId]
+        // console.log(this.carMapNum)
         this.carMapNum.set(this.mapInfo.id, this.carMapNum.get(this.mapInfo.id) - 1)
+        // console.log(this.carMapNum)
         if (this.bindCars[carIndex].areaId !== -1) {
           this.carMapNum.set(this.bindCars[carIndex].areaId, this.carMapNum.get(this.bindCars[carIndex].areaId) - 1)
-          this.carMapNum = new Map([...this.carMapNum])
         }
+        this.carMapNum = new Map([...this.carMapNum])
         // this.bindCars.splice(carIndex, 1)
         this.bindCars[carIndex] = null
         this.showingCars.splice(shownCarIndex, 1)
         // 找出这个marker
         // 找到对应的marker
         // this.carMapNum = this.computeAreaCarNums()
-        let markerIndex = this.markers.findIndex((item) => item.id === removeCar.vehicle.id)
+        let markerIndex = this.markers.findIndex((item) => {
+          if (item && item.id) {
+            return item.id === removeCar.vehicle.id
+          } else {
+            return false
+          }
+        })
         if (markerIndex !== -1) {
           let currentMarker = this.markers[markerIndex].marker
           // console.log(currentMarker)
@@ -846,7 +860,13 @@ export default {
     },
     // hignliaght marker
     hignlightMarker (carId, car) {
-      let markerIndex = this.markers.findIndex((item) => item.id === carId)
+      let markerIndex = this.markers.findIndex((item) => {
+        if (item && item.id) {
+          return item.id === carId
+        } else {
+          return false
+        }
+      })
       // console.log(markerIndex)
       if (markerIndex !== -1) {
         let currentMarker = this.markers[markerIndex].marker

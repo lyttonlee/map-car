@@ -13,12 +13,12 @@ import store from '../store'
 const pointScale = store.state.pointScale
 
 const getvmPos = (index = 0) => {
-  return [26.68 / pointScale, (87.77 + index * 4) / pointScale]
+  return [29 / pointScale, (95 + index * 4) / pointScale]
 }
 
 const vmLinePoints = [
-  [20 / pointScale, 83.77 / pointScale],
-  [31 / pointScale, 83.77 / pointScale]
+  [26 / pointScale, 92 / pointScale],
+  [32 / pointScale, 92 / pointScale]
 ]
 
 const createPointMarker = (statu, carScale) => {
@@ -62,13 +62,14 @@ export const createCar = (car, carScale, index) => {
   return marker
 }
 
-export const updatePosition = (marker, car, index, carScale) => {
+export const updatePosition = (marker, car, index, carScale, isBind = false) => {
   if (index === 0) {
     const speIcon = createPointMarker('spe', carScale)
     marker.setIcon(speIcon)
   }
   const target = [car.locator.y / pointScale, car.locator.x / pointScale]
   marker.moveTo(target, 500)
+  marker.setRotation(isBind ? 270 : 90)
 }
 
 export const createVMCar = (vin, carScale, index) => {

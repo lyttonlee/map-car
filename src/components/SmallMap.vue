@@ -3,7 +3,7 @@
     <!-- <h2>map-list</h2> -->
     <div class="list">
       <template v-for="(map, index) in maps">
-        <div :class="activeId === map.id ? 'item active' : 'item'" :key="index" @click="changeMap(map.id)">{{(index === 0 ? '广本 ' : (map.name + (index !== 0 ? '室内 ' : ' '))) + `(${carMapNum.get(map.id)})`}}</div>
+        <div :class="activeId === map.id ? 'item active' : 'item'" :key="index" @click="changeMap(map.id)">{{(index === 0 ? '广本 ' : (map.name + (index !== 0 ? '室内 ' : ' '))) + `(${carMapNum.get(map.id) > 0 ? carMapNum.get(map.id) : 0})`}}</div>
       </template>
     </div>
     <div class="map-pic"></div>
