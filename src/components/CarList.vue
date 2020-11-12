@@ -86,7 +86,7 @@ export default {
     renderedNum () {
       let alarmNum = this.renderedCars.filter((car) => car.vehicle.status !== 0).length
       let overtimeNum = this.renderedCars.filter((car) => this.formatTime(car.vehicleDeliverStatus.bindTime) * 1 >= this.overtime * 1).length
-      return [this.renderedCars.length, alarmNum, overtimeNum]
+      return [this.cars.length, alarmNum, overtimeNum]
     },
   },
   created () {

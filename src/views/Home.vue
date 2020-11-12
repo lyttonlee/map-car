@@ -8,7 +8,7 @@
       <!-- <h4>车辆列表可收缩</h4>
       <h5>点击车辆会显示车辆的详细信息以及返修的过程记录</h5>
       <h5>点击地图上的车辆和列表的效果应一致,效果类似于轨迹记录</h5> -->
-      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" :unbindCars="noUploadCars" @showUnbindCarInfo="showUnbindCarInfo" />
+      <CarList ref="carlist" @changeShowingMarkers="changeShowingMarkers" @showCarInfo="showCarInfo" @changeMap="changeMap" :cars="showingCars" :unbindCars="tansMapValToArray(unbindCarMap)" @showUnbindCarInfo="showUnbindCarInfo" />
     </div>
     <CarInfo :car="showingCar" @close="closeInfo" v-if="isShowing" />
     <div class="switch" @click="toggleShowSide">
@@ -180,12 +180,13 @@ import { getParksByType } from '../api/fence'
 import { renderPark } from '../utils/map'
 import PrakColor from '../components/ParkColor'
 import CarTypes from '../components/CarTypes'
+import {
+  createBindCarMap,
+  tansMapValToArray
+} from '../utils/car'
 export default {
   name: 'home',
   components: {
-    // HelloWorld
-    // RepairTrack: () => import('../components/RepairTrack')
-    // RepairTrack,
     CarList,
     CarInfo,
     SmallMap,
@@ -209,7 +210,6 @@ export default {
       currentMapInfo: '',
       showGlobalMap: false,
       carMapNum: new Map(),
-      showingCars: [],
       names: ['正常', '告警'],
       skipIntro: true,
       carMarkerMap: {},
@@ -229,6 +229,11 @@ export default {
       showingTable: 'bind',
       curScale: 0,
       parks: [],
+      // 新添加使用hashTable 储存 车辆 marker
+      bindCarMap: new Map(),
+      unbindCarMap: new Map(),
+      bindMarkerMap: new Map(),
+      unbindMarkerMap: new Map(),
     }
   },
   created () {
@@ -244,6 +249,17 @@ export default {
     activeMapId () {
       return this.currentMapInfo.id
     },
+    showingCars () {
+      if (this.currentMapInfo.id === this.mapInfo.id) {
+        return this.bindCars
+      } else {
+        return this.bindCars.filter((car) => {
+          let point = [car.locator.y / this.pointScale, car.locator.x / this.pointScale]
+          let inArea = isInPolygon(point, this.currentMapPoints)
+          return inArea
+        })
+      }
+    }
   },
   sockets: {
     connect (data) {
@@ -265,16 +281,8 @@ export default {
       console.log(newAlarm)
       // 改变对应marker的状态
       // 找到对应的marker
-      let markerIndex = this.markers.findIndex((item) => {
-        if (item && item.locatorId) {
-          return item.locatorId === newAlarm.locatorId
-        } else {
-          return false
-        }
-      })
-      // 改变marker以及数据状态
-      if (markerIndex !== -1) {
-        let currentMarker = this.markers[markerIndex].marker
+      if (this.bindMarkerMap.has(newAlarm.locatorId)) {
+        let currentMarker = this.bindMarkerMap.get(newAlarm.locatorId)
         // 判断车辆是仅告警还是有超时
         let currentCarIndex = this.bindCars.findIndex((car) => car.locator.id === newAlarm.locatorId)
         this.bindCars[currentCarIndex].vehicle.status = 1
@@ -310,40 +318,25 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const posList = JSON.parse(data).content
-      // console.log(posList)
+      console.log(posList)
       posList.forEach((newPos) => {
+        const locatorId = newPos.id
         // 找到对应的marker
-        let index = this.carMarkerMap[newPos.id]
+        // let index = this.carMarkerMap[newPos.id]
         // console.log(this.carMarkerMap)
-        let markerIndex = index
+        // let markerIndex = index
         // console.log(markerIndex)
         // 移动位置正常逻辑
-        if (this.carMarkerMap.hasOwnProperty(newPos.id) && markerIndex > -1) {
+        if (this.bindCarMap.has(locatorId)) {
           // console.log(this.markers)
-          if (!this.markers[markerIndex]) return
-          let currentMarker = this.markers[markerIndex].marker
-          // console.log(this.bindCars)
-          // let currentCarIndex = this.bindCars.findIndex((car) => car.vehicle.locatorId === newPos.id)
-          let currentCarIndex = index
-          // console.log(currentCarIndex)
-          // 如果bindCars 有这两车就更新这辆车的位置信息
-          // if (!newPos.existenceZone && !newPos.otherZone && currentMarker.isAddedToMap === true) {
-          //   currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
-          // }
-          // currentMarker.setRotation(newPos.angle)
-          // currentMarker.angle = newPos.angle
+          let currentMarker = this.bindMarkerMap.get(locatorId)
+          let currentCarIndex = this.bindCars.findIndex((car) => car.locator.id === locatorId)
           if (currentCarIndex !== -1) {
             // console.log(this.bindCars[currentCarIndex])
             if (this.bindCars[currentCarIndex].locator.x === newPos.x && this.bindCars[currentCarIndex].locator.y === newPos.y) return
             this.bindCars[currentCarIndex].locator.x = newPos.x
             this.bindCars[currentCarIndex].locator.y = newPos.y
           }
-          // console.log(this.bindCars[currentCarIndex])
-          // currentMarker.setLatLng([newPos.y, newPos.x])
-          // console.log(newPos.angle)
-          // console.log(currentMarker)
-          // currentMarker.setPopupContent(newPos.y + ' ' + newPos.x)
-          // currentMarker.openPopup()
           // 判断是否在特殊区域
           if (newPos.existenceZone || newPos.otherZone) { // 如果位置点在存在性区域中
             if (!currentMarker.inSpecialArea) { // 如果这个marker以前不在这个区域
@@ -396,48 +389,43 @@ export default {
           if (!(newPos.statisticZone && newPos.statisticZone.includes('chain'))) { // 不是在绑定点，实际已绑定但未上传绑定信息的车辆
             // 1.判断是否已存在于 noUploadCars 里面
             // console.log(this.noUploadMap)
-            if (this.noUploadMap.has(newPos.id)) { // 已存在
+            if (this.unbindCarMap.has(locatorId)) { // 已存在
               //  已存在，判断位置是否相同, 不一样就移动车辆 计算位置区域
-              let curIndex = this.noUploadMap.get(newPos.id)
-              // console.log(this.noUploadCars[curIndex])
-              if (this.noUploadCars[curIndex] && (newPos.x !== this.noUploadCars[curIndex].x || newPos.y !== this.noUploadCars[curIndex].y)) {
-                // 移动车辆
-                this.noUploadCars[curIndex].y = newPos.y
-                this.noUploadCars[curIndex].x = newPos.x
-                let currentMarker = this.noUpLoadMarkers[curIndex]
-                if (newPos.existenceZone || newPos.otherZone) { // 如果位置点在存在性区域中
-                  if (!currentMarker.inSpecialArea) { // 如果这个marker以前不在这个区域
-                    // 去除这个marker 更新数据
-                    let zone = newPos.existenceZone ? newPos.existenceZone : newPos.otherZone
-                    this.changeSpecialAreaNum(zone, true)
-                    currentMarker.zone = zone
-                    currentMarker.inSpecialArea = true
-                    currentMarker.remove()
-                  }
-                } else if (newPos.existenceZone === null && newPos.otherZone === null) { // 如果这个marker不在需检测的存在性区域中
-                  if (currentMarker.inSpecialArea === true) { // 以前这个marker在存在性区域
-                    // 将这个marker显示出来
-                    currentMarker.addTo(this.map)
-                    currentMarker.inSpecialArea = false
-                    // 更新数据
-                    this.changeSpecialAreaNum(currentMarker.zone, false)
-                  }
+              // let curIndex = this.noUploadMap.get(newPos.id)
+              // 移动车辆
+              let currentMarker = this.unbindMarkerMap.get(locatorId)
+              if (newPos.existenceZone || newPos.otherZone) { // 如果位置点在存在性区域中
+                if (!currentMarker.inSpecialArea) { // 如果这个marker以前不在这个区域
+                  // 去除这个marker 更新数据
+                  let zone = newPos.existenceZone ? newPos.existenceZone : newPos.otherZone
+                  this.changeSpecialAreaNum(zone, true)
+                  currentMarker.zone = zone
+                  currentMarker.inSpecialArea = true
+                  currentMarker.remove()
                 }
-                currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
-                currentMarker.angle = newPos.angle
-                // 计算区域
-                let point = [newPos.y / this.pointScale, newPos.x / this.pointScale]
-                let mapId = this.computeWhichArea(point)
-                if (this.noUploadCars[curIndex].areaId !== mapId) {
-                  if (this.noUploadCars[curIndex].areaId !== -1) {
-                    this.carMapNum.set(this.noUploadCars[curIndex].areaId, this.carMapNum.get(this.noUploadCars[curIndex].areaId) - 1)
-                  }
-                  if (mapId !== -1) {
-                    this.carMapNum.set(mapId, this.carMapNum.get(mapId) + 1)
-                  }
-                  this.noUploadCars[curIndex].areaId = mapId
-                  this.carMapNum = new Map([...this.carMapNum])
+              } else if (newPos.existenceZone === null && newPos.otherZone === null) { // 如果这个marker不在需检测的存在性区域中
+                if (currentMarker.inSpecialArea === true) { // 以前这个marker在存在性区域
+                  // 将这个marker显示出来
+                  currentMarker.addTo(this.map)
+                  currentMarker.inSpecialArea = false
+                  // 更新数据
+                  this.changeSpecialAreaNum(currentMarker.zone, false)
                 }
+              }
+              currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
+              currentMarker.angle = newPos.angle
+              // 计算区域
+              let point = [newPos.y / this.pointScale, newPos.x / this.pointScale]
+              let mapId = this.computeWhichArea(point)
+              if (this.unbindCarMap.get(locatorId).areaId !== mapId) {
+                if (this.unbindCarMap.get(locatorId).areaId !== -1) {
+                  this.carMapNum.set(this.unbindCarMap.get(locatorId).areaId, this.carMapNum.get(this.unbindCarMap.get(locatorId).areaId) - 1)
+                }
+                if (mapId !== -1) {
+                  this.carMapNum.set(mapId, this.carMapNum.get(mapId) + 1)
+                }
+                this.unbindCarMap.get(locatorId).areaId = mapId
+                this.carMapNum = new Map([...this.carMapNum])
               }
             } else { // 不存在 添加这两车
               // 计算区域
@@ -449,10 +437,16 @@ export default {
               }
               this.carMapNum.set(this.mapInfo.id, this.carMapNum.get(this.mapInfo.id) + 1)
               this.carMapNum = new Map([...this.carMapNum])
-              this.noUploadCars.push(newPos)
-              let index = this.noUploadCars.length - 1
+              this.unbindCarMap.set(locatorId, newPos)
+              // this.noUploadCars.push(newPos)
               this.renderNouploadMarker(newPos, index)
-              this.noUploadMap.set(newPos.id, index)
+              // this.noUploadMap.set(newPos.id, index)
+            }
+          } else { // 在绑定点，但有这两车，删除
+            if (this.unbindCarMap.has(locatorId)) {
+              this.unbindMarkerMap.get(locatorId).remove()
+              this.unbindMarkerMap.delete(locatorId)
+              this.unbindCarMap.delete(locatorId)
             }
           }
         }
@@ -470,12 +464,15 @@ export default {
       // 验证这辆车是否已存在与列表中，若存在则无视，若不存在则在车辆列表中添加这辆车并创建一个新的marker
       const carId = newCar.vehicle.id
       const locatorId = newCar.locator.id
-      let hasThisCar = this.bindCars.find((car) => car.vehicle.id === carId)
+      let hasThisCar = this.bindCarMap.has(locatorId)
       // console.log(hasThisCar)
       if (!hasThisCar) {
         console.log('add car')
         this.bindCars.push(newCar)
+        this.bindCarMap.set(locatorId, newCar)
+        console.log(this.showingCars)
         // this.showingCars.push(newCar)
+        // console.log(this.showingCars)
         this.renderMarker(newCar, this.bindCars.length - 1)
         // this.carMapNum = this.computeAreaCarNums()
         let point = [newCar.locator.y / this.pointScale, newCar.locator.x / this.pointScale]
@@ -490,15 +487,11 @@ export default {
         }
         this.carMapNum = new Map([...this.carMapNum])
         // 如果这辆车位于未上传信息的车辆就删除原来信息
-        if (this.noUploadMap.has(locatorId)) {
-          const curIndex = this.noUploadMap.get(locatorId)
+        if (this.unbindCarMap.has(locatorId)) {
           // 从地图上移除marker
-          this.noUpLoadMarkers[curIndex].remove()
-          // 从数组中删除这一项
-          this.noUpLoadMarkers.splice(curIndex, 1)
-          this.noUploadCars.splice(curIndex, 1)
-          // 从映射表中删除
-          this.noUploadMap.delete(locatorId)
+          this.unbindMarkerMap.get(locatorId).remove()
+          this.unbindMarkerMap.delete(locatorId)
+          this.unbindCarMap.delete(locatorId)
           // 更新统计区域信息
           // 1 总统计数量-1
           this.carMapNum.set(this.mapInfo.id, this.carMapNum.get(this.mapInfo.id) - 1)
@@ -508,6 +501,7 @@ export default {
           }
           this.carMapNum = new Map([...this.carMapNum])
         }
+        // console.log(this.showingCars)
       }
     },
     unbind (data) {
@@ -518,12 +512,13 @@ export default {
       console.log('接收到unbind事件')
       const removeCar = JSON.parse(data)
       console.log(removeCar)
+      const locatorId = removeCar.vehicle.locatorId
       // 找到是否有这辆车
       let carIndex = this.bindCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
-      let shownCarIndex = this.showingCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
+      // let shownCarIndex = this.showingCars.findIndex((car) => car.vehicle.id === removeCar.vehicle.id)
       // 移除数据
-      if (carIndex !== -1 && shownCarIndex !== -1) { // 存在这辆车
-        console.log(this.carMarkerMap)
+      if (this.bindCarMap.has(locatorId)) { // 存在这辆车
+        // console.log(this.carMarkerMap)
         delete this.carMarkerMap[removeCar.locatorId]
         console.log(this.carMapNum)
         this.carMapNum.set(this.mapInfo.id, this.carMapNum.get(this.mapInfo.id) - 1)
@@ -533,27 +528,14 @@ export default {
         }
         this.carMapNum = new Map([...this.carMapNum])
         // this.bindCars.splice(carIndex, 1)
-        this.bindCars[carIndex] = null
-        this.showingCars.splice(shownCarIndex, 1)
+        // this.bindCars[carIndex] = null
+        this.bindCars.splice(carIndex, 1)
+        // this.showingCars.splice(shownCarIndex, 1)
         // 找出这个marker
         // 找到对应的marker
-        // this.carMapNum = this.computeAreaCarNums()
-        let markerIndex = this.markers.findIndex((item) => {
-          if (item && item.id) {
-            return item.id === removeCar.vehicle.id
-          } else {
-            return false
-          }
-        })
-        if (markerIndex !== -1) {
-          let currentMarker = this.markers[markerIndex].marker
-          // console.log(currentMarker)
-          // 删除marker
-          currentMarker.remove()
-          // this.markers.splice(markerIndex, 1)
-          this.markers[markerIndex] = null
-          // console.log(this.markers)
-        }
+        this.bindMarkerMap.get(locatorId).remove()
+        this.bindMarkerMap.delete(locatorId)
+        this.bindCarMap.delete(locatorId)
       }
     },
     changeBind (data) {
@@ -565,17 +547,17 @@ export default {
       this.bindCars[currentCarIndex] = car
       this.bindCars = [...this.bindCars]
       // 改变marker记录的定位器id
+      // this.bindMarkerMap.get()
       let markerIndex = this.markers.findIndex((item) => item.id === carId)
       if (markerIndex !== -1) {
         this.markers[markerIndex].locatorId = car.locator.id
         this.markers[markerIndex].marker.locatorId = car.locator.id
       }
-      console.log(this.markers)
-      console.log(this.bindCars)
     }
   },
   methods: {
     ...mapActions(['getMapInfo']),
+    tansMapValToArray,
     formatTimes: formatTime,
     // 获取车辆统计信息
     getCarTotal () {
@@ -789,20 +771,6 @@ export default {
       // console.log(new Data().valueOf())
       // let start = new Date().valueOf()
       let carMap = new Map()
-      // let mapPoints
-      // this.childMapInfos.forEach((mapInfo) => {
-      //   carMap.set(mapInfo.id, 0)
-      //   mapPoints = this.computeMapPoints(mapInfo)
-      //   for (let i = 0; i < this.bindCars.length; i++) {
-      //     let point = [this.bindCars[i].locator.y / this.pointScale, this.bindCars[i].locator.x / this.pointScale]
-      //     // console.log(point)
-      //     // console.log(mapPoints)
-      //     if (isInPolygon(point, mapPoints)) {
-      //       // console.log('+1')
-      //       carMap.set(mapInfo.id, carMap.get(mapInfo.id) + 1)
-      //     }
-      //   }
-      // })
       // 优化算法
       let mapBounds = this.childMapInfos.map((mapInfo) => {
         // console.log(mapInfo)
@@ -860,18 +828,9 @@ export default {
     },
     // hignliaght marker
     hignlightMarker (carId, car) {
-      let markerIndex = this.markers.findIndex((item) => {
-        if (item && item.id) {
-          return item.id === carId
-        } else {
-          return false
-        }
-      })
-      // console.log(markerIndex)
-      if (markerIndex !== -1) {
-        let currentMarker = this.markers[markerIndex].marker
-        // setPopupContent
-        // console.log(car)
+      if (car) {
+        console.log(car)
+        let currentMarker = this.bindMarkerMap.get(car.locatorId)
         // currentMarker.setPopupContent(`<div>车 架 号: ${car.vehicleIdentification}</div><div>标 签 号: ${car.locatorSn}</div><div>${car.locatorY + ' ' + car.locatorX}</div>`)
         let isOpenPopup = currentMarker.isPopupOpen()
         if (!isOpenPopup) {
@@ -942,7 +901,8 @@ export default {
       marker.on('click', this.clickMarker)
       marker.locatorId = info.id
       marker.angle = info.angle
-      this.noUpLoadMarkers.push(marker)
+      // this.noUpLoadMarkers.push(marker)
+      this.unbindMarkerMap.set(info.id, marker)
       this.map && marker.addTo(this.map)
     },
     // 渲染车辆点到地图上
@@ -974,6 +934,7 @@ export default {
       marker.on('click', this.clickMarker)
       // 判断是否是特殊区域点
       // const inSpeacalArea = (existenceZone) => {}
+      // console.log(car.locator)
       if (car.locator.existenceZone || car.locator.otherZone) { // 特殊区域点
         marker.inSpecialArea = true
         let zone = car.locator.existenceZone ? car.locator.existenceZone : car.locator.otherZone
@@ -984,19 +945,14 @@ export default {
         marker.inSpecialArea = false
         this.map && marker.addTo(this.map)
       }
-      // this.markers.push({
-      //   marker,
-      //   id: car.vehicle.id,
-      //   locatorId: car.locator.id
-      // })
       this.markers[index] = {
         marker,
         id: car.vehicle.id,
         locatorId: car.locator.id
       }
       this.carMarkerMap[car.locator.id] = index
-      // console.log(this.carMarkerMap)
-      // console.log(this.markers)
+      this.bindMarkerMap.set(car.locator.id, marker)
+      console.log(this.bindMarkerMap)
     },
     formatTime (s) {
       let repairTime = this.$moment().valueOf() - s
@@ -1010,7 +966,7 @@ export default {
         let { code, desc, result } = res
         if (code === 0) {
           this.showingCar = result.resultList[0]
-          let currentMarker = this.noUpLoadMarkers.find((item) => item.locatorId === locatorId)
+          let currentMarker = this.unbindMarkerMap.get(locatorId)
           // console.log(markerIndex)
           if (currentMarker) {
             let isOpenPopup = currentMarker.isPopupOpen()
@@ -1061,25 +1017,16 @@ export default {
         if (res.code === 0) {
           // this.start = new Date().valueOf()
           this.bindCars = res.result
+          this.bindCarMap = createBindCarMap(this.bindCars)
           if (!isInit) {
             // console.log('fresh')
-            // console.log(this.carListTime)
-            // this.bindCars = [...this.bindCars]
-            if (this.currentMapInfo.id === this.mapInfo.id) {
-              this.showingCars = this.bindCars
-            } else {
-              this.showingCars = this.bindCars.filter((car) => {
-                let point = [car.locator.y / this.pointScale, car.locator.x / this.pointScale]
-                let inArea = isInPolygon(point, this.currentMapPoints)
-                return inArea
-              })
-            }
+            this.bindCars = [...this.bindCars]
           }
           if (this.bindCars.length > 0 && isInit === true) {
             this.bindCars.forEach((car, index) => {
               this.renderMarker(car, index)
             })
-            this.showingCars = this.bindCars
+            // this.showingCars = this.bindCars
             this.renderChart()
             // 只有在数据加载完成后才开始操作指引
             this.$nextTick().then(() => {
@@ -1100,7 +1047,7 @@ export default {
       this.specalAreas = []
       this.divMarkers.forEach((item) => item.remove())
       this.divMarkers = []
-      this.showingCars = []
+      // this.showingCars = []
       this.carMarkerMap = {}
       this.noUploadCars = [] // 未上传信息的车辆列表
       this.noUpLoadMarkers.forEach((marker) => marker.remove())
@@ -1109,7 +1056,7 @@ export default {
       this.getBindCars(true)
     },
     // 改变地图上要显示的车
-    changeShowingMarkers (carIds) {
+    changeShowingMarkers (carIds = []) {
       // console.log(carIds)
       // console.log(this.markers)
       // 循环marker
@@ -1117,43 +1064,29 @@ export default {
         if (!carId) return false
         return carIds.some((id) => id === carId)
       }
-      this.markers.forEach((item) => {
-        if (!item) {
-          return
-        }
+      this.bindMarkerMap.forEach((marker, locatorId) => {
         // 符合的marker透明度设置为1，否则设置为0
-        if (canRender(item.id)) {
+        if (canRender(marker.carId)) {
           // item.marker.setOpacity(1)
-          if (!item.marker.isAddedToMap && !item.marker.inSpecialArea) {
-            // console.log(item.marker)
-            // console.log(item.marker.angle)
-            item.marker.addTo(this.map)
-            // item.marker.setRotation(item.marker.angle)
-            // let carScale = this.currentMapInfo.carScale || this.carScale
-            // console.log(carScale)
-            // this.setCarScaleAndRotate(item.marker, carScale, item.marker.angle)
-            item.marker.isAddedToMap = true
+          if (!marker.isAddedToMap && !marker.inSpecialArea) {
+            marker.addTo(this.map)
+            marker.isAddedToMap = true
           }
         } else {
-          // item.marker.setOpacity(0)
           // 移除点击事件
           // item.marker.off('click', this.clickMarker)
-          item.marker.isAddedToMap = false
-          item.marker.remove()
+          marker.isAddedToMap = false
+          marker.remove()
         }
         // eslint-disable-next-line no-debugger
         // debugger
-        if (item.marker.isAddedToMap === true) {
+        if (marker.isAddedToMap === true) {
           // let carScale = this.currentMapInfo.carScale || this.carScale
           let carScale = this.currentMapInfo.zoom ? computeCarScale(this.currentMapInfo.zoom) : initCarScale
           // console.log(carScale)
           // console.log(this.currentMapInfo)
-          this.setCarScaleAndRotate(item.marker, carScale, item.marker.angle)
+          this.setCarScaleAndRotate(marker, carScale, marker.angle)
         }
-      })
-      this.noUpLoadMarkers.forEach((marker) => {
-        let carScale = this.currentMapInfo.zoom ? computeCarScale(this.currentMapInfo.zoom) : initCarScale
-        this.setCarScaleAndRotate(marker, carScale, marker.angle)
       })
       this.setChart()
     },
@@ -1274,7 +1207,7 @@ export default {
         this.currentMapInfo = currentMapInfo
         this.currentMapPoints = mapPoints
         if (currentMapInfo.id === this.mapInfo.id) { // 广本地图
-          this.showingCars = this.bindCars
+          // this.showingCars = this.bindCars
           this.parks.length > 0 && this.parks.forEach((park) => park.addTo(this.map))
           // this.markers.forEach((item) => {
           //   if (item.marker.isAddedToMap === true) {
@@ -1283,24 +1216,11 @@ export default {
           // })
         } else {
           this.parks.length > 0 && this.parks.forEach((park) => park.remove())
-          this.showingCars = this.bindCars.filter((car) => {
-            let point = [car.locator.y / this.pointScale, car.locator.x / this.pointScale]
-            let inArea = isInPolygon(point, this.currentMapPoints)
-            // let currentMarker = this.markers.find((item) => item.id === car.vehicle.id).marker
-            // if (!inArea) { // 不在区域中的车，找出对应的marker并隐藏
-            //   currentMarker.remove()
-            //   currentMarker.isAddedToMap = false
-            // } else {
-            //   if (currentMarker.isAddedToMap === false) {
-            //     currentMarker.addTo(this.map)
-            //     currentMarker.isAddedToMap = true
-            //     // 改变车的大小和方向
-            //     // console.log(currentMapInfo.carScale)
-            //     // this.setCarScaleAndRotate(currentMarker, currentMapInfo.carScale, currentMarker.angle)
-            //   }
-            // }
-            return inArea
-          })
+          // this.showingCars = this.bindCars.filter((car) => {
+          //   let point = [car.locator.y / this.pointScale, car.locator.x / this.pointScale]
+          //   let inArea = isInPolygon(point, this.currentMapPoints)
+          //   return inArea
+          // })
         }
       }
     }
