@@ -202,7 +202,8 @@ import CarInfo from '../components/CarInfo'
 import ParkColor from '../components/ParkColor'
 import CarTypes from '../components/CarTypes'
 import {
-  initCarSize
+  initCarSize,
+  speLocatorId
 } from '../config/config'
 import echart from 'echarts'
 import bus from '@/bus/bus'
@@ -239,6 +240,7 @@ import alarmCar from '../assets/img/car-red.png'
 import overtimeCar from '../assets/img/car-yellow.png'
 import normalCar from '../assets/img/car-blue.png'
 import offlineCar from '../assets/img/car-offline.png'
+import speCar from '../assets/img/car-offline-bak.png'
 import {
   mapState,
   mapActions,
@@ -433,7 +435,7 @@ export default {
       // console.log(this.bindCars)
       const posList = JSON.parse(data).content
       console.log(posList)
-      posList.forEach((newPos) => {
+      posList.forEach((newPos, index) => {
         const locatorId = newPos.id
         // 找到对应的marker
         // let index = this.carMarkerMap[newPos.id]
@@ -447,7 +449,7 @@ export default {
           let currentCarIndex = this.bindCars.findIndex((car) => car.locator.id === locatorId)
           if (currentCarIndex !== -1) {
             // console.log(this.bindCars[currentCarIndex])
-            if (this.bindCars[currentCarIndex].locator.x === newPos.x && this.bindCars[currentCarIndex].locator.y === newPos.y) return
+            // if (this.bindCars[currentCarIndex].locator.x === newPos.x && this.bindCars[currentCarIndex].locator.y === newPos.y) return
             this.bindCars[currentCarIndex].locator.x = newPos.x
             this.bindCars[currentCarIndex].locator.y = newPos.y
           }
@@ -1206,6 +1208,9 @@ export default {
         case 'offline':
           carImg = offlineCar
           break
+        case 'spe':
+          carImg = speCar
+          break
         default:
           carImg = normalCar
           break
@@ -1222,6 +1227,9 @@ export default {
     },
     computedIconType (car) {
       let bindTime = car.vehicleDeliverStatus.bindTime
+      if (car.locator.sn === speLocatorId) {
+        return 'spe'
+      }
       // console.log(this.formatTime(bindTime))
       // console.log(this.overtime)
       // console.log(this.formatTime(bindTime) > this.overtime)
@@ -1244,7 +1252,7 @@ export default {
         initialRotationAngle: 0,
         // title: car.locator.sn + ' ' + car.locator.y + ' ' + car.locator.x
       })
-      marker.bindPopup(`<div>车 架 号: ---</div><div>标 签 号: ${info.sn}</div><div>位 置 : ${info.address}</div>`)
+      marker.bindPopup(`<div>车 架 号: ---</div><div>标 签 号: ${info.sn}</div><div>位 置 : ${info.address || '---'}</div>`)
       // marker.on('click', this.clickMarker)
       marker.locatorId = info.id
       marker.angle = info.angle
@@ -1270,7 +1278,7 @@ export default {
       // 为marker绑上车和定位器的ID
       marker.carId = car.vehicle.id
       marker.locatorId = car.locator.id
-      marker.bindPopup(`<div>车 架 号: ${car.vehicle.identification}</div><div>标 签 号: ${car.locator.sn}</div><div>位 置 : ${car.locator.address}</div>`)
+      marker.bindPopup(`<div>车 架 号: ${car.vehicle.identification}</div><div>标 签 号: ${car.locator.sn}</div><div>位 置 : ${car.locator.address || '---'}</div>`)
       // 判断是否是特殊区域点
       // const inSpeacalArea = (existenceZone) => {}
       if (car.locator.existenceZone || car.locator.otherZone) { // 特殊区域点

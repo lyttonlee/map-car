@@ -10,6 +10,8 @@ export const vqMapZoom = 8.7
 
 export const vqCarScale = 0.45
 
+export const speLocatorId = '38731'
+
 export const introOption = {
   prevLabel: '上一步',
   nextLabel: '下一步',

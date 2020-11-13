@@ -27,8 +27,8 @@ moment.locale('zh-cn')
 
 const hostname = window.location.hostname
 // console.log(hostname)
-// const devUrl = 'http://10.110.73.208:9099'
-const devUrl = 'http://192.168.1.50:9099'
+const devUrl = 'http://10.110.73.208:9099'
+// const devUrl = 'http://192.168.1.50:9099'
 const socketUrl = process.env.NODE_ENV === 'development' ? devUrl : `http://${hostname}:9099`
 
 Vue.use(VueIntro)
