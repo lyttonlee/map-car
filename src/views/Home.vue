@@ -945,7 +945,7 @@ export default {
       // const inSpeacalArea = (existenceZone) => {}
       // console.log(car.locator)
       // console.log(car.locator.angle)
-      this.$nextTick().then(() => marker.setRotation(car.locator.angle))
+      this.$nextTick().then(() => marker.setRotation(car.locator.angle || 0))
       // marker.setRotation(car.locator.angle || 0)
       if (car.locator.existenceZone || car.locator.otherZone) { // 特殊区域点
         marker.inSpecialArea = true
