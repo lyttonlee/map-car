@@ -152,7 +152,7 @@ import successCar from '../assets/img/car-blue.png'
 import errorCar from '../assets/img/car-red.png'
 import warnCar from '../assets/img/car-yellow.png'
 import offlineCar from '../assets/img/car-offline.png'
-import speCar from '../assets/img/car-offline-bak.png'
+// import speCar from '../assets/img/car-offline-bak.png'
 import {
   initCarSize, initCarScale, introOption, speLocatorId,
 } from '../config/config'
@@ -319,7 +319,7 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const posList = JSON.parse(data).content
-      console.log(posList)
+      // console.log(posList)
       posList.forEach((newPos, index) => {
         const locatorId = newPos.id
         // 找到对应的marker
@@ -864,7 +864,7 @@ export default {
           carImg = offlineCar
           break
         case 'spe':
-          carImg = speCar
+          carImg = errorCar
           break
         default:
           carImg = successCar
@@ -944,6 +944,9 @@ export default {
       // 判断是否是特殊区域点
       // const inSpeacalArea = (existenceZone) => {}
       // console.log(car.locator)
+      // console.log(car.locator.angle)
+      this.$nextTick().then(() => marker.setRotation(car.locator.angle))
+      // marker.setRotation(car.locator.angle || 0)
       if (car.locator.existenceZone || car.locator.otherZone) { // 特殊区域点
         marker.inSpecialArea = true
         let zone = car.locator.existenceZone ? car.locator.existenceZone : car.locator.otherZone
@@ -961,7 +964,7 @@ export default {
       }
       this.carMarkerMap[car.locator.id] = index
       this.bindMarkerMap.set(car.locator.id, marker)
-      console.log(this.bindMarkerMap)
+      // console.log(this.bindMarkerMap)
     },
     formatTime (s) {
       let repairTime = this.$moment().valueOf() - s

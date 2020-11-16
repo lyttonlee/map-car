@@ -240,7 +240,7 @@ import alarmCar from '../assets/img/car-red.png'
 import overtimeCar from '../assets/img/car-yellow.png'
 import normalCar from '../assets/img/car-blue.png'
 import offlineCar from '../assets/img/car-offline.png'
-import speCar from '../assets/img/car-offline-bak.png'
+// import speCar from '../assets/img/car-offline-bak.png'
 import {
   mapState,
   mapActions,
@@ -1209,7 +1209,7 @@ export default {
           carImg = offlineCar
           break
         case 'spe':
-          carImg = speCar
+          carImg = alarmCar
           break
         default:
           carImg = normalCar
@@ -1280,6 +1280,7 @@ export default {
       marker.locatorId = car.locator.id
       marker.bindPopup(`<div>车 架 号: ${car.vehicle.identification}</div><div>标 签 号: ${car.locator.sn}</div><div>位 置 : ${car.locator.address || '---'}</div>`)
       // 判断是否是特殊区域点
+      this.$nextTick().then(() => marker.setRotation(car.locator.angle || 0))
       // const inSpeacalArea = (existenceZone) => {}
       if (car.locator.existenceZone || car.locator.otherZone) { // 特殊区域点
         marker.inSpecialArea = true
