@@ -203,7 +203,7 @@ import ParkColor from '../components/ParkColor'
 import CarTypes from '../components/CarTypes'
 import {
   initCarSize,
-  speLocatorId
+  // speLocatorId
 } from '../config/config'
 import echart from 'echarts'
 import bus from '@/bus/bus'
@@ -1227,9 +1227,9 @@ export default {
     },
     computedIconType (car) {
       let bindTime = car.vehicleDeliverStatus.bindTime
-      if (car.locator.sn === speLocatorId) {
-        return 'spe'
-      }
+      // if (car.locator.sn === speLocatorId) {
+      //   return 'spe'
+      // }
       // console.log(this.formatTime(bindTime))
       // console.log(this.overtime)
       // console.log(this.formatTime(bindTime) > this.overtime)

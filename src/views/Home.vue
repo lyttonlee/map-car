@@ -154,7 +154,7 @@ import warnCar from '../assets/img/car-yellow.png'
 import offlineCar from '../assets/img/car-offline.png'
 // import speCar from '../assets/img/car-offline-bak.png'
 import {
-  initCarSize, initCarScale, introOption, speLocatorId,
+  initCarSize, initCarScale, introOption,
 } from '../config/config'
 import {
   getBindList,
@@ -884,9 +884,9 @@ export default {
       // console.log(this.formatTime(bindTime))
       // console.log(this.overtime)
       // console.log(this.formatTime(bindTime) > this.overtime)
-      if (car.locator.sn === speLocatorId) {
-        return 'spe'
-      }
+      // if (car.locator.sn === speLocatorId) {
+      //   return 'spe'
+      // }
       if (this.formatTime(bindTime) * 1 > this.overtime * 1) {
         // console.log(true)
         return 'overtime'
