@@ -1108,7 +1108,7 @@ export default {
       for (let i = 0; i < this.specalAreas.length; i++) {
         // console.log(this.specalAreas[i].name)
         // console.log(typeof name)
-        if (name.includes(this.specalAreas[i].name)) {
+        if (name === this.specalAreas[i].name) {
           // console.log('+1 -1')
           if (isAdd === true) {
             this.specalAreas[i].sum++
@@ -1124,10 +1124,13 @@ export default {
       // 测试功能信息 - 聚合
       const myIcon = L.divIcon({
         className: 'marker-circle',
-        html: specalArea.sum
+        html: specalArea.sum,
+        iconAnchor: [25, 25],
+        iconSize: [50, 50]
       })
       let center = [specalArea.center.y / this.pointScale, specalArea.center.x / this.pointScale]
-      // console.log(center)
+      console.log(center)
+      console.log(specalArea.name)
       let divMarker = L.marker(center, { icon: myIcon })
       divMarker.name = specalArea.name
       divMarker.id = specalArea.id
@@ -1145,7 +1148,9 @@ export default {
       if (currentDivMarker) {
         const myIcon = L.divIcon({
           className: 'marker-circle',
-          html: area.sum
+          html: area.sum,
+          iconAnchor: [25, 25],
+          iconSize: [50, 50]
         })
         currentDivMarker.setIcon(myIcon)
       }
