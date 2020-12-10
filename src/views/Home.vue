@@ -421,28 +421,28 @@ export default {
               currentMarker.moveTo([newPos.y / this.pointScale, newPos.x / this.pointScale], 500, newPos.angle)
               currentMarker.angle = newPos.angle
               // 计算区域
-              let point = [newPos.y / this.pointScale, newPos.x / this.pointScale]
-              let mapId = this.computeWhichArea(point)
-              if (this.unbindCarMap.get(locatorId).areaId !== mapId) {
-                if (this.unbindCarMap.get(locatorId).areaId !== -1) {
-                  this.carMapNum.set(this.unbindCarMap.get(locatorId).areaId, this.carMapNum.get(this.unbindCarMap.get(locatorId).areaId) - 1)
-                }
-                if (mapId !== -1) {
-                  this.carMapNum.set(mapId, this.carMapNum.get(mapId) + 1)
-                }
-                this.unbindCarMap.get(locatorId).areaId = mapId
-                this.carMapNum = new Map([...this.carMapNum])
-              }
+              // let point = [newPos.y / this.pointScale, newPos.x / this.pointScale]
+              // let mapId = this.computeWhichArea(point)
+              // if (this.unbindCarMap.get(locatorId).areaId !== mapId) {
+              //   if (this.unbindCarMap.get(locatorId).areaId !== -1) {
+              //     this.carMapNum.set(this.unbindCarMap.get(locatorId).areaId, this.carMapNum.get(this.unbindCarMap.get(locatorId).areaId) - 1)
+              //   }
+              //   if (mapId !== -1) {
+              //     this.carMapNum.set(mapId, this.carMapNum.get(mapId) + 1)
+              //   }
+              // this.unbindCarMap.get(locatorId).areaId = mapId
+              //   this.carMapNum = new Map([...this.carMapNum])
+              // }
             } else { // 不存在 添加这两车
               // 计算区域
               let point = [newPos.y / this.pointScale, newPos.x / this.pointScale]
               let mapId = this.computeWhichArea(point)
               newPos.areaId = mapId
-              if (mapId !== -1) {
-                this.carMapNum.set(mapId, this.carMapNum.get(mapId) + 1)
-              }
-              this.carMapNum.set(this.mapInfo.id, this.carMapNum.get(this.mapInfo.id) + 1)
-              this.carMapNum = new Map([...this.carMapNum])
+              // if (mapId !== -1) {
+              //   this.carMapNum.set(mapId, this.carMapNum.get(mapId) + 1)
+              // }
+              // this.carMapNum.set(this.mapInfo.id, this.carMapNum.get(this.mapInfo.id) + 1)
+              // this.carMapNum = new Map([...this.carMapNum])
               this.unbindCarMap.set(locatorId, newPos)
               this.unbindCarMap = new Map([...this.unbindCarMap])
               // this.noUploadCars.push(newPos)
@@ -503,12 +503,12 @@ export default {
           this.unbindCarMap.delete(locatorId)
           // 更新统计区域信息
           // 1 总统计数量-1
-          this.carMapNum.set(this.mapInfo.id, this.carMapNum.get(this.mapInfo.id) - 1)
-          // 2 判断是否区域数量减一
-          if (mapId !== -1) {
-            this.carMapNum.set(mapId, this.carMapNum.get(mapId) - 1)
-          }
-          this.carMapNum = new Map([...this.carMapNum])
+          // this.carMapNum.set(this.mapInfo.id, this.carMapNum.get(this.mapInfo.id) - 1)
+          // // 2 判断是否区域数量减一
+          // if (mapId !== -1) {
+          //   this.carMapNum.set(mapId, this.carMapNum.get(mapId) - 1)
+          // }
+          // this.carMapNum = new Map([...this.carMapNum])
         }
         // console.log(this.showingCars)
       }
