@@ -311,9 +311,9 @@ export default {
       }
     },
     position (data) {
-      const start = new Date()
+      // const start = new Date()
       console.log('接收到position事件推送')
-      console.log(`开始时间：${start}`)
+      // console.log(`开始时间：${start}`)
       if (!this.isLoadOK) {
         // console.log('页面数据尚未计算完成，忽略本次位置推送')
         return
@@ -321,9 +321,9 @@ export default {
       // console.log(data)
       // console.log(this.bindCars)
       const posList = JSON.parse(data).content
-      console.log(`列表长度:${posList.length}`)
-      console.log(posList[0])
-      console.log(`位置点记录时间: ${this.$moment(posList[0].positionTime).format('YYYY-MM-DD HH:mm:ss')}`)
+      // console.log(`列表长度:${posList.length}`)
+      // console.log(posList[0])
+      // console.log(`位置点记录时间: ${this.$moment(posList[0].positionTime).format('YYYY-MM-DD HH:mm:ss')}`)
       posList.forEach((newPos, index) => {
         const locatorId = newPos.id
         // 找到对应的marker
@@ -459,8 +459,8 @@ export default {
         }
       })
       // 旧逻辑
-      const end = new Date().valueOf()
-      console.log(`处理时间:${(end - start.valueOf())}毫秒`)
+      // const end = new Date().valueOf()
+      // console.log(`处理时间:${(end - start.valueOf())}毫秒`)
     },
     bind (data) {
       if (!this.isLoadOK) {
