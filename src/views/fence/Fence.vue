@@ -83,7 +83,11 @@
       </div>
       <div class="content">
         <el-table :data="fences" size="mini" @filter-change="clearFilter">
-          <el-table-column label="围栏名称" prop="name"></el-table-column>
+          <el-table-column label="围栏名称">
+            <template slot-scope="scope">
+              <span class="pointer" @click="hilightFence(scope.row)">{{scope.row.name}}</span>
+            </template>
+          </el-table-column>
           <el-table-column
             label="类型"
             prop="type"
@@ -240,6 +244,22 @@ export default {
   },
   methods: {
     ...mapActions(['getMapInfo']),
+    hilightFence (fence) {
+      console.log(fence)
+      if (this.highlightFence) {
+        this.map && this.highlightFence.remove()
+      }
+      let points = fence.points.split(';')
+      console.log(fence)
+      let formatPoints = points.map((point) => {
+        let [x, y] = point.split('_')
+        return [y / this.pointScale, x / this.pointScale]
+      })
+      console.log(formatPoints)
+      const polygon = L.polygon(formatPoints, { color: '#741ce7', weight: 8 })
+      this.highlightFence = polygon
+      this.map && polygon.addTo(this.map)
+    },
     changeMapZoom (zoom) {
       console.log(zoom)
       this.map.setZoom(zoom)
@@ -845,6 +865,10 @@ export default {
       box-sizing: border-box;
       max-height: 70vh;
       overflow-y: auto;
+      .pointer {
+        cursor: pointer;
+        // color: #741ce7;
+      }
     }
   }
 }
