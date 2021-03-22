@@ -4,7 +4,7 @@
 import successCar from '../assets/img/car-blue.png'
 import errorCar from '../assets/img/car-red.png'
 import warnCar from '../assets/img/car-yellow.png'
-import offlineCar from '../assets/img/car-offline.png'
+import offlineCar from '../assets/img/car-offline-bak.png'
 import speCar from '../assets/img/car-spe.png'
 import {
   initCarSize
@@ -90,6 +90,24 @@ export const createNumTooltip = (index = null) => {
     styleName = 'tooltip-circle-first'
   }
   const content = `<div class="${styleName}">${index + 1}</div>`
+  const option = {
+    // Anchor: [10, 10],
+    // tooltipAnchor: [20, 20],
+    offset: [0, 35],
+    direction: 'bottom',
+    permanent: true,
+    // sticky: true,
+    className: 'custom-tooltip',
+    opacity: 0.8
+  }
+  return [content, option]
+}
+
+export const createVinTooltip = (vin = '') => {
+  const con = vin.substring(vin.length - 5, vin.length)
+  console.log(con)
+  let styleName = 'tooltip-vin'
+  const content = `<div class="${styleName}">${con}</div>`
   const option = {
     // Anchor: [10, 10],
     // tooltipAnchor: [20, 20],

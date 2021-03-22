@@ -23,7 +23,8 @@ import {
   updatePosition,
   // createTooltip,
   drawLine,
-  createNumTooltip
+  createNumTooltip,
+  createVinTooltip
 } from '../utils/spe'
 import TableItem from '../components/TableItem'
 export default {
@@ -110,6 +111,7 @@ export default {
       // todo..
       unbindList.forEach((vin, index) => {
         const marker = createVMCar(vin, this.mapInfo.carScale, index)
+        marker.bindTooltip(...createVinTooltip(vin)).openTooltip()
         this.unbindMap.push(marker)
         marker.addTo(this.map)
         marker.setRotation(270)
